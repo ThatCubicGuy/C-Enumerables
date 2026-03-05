@@ -8,6 +8,6 @@
 #define new(TYPE) ((TYPE*)malloc(sizeof(TYPE)))
 #define new_arr(ARRAY_TYPE, CAPACITY) ((ARRAY_TYPE*)malloc(sizeof(ARRAY_TYPE) * CAPACITY))
 
-typedef void* object;
+typedef const void* object;
 
 #endif

@@ -20,18 +20,18 @@ void DestroyList(List** list);
 /// @brief Add an element to the end of the list.
 /// @param list List to add an element to.
 /// @param item Item to add to the end of the list.
-void List_Add(List* source, const object item);
+void List_Add(List* source, object item);
 
 /// @brief Removes an element from the list.
 /// @param source List to remove the element from.
 /// @param item Item to remove from the list.
-void List_Remove(List* source, const object item);
+void List_Remove(List* source, object item);
 
 /// @brief Insert an item into the list at the given index.
 /// @param source List to insert the element into.
 /// @param item Item to insert into the list.
 /// @param index Index to insert the item at.
-void List_Insert(List* source, const object item, int index);
+void List_Insert(List* source, object item, int index);
 
 /// @brief Ensures the given list has the capacity to hold a given amount of items.
 /// @param source List to ensure the capacity for.

@@ -13,6 +13,7 @@ typedef struct generic_enumerator_s {
 
 static void ModifiedReset(IEnumerator *This)
 {
+    This->Current = NULL;
     ModifiedEnumerator* e = (ModifiedEnumerator*)This;
     e->_currentEnumerator->Reset(e->_currentEnumerator);
 }
@@ -64,6 +65,10 @@ static IEnumerator* GetWhereEnumerator(const IEnumerable *This)
     return (IEnumerator*)result;
 }
 
+/// @brief Filters a sequence based on a predicate.
+/// @param source Enumerable to filter.
+/// @param filter Condition that the elements must fulfill to be taken from the sequence.
+/// @return A new enumerable.
 IEnumerable* Enumerable_Where(const IEnumerable* source, PredicateFunc* filter)
 {
     WhereEnumerable* result = new(WhereEnumerable);
@@ -351,8 +356,122 @@ IEnumerable* Enumerable_Skip(const IEnumerable* source, int count)
 
 #pragma endregion
 
+#pragma region Append / Prepend
+
+typedef struct extended_enumerable_s {
+    IEnumerable _parent;
+    const IEnumerable* _baseEnumerable;
+    object _added;
+} ExtendEnumerable;
+
+typedef struct extended_enumerator_s {
+    ModifiedEnumerator _parent;
+    bool _hasEnumeratedExtra;
+} ExtendEnumerator;
+
+static void ExtendReset(IEnumerator *This)
+{
+    ((ExtendEnumerator*)This)->_hasEnumeratedExtra = false;
+    ModifiedReset(This);
+}
+
+static bool AppendMoveNext(IEnumerator *This)
+{
+    ModifiedEnumerator* modified = (ModifiedEnumerator*)This;
+    if (modified->_currentEnumerator->MoveNext(modified->_currentEnumerator)) {
+        This->Current = modified->_currentEnumerator->Current;
+        return true;
+    } else if (!((ExtendEnumerator*)This)->_hasEnumeratedExtra) {
+        This->Current = ((ExtendEnumerable*)modified->_baseEnumerable)->_added;
+        ((ExtendEnumerator*)This)->_hasEnumeratedExtra = true;
+        return true;
+    }
+
+    return false;
+}
+
+static IEnumerator* GetAppendEnumerator(const IEnumerable *This)
+{
+    const ExtendEnumerable* extend = (const ExtendEnumerable*)This;
+
+    ExtendEnumerator* result = new(ExtendEnumerator);
+
+    *result = (ExtendEnumerator) {
+        ._parent = (ModifiedEnumerator) {
+            ._parent = (IEnumerator) {
+                .MoveNext = AppendMoveNext,
+                .Reset = ExtendReset,
+                .Dispose = ModifiedDispose
+            },
+            ._currentEnumerator = extend->_baseEnumerable->GetEnumerator(extend->_baseEnumerable),
+            ._baseEnumerable = (const IEnumerable*)extend
+        },
+        ._hasEnumeratedExtra = false
+    };
+
+    return (IEnumerator*)result;
+}
+
+static bool PrependMoveNext(IEnumerator *This)
+{
+    ModifiedEnumerator* modified = (ModifiedEnumerator*)This;
+    if (!((ExtendEnumerator*)This)->_hasEnumeratedExtra) {
+        This->Current = ((ExtendEnumerable*)modified->_baseEnumerable)->_added;
+        ((ExtendEnumerator*)This)->_hasEnumeratedExtra = true;
+        return true;
+    } else if (modified->_currentEnumerator->MoveNext(modified->_currentEnumerator)) {
+        This->Current = modified->_currentEnumerator->Current;
+        return true;
+    }
+
+    return false;
+}
+
+static IEnumerator* GetPrependEnumerator(const IEnumerable *This)
+{
+    const ExtendEnumerable* extend = (const ExtendEnumerable*)This;
+
+    ExtendEnumerator* result = new(ExtendEnumerator);
+
+    *result = (ExtendEnumerator) {
+        ._parent = (ModifiedEnumerator) {
+            ._parent = (IEnumerator) {
+                .MoveNext = PrependMoveNext,
+                .Reset = ExtendReset,
+                .Dispose = ModifiedDispose
+            },
+            ._currentEnumerator = extend->_baseEnumerable->GetEnumerator(extend->_baseEnumerable),
+            ._baseEnumerable = (const IEnumerable*)extend
+        },
+        ._hasEnumeratedExtra = false
+    };
+
+    return (IEnumerator*)result;
+}
+
+IEnumerable* Enumerable_Append(const IEnumerable* source, object item)
+{
+    ExtendEnumerable* result = new(ExtendEnumerable);
+
+    *result = (ExtendEnumerable) {
+        ._parent = (IEnumerable) {
+            .GetEnumerator = GetAppendEnumerator
+        },
+        ._baseEnumerable = source,
+        ._added = item
+    };
+
+    return (IEnumerable*)result;
+}
+
+#pragma endregion
+
 #pragma region Non-Tunnels
 
+/// @brief Returns the element at the given zero-based index of the sequence.
+/// @param source Enumerable to extract the element from.
+/// @param index Index of the element.
+/// @return The element at the specified index.
 object Enumerable_ElementAt(const IEnumerable* source, int index)
 {
     IEnumerator* e = source->GetEnumerator(source);
@@ -421,7 +540,7 @@ object Enumerable_Aggregate(const IEnumerable* source, AggregateFunc* aggregate)
 /// @param source Enumerable to search in.
 /// @param item Item to search for.
 /// @return The zero-based index of this item in the sequence.
-int Enumerable_IndexOf(const IEnumerable* source, const object item)
+int Enumerable_IndexOf(const IEnumerable* source, object item)
 {
     IEnumerator* e = source->GetEnumerator(source);
     
