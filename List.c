@@ -43,7 +43,7 @@ static IEnumerator* ListGetEnumerator(IEnumerable* This)
 void List_EnsureCapacity(List* source, int capacity)
 {
     if (source->Capacity < capacity) {
-        source->_items = realloc(source->_items, capacity);
+        source->_items = realloc(source->_items, sizeof(void*) * capacity);
         source->Capacity = capacity;
     }
 }
@@ -53,7 +53,7 @@ void List_EnsureCapacity(List* source, int capacity)
 void List_TrimExcess(List* source)
 {
     if (source->Count < source->Capacity * 0.9) {
-        source->_items = realloc(source->_items, source->Count);
+        source->_items = realloc(source->_items, sizeof(void*) * source->Count);
         source->Capacity = source->Count;
     }
 }
@@ -67,6 +67,22 @@ void List_Add(List* source, object item)
         List_EnsureCapacity(source, source->Capacity * 2);
     }
     source->_items[source->Count++] = item;
+}
+
+/// @brief Removes an element from the list.
+/// @param source List to remove the element from.
+/// @param item Item to remove from the list.
+void List_Remove(List* source, object item)
+{
+    for (int i = 0; i < source->Count; ++i) {
+        if (source->_items[i] == item) {
+            source->Count -= 1;
+            for (int j = i; j < source->Count; ++j) {
+                source->_items[j] = source->_items[j + 1];
+            }
+            return;
+        }
+    }
 }
 
 /// @brief Insert an item into the list at the given index.

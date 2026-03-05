@@ -2,6 +2,12 @@
 #include "LinkedList.h"
 #include "List.h"
 
+static void ShowValues(IEnumerable* source)
+{
+    IEnumerator* enumerator = source->GetEnumerator(source);
+    while (enumerator->MoveNext(enumerator)) fprintf(stderr, "Success! Value: %d\n", *(int*)(enumerator->Current));
+}
+
 object selector(object item)
 {
     int* result = new(int);
@@ -23,27 +29,42 @@ bool filter(object item)
 
 int main(void)
 {
-    int x = 4, y = 1, z = 5;
-    object items[] = { &x, &y, &z };
-    printf("Array items: %d, %d, %d\n", *(int*)items[0], *(int*)items[1], *(int*)items[2]);
+    int x = 4, y = 1, z = 5, t = 17;
+    object items[] = { &t, &x, &y, &z };
     List* list = CreateList(7);
     printf("Item count: %d\nList capacity: %d\n", list->Count, list->Capacity);
-    List_Add(list, &x);
-    List_Add(list, &y);
-    List_Add(list, &z);
-    printf("Item count: %d\nList capacity: %d\n", list->Count, list->Capacity);
+    printf("Array items: ");
+    for (int i = 0; i < 4; ++i)
+    {
+        printf("%d, ", *(int*)items[i]);
+        List_Add(list, items[i]);
+        fprintf(stderr, "Loop number: %d\n", i);
+    }
+    printf("\nItem count: %d\nList capacity: %d\n", list->Count, list->Capacity);
     List_TrimExcess(list);
     printf("Item count: %d\nList capacity: %d\n", list->Count, list->Capacity);
-    IEnumerable* enumerable = Enumerable_Select((IEnumerable*)list, selector);
-    IEnumerator* enumerator = ((IEnumerable*)list)->GetEnumerator((IEnumerable*)list);
-    while (enumerator->MoveNext(enumerator)) printf("Success! Value: %d\n", *(int*)(enumerator->Current));
+    List_EnsureCapacity(list, 15);
+    printf("Item count: %d\nList capacity: %d\n", list->Count, list->Capacity);
+    for (int i = 0; i < 12; ++i)
+    {
+        List_Add(list, items[1]);
+    }
+    printf("Item count: %d\nList capacity: %d\n", list->Count, list->Capacity);
+    for (int i = 0; i < 12; ++i)
+    {
+        List_Remove(list, items[1]);
+    }
+    List_TrimExcess(list);
+    printf("Item count: %d\nList capacity: %d\n", list->Count, list->Capacity);
+    IEnumerable* enumerable = (IEnumerable*)list;
+    ShowValues(enumerable);
     printf("Selector function that adds 3:\n");
-    enumerator = enumerable->GetEnumerator(enumerable);
-    while (enumerator->MoveNext(enumerator)) printf("Success! Value: %d\n", *(int*)(enumerator->Current));
+    enumerable = Enumerable_Select(enumerable, selector);
+    ShowValues(enumerable);
     printf("Selector function that deducts 4:\n");
     enumerable = Enumerable_Select(enumerable, selector2);
-    enumerator = enumerable->GetEnumerator(enumerable);
-    while (enumerator->MoveNext(enumerator)) printf("Success! Value: %d\n", *(int*)(enumerator->Current));
+    ShowValues(enumerable);
     printf("select only even numbers:\n");
     enumerable = Enumerable_Where(enumerable, filter);
+    ShowValues(enumerable);
 }
