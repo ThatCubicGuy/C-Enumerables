@@ -32,6 +32,10 @@ IEnumerable* Enumerable_SelectMany(const IEnumerable* source, SelectManyFunc* se
 
 typedef object AggregateFunc(const object, const object);
 
+/// @brief Applies an accumulator function over a sequence.
+/// @param source Enumerable to aggregate.
+/// @param aggregate Accumulator function to apply.
+/// @return The final accumulation value.
 object Enumerable_Aggregate(const IEnumerable* source, AggregateFunc* aggregate);
 
 /// @brief Determines if any element of a sequence satisfies a condition.
@@ -57,5 +61,17 @@ IEnumerable* Enumerable_Take(const IEnumerable* source, int count);
 /// @param count Amount of items to skip.
 /// @return A new enumerable.
 IEnumerable* Enumerable_Skip(const IEnumerable* source, int count);
+
+/// @brief Searches for the given element in a sequence and returns the zero-based index of this element.
+/// @param source Enumerable to search in.
+/// @param item Item to search for.
+/// @return The zero-based index of this item in the sequence.
+int Enumerable_IndexOf(const IEnumerable* source, const object item);
+
+/// @brief Returns the first element of the sequence that satisfies the condition.
+/// @param source Enumerable to search in.
+/// @param predicate Condition to satisfy.
+/// @return The first element that satisfies the predicate.
+object Enumerable_FirstOrDefault(const IEnumerable* source, PredicateFunc* predicate);
 
 #endif

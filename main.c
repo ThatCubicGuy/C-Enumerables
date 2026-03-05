@@ -4,8 +4,9 @@
 
 static void ShowValues(IEnumerable* source)
 {
-    IEnumerator* enumerator = source->GetEnumerator(source);
-    while (enumerator->MoveNext(enumerator)) fprintf(stderr, "Success! Value: %d\n", *(int*)(enumerator->Current));
+    IEnumerator* e = source->GetEnumerator(source);
+    while (e->MoveNext(e)) fprintf(stderr, "Success! Value: %d\n", *(int*)(e->Current));
+    e->Dispose(e);
 }
 
 object selector(const object item)
@@ -18,7 +19,7 @@ object selector(const object item)
 object selector2(const object item)
 {
     int* result = new(int);
-    *result = (*(const int*)item) - 4;
+    *result = (*(const int*)item) / 2;
     return result;
 }
 
@@ -57,10 +58,10 @@ int main(void)
     printf("Selector function that adds 3:\n");
     enumerable = Enumerable_Select(enumerable, selector);
     ShowValues(enumerable);
-    printf("Selector function that deducts 4:\n");
+    printf("Selector function that divides by 2:\n");
     enumerable = Enumerable_Select(enumerable, selector2);
     ShowValues(enumerable);
-    printf("select only even numbers:\n");
+    printf("Where numbers are even:\n");
     enumerable = Enumerable_Where(enumerable, filter);
     ShowValues(enumerable);
     printf("Project each value into an array of three times the thing:\n");
@@ -69,10 +70,12 @@ int main(void)
     printf("Take only the first five items:\n");
     enumerable = Enumerable_Take(enumerable, 5);
     ShowValues(enumerable);
-    printf("Skip the first three items:\n");
-    enumerable = Enumerable_Skip(enumerable, 3);
+    printf("Skip the first two items:\n");
+    enumerable = Enumerable_Skip(enumerable, 2);
     ShowValues(enumerable);
     printf("Original list enumeration:\n");
     enumerable = (IEnumerable*)list;
     ShowValues(enumerable);
+    printf("First even number in the list: %d\n", *(int*)Enumerable_FirstOrDefault(enumerable, filter));
+    printf("Index of first even number in the list: %d\n", Enumerable_IndexOf(enumerable, Enumerable_FirstOrDefault(enumerable, filter)));
 }

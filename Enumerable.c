@@ -3,11 +3,6 @@
 #include "List.h"
 #include "LinkedList.h"
 
-bool Enumerator_MoveNext(IEnumerator enumerator)
-{
-    return enumerator.MoveNext(&enumerator);
-}
-
 #pragma region Generics
 
 typedef struct generic_enumerator_s {
@@ -16,13 +11,13 @@ typedef struct generic_enumerator_s {
     const IEnumerable* _baseEnumerable;
 } ModifiedEnumerator;
 
-static void Reset(IEnumerator *This)
+static void ModifiedReset(IEnumerator *This)
 {
     ModifiedEnumerator* e = (ModifiedEnumerator*)This;
     e->_currentEnumerator->Reset(e->_currentEnumerator);
 }
 
-static void Dispose(IEnumerator *This)
+static void ModifiedDispose(IEnumerator *This)
 {
     ModifiedEnumerator* e = (ModifiedEnumerator*)This;
     e->_currentEnumerator->Dispose(e->_currentEnumerator);
@@ -59,8 +54,8 @@ static IEnumerator* GetWhereEnumerator(const IEnumerable *This)
     *result = (ModifiedEnumerator) {
         ._parent = (IEnumerator) {
             .MoveNext = WhereMoveNext,
-            .Reset = Reset,
-            .Current = Dispose
+            .Reset = ModifiedReset,
+            .Dispose = ModifiedDispose
         },
         ._currentEnumerator = where->_baseEnumerable->GetEnumerator(where->_baseEnumerable),
         ._baseEnumerable = (const IEnumerable*)where
@@ -112,8 +107,8 @@ static IEnumerator* GetSelectEnumerator(const IEnumerable *This)
     *result = (ModifiedEnumerator) {
         ._parent = (IEnumerator) {
             .MoveNext = SelectMoveNext,
-            .Reset = Reset,
-            .Dispose = Dispose
+            .Reset = ModifiedReset,
+            .Dispose = ModifiedDispose
         },
         ._currentEnumerator = select->_baseEnumerable->GetEnumerator(select->_baseEnumerable),
         ._baseEnumerable = (const IEnumerable*)select
@@ -164,12 +159,28 @@ static bool SelectManyMoveNext(IEnumerator *This)
         This->Current = selectMany->_innerEnumerator->Current;
         return true;
     } else if (selectMany->_outerEnumerator->MoveNext(selectMany->_outerEnumerator)) {
+        if (selectMany->_innerEnumerator != NULL) selectMany->_innerEnumerator->Dispose(selectMany->_innerEnumerator);
         IEnumerable* result = ((const SelectManyEnumerable*)selectMany->_baseEnumerable)->_selector(selectMany->_outerEnumerator->Current);
         selectMany->_innerEnumerator = result->GetEnumerator(result);
         return SelectManyMoveNext(This);
     }
 
     return false;
+}
+
+static void SelectManyReset(IEnumerator *This)
+{
+    SelectManyEnumerator* selectMany = (SelectManyEnumerator*)This;
+    selectMany->_innerEnumerator = NULL;
+    selectMany->_outerEnumerator->Reset(selectMany->_outerEnumerator);
+}
+
+static void SelectManyDispose(IEnumerator *This)
+{
+    SelectManyEnumerator* selectMany = (SelectManyEnumerator*)This;
+    if (selectMany->_innerEnumerator != NULL) selectMany->_innerEnumerator->Dispose(selectMany->_innerEnumerator);
+    selectMany->_outerEnumerator->Dispose(selectMany->_outerEnumerator);
+    free(This);
 }
 
 static IEnumerator* GetSelectManyEnumerator(const IEnumerable* This)
@@ -181,8 +192,8 @@ static IEnumerator* GetSelectManyEnumerator(const IEnumerable* This)
     *result = (SelectManyEnumerator) {
         ._parent = (IEnumerator) {
             .MoveNext = SelectManyMoveNext,
-            .Reset = Reset,
-            .Dispose = Dispose
+            .Reset = SelectManyReset,
+            .Dispose = SelectManyDispose
         },
         ._outerEnumerator = selectMany->_baseEnumerable->GetEnumerator(selectMany->_baseEnumerable),
         ._baseEnumerable = (const IEnumerable*)selectMany
@@ -227,7 +238,7 @@ typedef struct take_skip_enumerator_s {
 static void LimitedReset(IEnumerator *This)
 {
     ((LimitedEnumerator*)This)->Count = ((LimitedEnumerable*)((ModifiedEnumerator*)This)->_baseEnumerable)->Count;
-    Reset(This);
+    ModifiedReset(This);
 }
 
 static bool TakeMoveNext(IEnumerator *This)
@@ -253,7 +264,7 @@ static IEnumerator* GetTakeEnumerator(const IEnumerable *This)
             ._parent = (IEnumerator) {
                 .MoveNext = TakeMoveNext,
                 .Reset = LimitedReset,
-                .Dispose = Dispose,
+                .Dispose = ModifiedDispose,
             },
             ._currentEnumerator = limited->_baseEnumerable->GetEnumerator(limited->_baseEnumerable),
             ._baseEnumerable = (const IEnumerable*)limited,
@@ -289,7 +300,7 @@ static IEnumerator* GetSkipEnumerator(const IEnumerable *This)
             ._parent = (IEnumerator) {
                 .MoveNext = SkipMoveNext,
                 .Reset = LimitedReset,
-                .Dispose = Dispose,
+                .Dispose = ModifiedDispose,
             },
             ._currentEnumerator = limited->_baseEnumerable->GetEnumerator(limited->_baseEnumerable),
             ._baseEnumerable = (const IEnumerable*)limited,
@@ -346,7 +357,9 @@ object Enumerable_ElementAt(const IEnumerable* source, int index)
 {
     IEnumerator* e = source->GetEnumerator(source);
     while(e->MoveNext(e) && index > 0) { index -= 1; }
-    return e->Current;
+    object item = e->Current;
+    e->Dispose(e);
+    return item;
 }
 
 /// @brief Determines if any element of a sequence satisfies a condition.
@@ -358,10 +371,12 @@ bool Enumerable_Any(const IEnumerable* source, PredicateFunc* predicate)
     IEnumerator* e = source->GetEnumerator(source);
     while(e->MoveNext(e)) {
         if (predicate(e->Current)) {
+            e->Dispose(e);
             return true;
         }
     }
 
+    e->Dispose(e);
     return false;
 }
 
@@ -374,26 +389,68 @@ bool Enumerable_All(const IEnumerable* source, PredicateFunc* predicate)
     IEnumerator* e = source->GetEnumerator(source);
     while(e->MoveNext(e)) {
         if (!predicate(e->Current)) {
+            e->Dispose(e);
             return false;
         }
     }
 
+    e->Dispose(e);
     return true;
 }
 
 /// @brief Applies an accumulator function over a sequence.
 /// @param source Enumerable to aggregate.
 /// @param aggregate Accumulator function to apply.
-/// @return 
+/// @return The final accumulation value.
 object Enumerable_Aggregate(const IEnumerable* source, AggregateFunc* aggregate)
 {
     IEnumerator* e = source->GetEnumerator(source);
-    if (!e->MoveNext(e)) return NULL;
+    if (!e->MoveNext(e)) {
+        e->Dispose(e);
+        return NULL;
+    }
     object current = e->Current;
     while(e->MoveNext(e)) {
         current = aggregate(current, e->Current);
     }
+    e->Dispose(e);
     return current;
+}
+
+/// @brief Searches for the given element in a sequence and returns the zero-based index of this element.
+/// @param source Enumerable to search in.
+/// @param item Item to search for.
+/// @return The zero-based index of this item in the sequence.
+int Enumerable_IndexOf(const IEnumerable* source, const object item)
+{
+    IEnumerator* e = source->GetEnumerator(source);
+    
+    for (int i = 0; e->MoveNext(e); ++i) {
+        if (e->Current == item) {
+            e->Dispose(e);
+            return i;
+        }
+    }
+
+    e->Dispose(e);
+    return -1;
+}
+
+/// @brief Returns the first element of the sequence that satisfies the condition.
+/// @param source Enumerable to search in.
+/// @param predicate Condition to satisfy.
+/// @return The first element that satisfies the predicate.
+object Enumerable_FirstOrDefault(const IEnumerable* source, PredicateFunc* predicate)
+{
+    IEnumerator* e = source->GetEnumerator(source);
+    while (e->MoveNext(e)) {
+        if (predicate(e->Current)) {
+            object item = e->Current;
+            e->Dispose(e);
+            return item;
+        }
+    }
+    return NULL;
 }
 
 #pragma endregion
