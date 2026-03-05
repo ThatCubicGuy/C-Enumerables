@@ -7,7 +7,10 @@ OUTPUT:=thing.exe
 buildnrun: build run
 
 build:
-	${CC} ${CFLAGS} ${SRCS} -o ${OUTPUT}
+	${CC} ${CFLAGS} ${SRCS} -o bin/${OUTPUT}
 
 run:
-	./${OUTPUT}
+	bin/${OUTPUT}
+
+clean:
+	rm -rf bin/*
