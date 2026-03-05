@@ -69,6 +69,9 @@ int main(void)
     printf("Take only the first five items:\n");
     enumerable = Enumerable_Take(enumerable, 5);
     ShowValues(enumerable);
+    printf("Skip the first three items:\n");
+    enumerable = Enumerable_Skip(enumerable, 3);
+    ShowValues(enumerable);
     printf("Original list enumeration:\n");
     enumerable = (IEnumerable*)list;
     ShowValues(enumerable);

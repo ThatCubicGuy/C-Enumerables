@@ -271,7 +271,11 @@ static bool SkipMoveNext(IEnumerator *This)
         ((LimitedEnumerator*)This)->Count -= 1;
         modified->_currentEnumerator->MoveNext(modified->_currentEnumerator);
     }
-    return modified->_currentEnumerator->MoveNext(modified->_currentEnumerator);
+    if (modified->_currentEnumerator->MoveNext(modified->_currentEnumerator)) {
+        This->Current = modified->_currentEnumerator->Current;
+        return true;
+    }
+    return false;
 }
 
 static IEnumerator* GetSkipEnumerator(const IEnumerable *This)
@@ -281,10 +285,14 @@ static IEnumerator* GetSkipEnumerator(const IEnumerable *This)
     LimitedEnumerator* result = new(LimitedEnumerator);
 
     *result = (LimitedEnumerator) {
-        ._parent = (IEnumerator) {
-            .MoveNext = SkipMoveNext,
-            .Reset = LimitedReset,
-            .Dispose = Dispose,
+        ._parent = (ModifiedEnumerator) {
+            ._parent = (IEnumerator) {
+                .MoveNext = SkipMoveNext,
+                .Reset = LimitedReset,
+                .Dispose = Dispose,
+            },
+            ._currentEnumerator = limited->_baseEnumerable->GetEnumerator(limited->_baseEnumerable),
+            ._baseEnumerable = (const IEnumerable*)limited,
         },
         .Count = limited->Count
     };
