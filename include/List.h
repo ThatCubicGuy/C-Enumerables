@@ -7,13 +7,13 @@ typedef struct generic_list_s {
     IEnumerable _parent;
     int Capacity;
     int Count;
-    object *_items;
+    object* Values;
 } List;
 
 /// @brief Creates a new List with the given capacity.
 /// @param capacity Initial capacity for the created list.
 /// @return A new List with the given capacity.
-List* CreateList(int capacity);
+List* List__ctor(int capacity);
 
 /// @brief Frees all memory relating to a list.
 /// @param list List to destroy.
@@ -33,6 +33,10 @@ void List_Add(List* source, object item);
 /// @param source List to remove the element from.
 /// @param item Item to remove from the list.
 void List_Remove(List* source, object item);
+
+/// @brief Removes all elements from the list.
+/// @param source List to clear.
+void List_Clear(List* source);
 
 /// @brief Insert an item into the list at the given index.
 /// @param source List to insert the element into.

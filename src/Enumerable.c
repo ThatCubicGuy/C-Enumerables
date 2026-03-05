@@ -50,7 +50,7 @@ static IEnumerator* GetWhereEnumerator(const IEnumerable *This)
 {
     const WhereEnumerable* where = (const WhereEnumerable*)This;
 
-    ModifiedEnumerator* result = new(ModifiedEnumerator);
+    ModifiedEnumerator* result = bare(ModifiedEnumerator);
 
     *result = (ModifiedEnumerator) {
         ._parent = (IEnumerator) {
@@ -71,7 +71,7 @@ static IEnumerator* GetWhereEnumerator(const IEnumerable *This)
 /// @return A new enumerable.
 IEnumerable* Enumerable_Where(const IEnumerable* source, PredicateFunc* filter)
 {
-    WhereEnumerable* result = new(WhereEnumerable);
+    WhereEnumerable* result = bare(WhereEnumerable);
     *result = (WhereEnumerable) {
         ._parent = (IEnumerable) {
             .GetEnumerator = GetWhereEnumerator
@@ -107,7 +107,7 @@ static IEnumerator* GetSelectEnumerator(const IEnumerable *This)
 {
     const SelectEnumerable* select = (const SelectEnumerable*)This;
 
-    ModifiedEnumerator* result = new(ModifiedEnumerator);
+    ModifiedEnumerator* result = bare(ModifiedEnumerator);
 
     *result = (ModifiedEnumerator) {
         ._parent = (IEnumerator) {
@@ -128,7 +128,7 @@ static IEnumerator* GetSelectEnumerator(const IEnumerable *This)
 /// @return A new enumerable.
 IEnumerable* Enumerable_Select(const IEnumerable* source, SelectorFunc* selector)
 {
-    SelectEnumerable* result = new(SelectEnumerable);
+    SelectEnumerable* result = bare(SelectEnumerable);
     *result = (SelectEnumerable) {
         ._parent = (IEnumerable) {
             .GetEnumerator = GetSelectEnumerator
@@ -192,7 +192,7 @@ static IEnumerator* GetSelectManyEnumerator(const IEnumerable* This)
 {
     const SelectManyEnumerable* selectMany = (const SelectManyEnumerable*)This;
 
-    SelectManyEnumerator* result = new(SelectManyEnumerator);
+    SelectManyEnumerator* result = bare(SelectManyEnumerator);
 
     *result = (SelectManyEnumerator) {
         ._parent = (IEnumerator) {
@@ -213,7 +213,7 @@ static IEnumerator* GetSelectManyEnumerator(const IEnumerable* This)
 /// @return A new enumerable.
 IEnumerable* Enumerable_SelectMany(const IEnumerable* source, SelectManyFunc* selector)
 {
-    SelectManyEnumerable* result = new(SelectManyEnumerable);
+    SelectManyEnumerable* result = bare(SelectManyEnumerable);
     *result = (SelectManyEnumerable) {
         ._parent = (IEnumerable) {
             .GetEnumerator = GetSelectManyEnumerator,
@@ -262,7 +262,7 @@ static IEnumerator* GetTakeEnumerator(const IEnumerable *This)
 {
     const LimitedEnumerable* limited = (const LimitedEnumerable*)This;
 
-    LimitedEnumerator* result = new(LimitedEnumerator);
+    LimitedEnumerator* result = bare(LimitedEnumerator);
 
     *result = (LimitedEnumerator) {
         ._parent = (ModifiedEnumerator) {
@@ -298,7 +298,7 @@ static IEnumerator* GetSkipEnumerator(const IEnumerable *This)
 {
     const LimitedEnumerable* limited = (const LimitedEnumerable*)This;
 
-    LimitedEnumerator* result = new(LimitedEnumerator);
+    LimitedEnumerator* result = bare(LimitedEnumerator);
 
     *result = (LimitedEnumerator) {
         ._parent = (ModifiedEnumerator) {
@@ -322,7 +322,7 @@ static IEnumerator* GetSkipEnumerator(const IEnumerable *This)
 /// @return A new enumerable.
 IEnumerable* Enumerable_Take(const IEnumerable* source, int count)
 {
-    LimitedEnumerable* result = new(LimitedEnumerable);
+    LimitedEnumerable* result = bare(LimitedEnumerable);
 
     *result = (LimitedEnumerable) {
         ._parent = (IEnumerable) {
@@ -341,7 +341,7 @@ IEnumerable* Enumerable_Take(const IEnumerable* source, int count)
 /// @return A new enumerable.
 IEnumerable* Enumerable_Skip(const IEnumerable* source, int count)
 {
-    LimitedEnumerable* result = new(LimitedEnumerable);
+    LimitedEnumerable* result = bare(LimitedEnumerable);
 
     *result = (LimitedEnumerable) {
         ._parent = (IEnumerable) {
@@ -394,7 +394,7 @@ static IEnumerator* GetAppendEnumerator(const IEnumerable *This)
 {
     const ExtendEnumerable* extend = (const ExtendEnumerable*)This;
 
-    ExtendEnumerator* result = new(ExtendEnumerator);
+    ExtendEnumerator* result = bare(ExtendEnumerator);
 
     *result = (ExtendEnumerator) {
         ._parent = (ModifiedEnumerator) {
@@ -431,7 +431,7 @@ static IEnumerator* GetPrependEnumerator(const IEnumerable *This)
 {
     const ExtendEnumerable* extend = (const ExtendEnumerable*)This;
 
-    ExtendEnumerator* result = new(ExtendEnumerator);
+    ExtendEnumerator* result = bare(ExtendEnumerator);
 
     *result = (ExtendEnumerator) {
         ._parent = (ModifiedEnumerator) {
@@ -455,7 +455,7 @@ static IEnumerator* GetPrependEnumerator(const IEnumerable *This)
 /// @return A new enumerable.
 IEnumerable* Enumerable_Append(const IEnumerable* source, object item)
 {
-    ExtendEnumerable* result = new(ExtendEnumerable);
+    ExtendEnumerable* result = bare(ExtendEnumerable);
 
     *result = (ExtendEnumerable) {
         ._parent = (IEnumerable) {
@@ -474,7 +474,7 @@ IEnumerable* Enumerable_Append(const IEnumerable* source, object item)
 /// @return A new enumerable.
 IEnumerable* Enumerable_Prepend(const IEnumerable* source, object item)
 {
-    ExtendEnumerable* result = new(ExtendEnumerable);
+    ExtendEnumerable* result = bare(ExtendEnumerable);
 
     *result = (ExtendEnumerable) {
         ._parent = (IEnumerable) {
@@ -528,7 +528,7 @@ static IEnumerator* GetConcatEnumerator(const IEnumerable *This)
 {
     const ConcatEnumerable* concat = (const ConcatEnumerable*)This;
 
-    ConcatEnumerator* result = new(ConcatEnumerator);
+    ConcatEnumerator* result = bare(ConcatEnumerator);
 
     *result = (ConcatEnumerator) {
         ._parent = (ModifiedEnumerator) {
@@ -552,7 +552,7 @@ static IEnumerator* GetConcatEnumerator(const IEnumerable *This)
 /// @return A new enumerable.
 IEnumerable* Enumerable_Concat(const IEnumerable* first, const IEnumerable* second)
 {
-    ConcatEnumerable* result = new(ConcatEnumerable);
+    ConcatEnumerable* result = bare(ConcatEnumerable);
 
     *result = (ConcatEnumerable) {
         ._parent = (IEnumerable) {

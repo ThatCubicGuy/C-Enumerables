@@ -1,6 +1,6 @@
 #include "Enumerable.h"
 #include "List.h"
-#include "tests.h"
+#include "Tests.h"
 
 typedef struct employee_s {
     char Name[16];
@@ -71,7 +71,7 @@ void test_with_structs(void) {
         .Name = "Obama",
         .Age = 420
     };
-    List* workers = CreateList(4);
+    List* workers = List__ctor(4);
     joe.Coworkers = Enumerable_ToList(Enumerable_Append(Enumerable_Append(Enumerable_Append((IEnumerable*)workers, &bidome), &barack), &obama));
     bidome.Coworkers = Enumerable_ToList(Enumerable_Append(Enumerable_Append(Enumerable_Append((IEnumerable*)workers, &joe), &barack), &obama));
     barack.Coworkers = Enumerable_ToList(Enumerable_Append(Enumerable_Append(Enumerable_Append((IEnumerable*)workers, &joe), &bidome), &obama));
@@ -80,7 +80,7 @@ void test_with_structs(void) {
     List_Add(workers, &bidome);
     List_Add(workers, &barack);
     List_Add(workers, &obama);
-    List* revWorkers = CreateList(4);
+    List* revWorkers = List__ctor(4);
     List_Add(revWorkers, &obama);
     List_Add(revWorkers, &barack);
     List_Add(revWorkers, &bidome);

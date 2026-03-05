@@ -1,6 +1,6 @@
 #include "Enumerable.h"
 #include "List.h"
-#include "tests.h"
+#include "Tests.h"
 
 static void ShowValues(const IEnumerable* source)
 {
@@ -13,14 +13,14 @@ static void ShowValues(const IEnumerable* source)
 
 object selector(object item)
 {
-    int* result = new(int);
+    int* result = bare(int);
     *result = (*(const int*)item) + 3;
     return result;
 }
 
 object selector2(object item)
 {
-    int* result = new(int);
+    int* result = bare(int);
     *result = (*(const int*)item) / 2;
     return result;
 }
@@ -32,7 +32,7 @@ bool filter(object item)
 
 IEnumerable* selectMany(object item)
 {
-    List* L = CreateList(3);
+    List* L = List__ctor(3);
     List_Add(L, item);
     List_Add(L, item);
     List_Add(L, item);
@@ -41,7 +41,7 @@ IEnumerable* selectMany(object item)
 
 object aggregate(object accumulate, object item)
 {
-    int* result = new(int);
+    int* result = bare(int);
     *result = *(int*)accumulate + *(int*)item;
     return result;
 }
@@ -50,7 +50,7 @@ void test_with_numbers(void)
 {
     int x = 4, y = 1, z = 5, t = 17;
     object items[] = { &t, &x, &y, &z };
-    List* list = CreateList(7);
+    List* list = List__ctor(7);
     printf("Item count: %d\nList capacity: %d\n", list->Count, list->Capacity);
     printf("Array items: ");
     for (int i = 0; i < 4; ++i)

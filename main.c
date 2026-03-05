@@ -1,9 +1,16 @@
 #include "Defines.h"
-#include "tests.h"
+#include "Tests.h"
 
 int main(void)
 {
-    // test_with_numbers();
+    printf("\n----------NUMBERS TESTS----------\n");
+    test_with_numbers();
+    printf("-------------STRUCTS-------------\n");
     test_with_structs();
+    printf("-----------LINKED LIST-----------\n");
+    test_linked_lists();
+    printf("--------------ARRAY--------------\n");
+    test_arrays();
+    printf("\n----------TESTS CLEARED----------\n");
     return 0;
 }

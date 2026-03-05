@@ -3,15 +3,15 @@
 typedef struct list_enumerator_s {
     IEnumerator _parent;
     int _currentIndex;
-    List *_list;
+    List* _list;
 } ListEnumerator;
 
 static bool ListMoveNext(IEnumerator *This)
 {
-    ListEnumerator *LE = (ListEnumerator*)This;
-    if (LE->_currentIndex < LE->_list->Count) {
-        This->Current = LE->_list->_items[LE->_currentIndex];
-        LE->_currentIndex += 1;
+    ListEnumerator *e = (ListEnumerator*)This;
+    if (e->_currentIndex < e->_list->Count) {
+        This->Current = e->_list->Values[e->_currentIndex];
+        e->_currentIndex += 1;
         return true;
     }
     return false;
@@ -30,7 +30,7 @@ static void ListDispose(IEnumerator *This)
 
 static IEnumerator* ListGetEnumerator(const IEnumerable* This)
 {
-    ListEnumerator* result = new(ListEnumerator);
+    ListEnumerator* result = bare(ListEnumerator);
     *result = (ListEnumerator) {
         ._parent = (IEnumerator) {
             .MoveNext = ListMoveNext,
@@ -49,7 +49,7 @@ static IEnumerator* ListGetEnumerator(const IEnumerable* This)
 void List_EnsureCapacity(List* source, int capacity)
 {
     if (source->Capacity < capacity) {
-        source->_items = realloc(source->_items, sizeof(void*) * capacity);
+        source->Values = realloc(source->Values, sizeof(void*) * capacity);
         source->Capacity = capacity;
     }
 }
@@ -59,7 +59,7 @@ void List_EnsureCapacity(List* source, int capacity)
 void List_TrimExcess(List* source)
 {
     if (source->Count < source->Capacity * 0.9) {
-        source->_items = realloc(source->_items, sizeof(void*) * source->Count);
+        source->Values = realloc(source->Values, sizeof(void*) * source->Count);
         source->Capacity = source->Count;
     }
 }
@@ -72,7 +72,7 @@ void List_Add(List* source, object item)
     if (source->Count >= source->Capacity) {
         List_EnsureCapacity(source, source->Capacity * 2);
     }
-    source->_items[source->Count++] = item;
+    source->Values[source->Count++] = item;
 }
 
 /// @brief Removes an element from the list.
@@ -81,14 +81,25 @@ void List_Add(List* source, object item)
 void List_Remove(List* source, object item)
 {
     for (int i = 0; i < source->Count; ++i) {
-        if (source->_items[i] == item) {
+        if (source->Values[i] == item) {
             source->Count -= 1;
             for (int j = i; j < source->Count; ++j) {
-                source->_items[j] = source->_items[j + 1];
+                source->Values[j] = source->Values[j + 1];
             }
+            source->Values[source->Count] = NULL;
             return;
         }
     }
+}
+
+/// @brief Removes all elements from the list.
+/// @param source List to clear.
+void List_Clear(List* source)
+{
+    for (int i = 0; i < source->Count; ++i) {
+        source->Values[i] = NULL;
+    }
+    source->Count = 0;
 }
 
 /// @brief Insert an item into the list at the given index.
@@ -101,25 +112,27 @@ void List_Insert(List* source, object item, int index)
         List_EnsureCapacity(source, source->Capacity * 2);
     }
     for (int i = source->Count; i >= index; --i) {
-        source->_items[i + 1] = source->_items[i];
+        source->Values[i + 1] = source->Values[i];
     }
-    source->_items[index] = item;
+    source->Values[index] = item;
 }
 
 /// @brief Creates a new List with the given capacity.
 /// @param capacity Initial capacity for the created list.
 /// @return A new List with the given capacity.
-List* CreateList(int capacity)
+List* List__ctor(int capacity)
 {
-    List* result = new(List);
+    List* result = bare(List);
     *result = (List) {
         .Capacity = capacity,
         .Count = 0,
-        ._items = new_arr(object, capacity),
         ._parent = (IEnumerable) {
             .GetEnumerator = ListGetEnumerator
         }
     };
+    if (capacity > 0) {
+        result->Values = new_array(object, capacity);
+    }
     return result;
 }
 
@@ -127,7 +140,7 @@ List* CreateList(int capacity)
 /// @param list List to destroy.
 void DestroyList(List** list)
 {
-    free((*list)->_items);
+    free((*list)->Values);
     free(*list);
     *list = NULL;
 }
@@ -139,20 +152,21 @@ List* Enumerable_ToList(IEnumerable *source)
 {
     // Assume initial capacity
     int capacity = 16;
-    List *result = new(List);
+    List *result = bare(List);
     *result = (List) {
         ._parent = (IEnumerable) {
             .GetEnumerator = ListGetEnumerator
         },
         .Count = 0,
         .Capacity = capacity,
-        ._items = malloc(sizeof(void*) * capacity)
+        .Values = malloc(sizeof(void*) * capacity)
     };
     for (IEnumerator *e = source->GetEnumerator(source); e->MoveNext(e); ++result->Count) {
         if (result->Count == capacity) {
-            result->_items = realloc(result->_items, capacity *= 2);
+            result->Values = realloc(result->Values, capacity *= 2);
         }
-        result->_items[result->Count] = e->Current;
+        result->Values[result->Count] = e->Current;
     }
+    List_TrimExcess(result);
     return result;
 }

@@ -1,7 +1,7 @@
 # this sucks lmao
 INCLUDES:=$(foreach var,$(wildcard include/L*),${var:%=-I%})
 CC:=gcc
-CFLAGS:=-Wall -Iinclude
+CFLAGS:=-Wall -std=c99 -Iinclude
 SRCS=main.c $(wildcard src/*.c)
 OUTPUT:=thing.exe
 

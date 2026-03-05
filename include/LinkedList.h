@@ -19,7 +19,7 @@ typedef struct linked_list_s {
 
 /// @brief Creates a new instance of the LinkedList enumerable.
 /// @return A new LinkedList with no elements.
-LinkedList* CreateLinkedList();
+LinkedList* LinkedList__ctor();
 
 /// @brief Creates a LinkedList from a static array.
 /// @param itemCount Amount of items in the array.
@@ -37,5 +37,9 @@ void LinkedList_Add(LinkedList* source, object item);
 /// @param item Item to insert into the list.
 /// @param index Index to insert the item at.
 void LinkedList_Insert(LinkedList* source, object item, int index);
+
+/// @brief Removes all elements from the linked list.
+/// @param source Linked list to clear.
+void LinkedList_Clear(LinkedList* source);
 
 #endif
