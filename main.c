@@ -37,6 +37,13 @@ IEnumerable* selectMany(const object item)
     return (IEnumerable*)L;
 }
 
+object aggregate(const object accumulate, const object item)
+{
+    int* result = new(int);
+    *result = *(int*)accumulate + *(int*)item;
+    return result;
+}
+
 int main(void)
 {
     int x = 4, y = 1, z = 5, t = 17;
@@ -78,4 +85,5 @@ int main(void)
     ShowValues(enumerable);
     printf("First even number in the list: %d\n", *(int*)Enumerable_FirstOrDefault(enumerable, filter));
     printf("Index of first even number in the list: %d\n", Enumerable_IndexOf(enumerable, Enumerable_FirstOrDefault(enumerable, filter)));
+    printf("Sum of all values: %d\n", *(int*)Enumerable_Aggregate(enumerable, aggregate));
 }
