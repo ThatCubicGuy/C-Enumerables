@@ -88,4 +88,43 @@ int Enumerable_IndexOf(const IEnumerable* source, object item);
 /// @return The first element that satisfies the predicate.
 object Enumerable_FirstOrDefault(const IEnumerable* source, PredicateFunc* predicate);
 
+/// @brief Appends an element to the end of a sequence.
+/// @param source Enumerable to append the item to.
+/// @param item Item to append.
+/// @return A new enumerable.
+IEnumerable* Enumerable_Append(const IEnumerable* source, object item);
+
+/// @brief Prepends an element to the start of a sequence.
+/// @param source Enumerable to prepend the item to.
+/// @param item Item to prepend.
+/// @return A new enumerable.
+IEnumerable* Enumerable_Prepend(const IEnumerable* source, object item);
+
+/// @brief Concatenates two sequences.
+/// @param first The first sequence to concatenate.
+/// @param second The second sequence to concatenate.
+/// @return A new enumerable.
+IEnumerable* Enumerable_Concat(const IEnumerable* first, const IEnumerable* second);
+
+/// @brief Performs an action on each element of a collection.
+/// @param source Enumerable to execute the action on.
+/// @param action Action to execute on each item.
+void Enumerable_ForEach(const IEnumerable* source, Action* action);
+
+/// @brief Determines whether a sequence contains a specified element.
+/// @param source Enumerable to search in.
+/// @param item Item to search for.
+bool Enumerable_Contains(const IEnumerable* source, object item);
+
+/// @brief Returns a number that represents the amount of elements in the specified enumerable.
+/// @param source Enumerable whose length to count.
+/// @return A number representing the amount of items in source.
+int Enumerable_Count(const IEnumerable* source);
+
+/// @brief Determines whether two sequences are equal by comparing each element individually.
+/// @param first First enumerable to compare.
+/// @param second Second enumerable to compare.
+/// @return True if every element from first is equal to second, false otherwise.
+bool Enumerable_SequenceEqual(const IEnumerable* first, const IEnumerable* second);
+
 #endif

@@ -449,6 +449,10 @@ static IEnumerator* GetPrependEnumerator(const IEnumerable *This)
     return (IEnumerator*)result;
 }
 
+/// @brief Appends an element to the end of a sequence.
+/// @param source Enumerable to append the item to.
+/// @param item Item to append.
+/// @return A new enumerable.
 IEnumerable* Enumerable_Append(const IEnumerable* source, object item)
 {
     ExtendEnumerable* result = new(ExtendEnumerable);
@@ -459,6 +463,103 @@ IEnumerable* Enumerable_Append(const IEnumerable* source, object item)
         },
         ._baseEnumerable = source,
         ._added = item
+    };
+
+    return (IEnumerable*)result;
+}
+
+/// @brief Prepends an element to the start of a sequence.
+/// @param source Enumerable to prepend the item to.
+/// @param item Item to prepend.
+/// @return A new enumerable.
+IEnumerable* Enumerable_Prepend(const IEnumerable* source, object item)
+{
+    ExtendEnumerable* result = new(ExtendEnumerable);
+
+    *result = (ExtendEnumerable) {
+        ._parent = (IEnumerable) {
+            .GetEnumerator = GetPrependEnumerator
+        },
+        ._baseEnumerable = source,
+        ._added = item
+    };
+
+    return (IEnumerable*)result;
+}
+
+#pragma endregion
+
+#pragma region Concat
+
+typedef struct concat_enumerable_s {
+    IEnumerable _parent;
+    const IEnumerable* _firstEnumerable;
+    const IEnumerable* _secondEnumerable;
+} ConcatEnumerable;
+
+typedef struct concat_enumerator_s {
+    ModifiedEnumerator _parent;
+    bool _startedSecondEnumeration;
+} ConcatEnumerator;
+
+static bool ConcatMoveNext(IEnumerator *This)
+{
+    ModifiedEnumerator* modified = (ModifiedEnumerator*)This;
+    if (modified->_currentEnumerator->MoveNext(modified->_currentEnumerator)) {
+        This->Current = modified->_currentEnumerator->Current;
+        return true;
+    } else if (!((ConcatEnumerator*)This)->_startedSecondEnumeration) {
+        const IEnumerable* secondEnum = ((ConcatEnumerable*)modified->_baseEnumerable)->_secondEnumerable;
+        modified->_currentEnumerator = secondEnum->GetEnumerator(secondEnum);
+        ((ConcatEnumerator*)This)->_startedSecondEnumeration = true;
+        return ConcatMoveNext(This);
+    }
+
+    return false;
+}
+
+static void ConcatReset(IEnumerator *This)
+{
+    ((ConcatEnumerator*)This)->_startedSecondEnumeration = false;
+    ModifiedReset(This);
+}
+
+static IEnumerator* GetConcatEnumerator(const IEnumerable *This)
+{
+    const ConcatEnumerable* concat = (const ConcatEnumerable*)This;
+
+    ConcatEnumerator* result = new(ConcatEnumerator);
+
+    *result = (ConcatEnumerator) {
+        ._parent = (ModifiedEnumerator) {
+            ._parent = (IEnumerator) {
+                .MoveNext = ConcatMoveNext,
+                .Reset = ConcatReset,
+                .Dispose = ModifiedDispose
+            },
+            ._currentEnumerator = concat->_firstEnumerable->GetEnumerator(concat->_firstEnumerable),
+            ._baseEnumerable = (const IEnumerable*)concat
+        },
+        ._startedSecondEnumeration = false
+    };
+
+    return (IEnumerator*)result;
+}
+
+/// @brief Concatenates two sequences.
+/// @param first The first sequence to concatenate.
+/// @param second The second sequence to concatenate.
+/// @return A new enumerable.
+IEnumerable* Enumerable_Concat(const IEnumerable* first, const IEnumerable* second)
+{
+    ConcatEnumerable* result = new(ConcatEnumerable);
+
+    *result = (ConcatEnumerable) {
+        ._parent = (IEnumerable) {
+            .GetEnumerator = GetConcatEnumerator
+        },
+        ._firstEnumerable = first,
+        ._secondEnumerable = second
     };
 
     return (IEnumerable*)result;
@@ -569,7 +670,77 @@ object Enumerable_FirstOrDefault(const IEnumerable* source, PredicateFunc* predi
             return item;
         }
     }
+
+    e->Dispose(e);
     return NULL;
+}
+
+/// @brief Performs an action on each element of a collection.
+/// @param source Enumerable to execute the action on.
+/// @param action Action to execute on each item.
+void Enumerable_ForEach(const IEnumerable* source, Action* action)
+{
+    IEnumerator* e = source->GetEnumerator(source);
+    while (e->MoveNext(e)) action(e->Current);
+    e->Dispose(e);
+}
+
+/// @brief Determines whether a sequence contains a specified element.
+/// @param source Enumerable to search in.
+/// @param item Item to search for.
+bool Enumerable_Contains(const IEnumerable* source, object item)
+{
+    IEnumerator* e = source->GetEnumerator(source);
+    while (e->MoveNext(e)) {
+        if (e->Current == item) {
+            e->Dispose(e);
+            return true;
+        }
+    }
+
+    e->Dispose(e);
+    return false;
+}
+
+/// @brief Returns a number that represents the amount of elements in the specified enumerable.
+/// @param source Enumerable whose length to count.
+/// @return A number representing the amount of items in source.
+int Enumerable_Count(const IEnumerable* source)
+{
+    IEnumerator* e = source->GetEnumerator(source);
+    int i = 0;
+    while (e->MoveNext(e)) {
+        i += 1;
+    }
+    e->Dispose(e);
+    return i;
+}
+
+/// @brief Determines whether two sequences are equal by comparing each element individually.
+/// @param first First enumerable to compare.
+/// @param second Second enumerable to compare.
+/// @return True if every element from first is equal to second, false otherwise.
+bool Enumerable_SequenceEqual(const IEnumerable* first, const IEnumerable* second)
+{
+    IEnumerator* e1 = first->GetEnumerator(first);
+    IEnumerator* e2 = second->GetEnumerator(second);
+    while (e1->MoveNext(e1) && e2->MoveNext(e2)) {
+        if (e1->Current != e2->Current) {
+            e1->Dispose(e1);
+            e2->Dispose(e2);
+            return false;
+        }
+    }
+
+    if (e1->MoveNext(e1) || e2->MoveNext(e2)) {
+        e1->Dispose(e1);
+        e2->Dispose(e2);
+        return false;
+    }
+
+    e1->Dispose(e1);
+    e2->Dispose(e2);
+    return true;
 }
 
 #pragma endregion

@@ -15,7 +15,14 @@ typedef struct generic_list_s {
 /// @return A new List with the given capacity.
 List* CreateList(int capacity);
 
+/// @brief Frees all memory relating to a list.
+/// @param list List to destroy.
 void DestroyList(List** list);
+
+/// @brief Creates a List from an IEnumerable.
+/// @param source Enumerable to take items from.
+/// @return A new list.
+List* Enumerable_ToList(IEnumerable *source);
 
 /// @brief Add an element to the end of the list.
 /// @param list List to add an element to.

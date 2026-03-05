@@ -124,7 +124,7 @@ List* CreateList(int capacity)
 }
 
 /// @brief Frees all memory relating to a list.
-/// @param list 
+/// @param list List to destroy.
 void DestroyList(List** list)
 {
     free((*list)->_items);
@@ -132,6 +132,9 @@ void DestroyList(List** list)
     *list = NULL;
 }
 
+/// @brief Creates a List from an IEnumerable.
+/// @param source Enumerable to take items from.
+/// @return A new list.
 List* Enumerable_ToList(IEnumerable *source)
 {
     // Assume initial capacity

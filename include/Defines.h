@@ -10,4 +10,6 @@
 
 typedef const void* object;
 
+typedef void Action(object);
+
 #endif
