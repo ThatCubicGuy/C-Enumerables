@@ -8,23 +8,32 @@ static void ShowValues(IEnumerable* source)
     while (enumerator->MoveNext(enumerator)) fprintf(stderr, "Success! Value: %d\n", *(int*)(enumerator->Current));
 }
 
-object selector(object item)
+object selector(const object item)
 {
     int* result = new(int);
-    *result = (*(int*)item) + 3;
+    *result = (*(const int*)item) + 3;
     return result;
 }
 
-object selector2(object item)
+object selector2(const object item)
 {
     int* result = new(int);
-    *result = (*(int*)item) - 4;
+    *result = (*(const int*)item) - 4;
     return result;
 }
 
-bool filter(object item)
+bool filter(const object item)
 {
-    return (*(int*)item)%2 == 0;
+    return (*(const int*)item)%2 == 0;
+}
+
+IEnumerable* selectMany(const object item)
+{
+    List* L = CreateList(4);
+    List_Add(L, item);
+    List_Add(L, item);
+    List_Add(L, item);
+    return (IEnumerable*)L;
 }
 
 int main(void)
@@ -43,19 +52,6 @@ int main(void)
     printf("\nItem count: %d\nList capacity: %d\n", list->Count, list->Capacity);
     List_TrimExcess(list);
     printf("Item count: %d\nList capacity: %d\n", list->Count, list->Capacity);
-    List_EnsureCapacity(list, 15);
-    printf("Item count: %d\nList capacity: %d\n", list->Count, list->Capacity);
-    for (int i = 0; i < 12; ++i)
-    {
-        List_Add(list, items[1]);
-    }
-    printf("Item count: %d\nList capacity: %d\n", list->Count, list->Capacity);
-    for (int i = 0; i < 12; ++i)
-    {
-        List_Remove(list, items[1]);
-    }
-    List_TrimExcess(list);
-    printf("Item count: %d\nList capacity: %d\n", list->Count, list->Capacity);
     IEnumerable* enumerable = (IEnumerable*)list;
     ShowValues(enumerable);
     printf("Selector function that adds 3:\n");
@@ -66,5 +62,14 @@ int main(void)
     ShowValues(enumerable);
     printf("select only even numbers:\n");
     enumerable = Enumerable_Where(enumerable, filter);
+    ShowValues(enumerable);
+    printf("Project each value into an array of three times the thing:\n");
+    enumerable = Enumerable_SelectMany(enumerable, selectMany);
+    ShowValues(enumerable);
+    printf("Take only the first five items:\n");
+    enumerable = Enumerable_Take(enumerable, 5);
+    ShowValues(enumerable);
+    printf("Original list enumeration:\n");
+    enumerable = (IEnumerable*)list;
     ShowValues(enumerable);
 }

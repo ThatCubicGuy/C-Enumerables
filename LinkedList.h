@@ -25,17 +25,17 @@ LinkedList* CreateLinkedList();
 /// @param itemCount Amount of items in the array.
 /// @param items Array of items.
 /// @return A new LinkedList with elements from the array.
-LinkedList* CreateLinkedListFromArray(int itemCount, object items[]);
+LinkedList* CreateLinkedListFromArray(int itemCount, const object items[]);
 
 /// @brief Add an element to the end of the list.
 /// @param list List to add an element to.
 /// @param item Item to add to the end of the list.
-void LinkedList_Add(LinkedList* source, object item);
+void LinkedList_Add(LinkedList* source, const object item);
 
 /// @brief Insert an item into the list at the given index.
 /// @param source List to insert the element into.
 /// @param item Item to insert into the list.
 /// @param index Index to insert the item at.
-void LinkedList_Insert(LinkedList* source, object item, int index);
+void LinkedList_Insert(LinkedList* source, const object item, int index);
 
 #endif

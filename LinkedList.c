@@ -2,6 +2,8 @@
 #include "LinkedList.h"
 #include "Defines.h"
 
+#pragma region Enumerator
+
 typedef struct linked_list_enumerator_s {
     IEnumerator _parent;
     LinkedList *_source;
@@ -27,24 +29,33 @@ static void LinkedListReset(IEnumerator *This)
     This->Current = NULL;
 }
 
-static IEnumerator* LinkedListGetEnumerator(IEnumerable *This)
+static void LinkedListDispose(IEnumerator *This)
+{
+    free(This);
+}
+
+static IEnumerator* LinkedListGetEnumerator(const IEnumerable *This)
 {
     LinkedListEnumerator *result = new(LinkedListEnumerator);
     *result = (LinkedListEnumerator) {
         ._parent = (IEnumerator) {
             .MoveNext = LinkedListMoveNext,
             .Reset = LinkedListReset,
-            .Current = NULL
+            .Dispose = LinkedListDispose
         },
         ._source = (LinkedList*)This
     };
     return (IEnumerator*)result;
 }
 
+#pragma endregion
+
+#pragma region Methods
+
 /// @brief Add an element to the end of the list.
 /// @param list List to add an element to.
 /// @param item Item to add to the end of the list.
-void LinkedList_Add(LinkedList* source, object item)
+void LinkedList_Add(LinkedList* source, const object item)
 {
     if (source->Count > 0) {
         source->Count += 1;
@@ -64,7 +75,7 @@ void LinkedList_Add(LinkedList* source, object item)
 /// @param source List to insert the element into.
 /// @param item Item to insert into the list.
 /// @param index Index to insert the item at.
-void LinkedList_Insert(LinkedList* source, object item, int index)
+void LinkedList_Insert(LinkedList* source, const object item, int index)
 {
     source->Count += 1;
     if (index == 0) {
@@ -120,7 +131,7 @@ LinkedList* CreateLinkedList()
 /// @param itemCount Amount of items in the array.
 /// @param items Array of items.
 /// @return A new LinkedList with elements from the array.
-LinkedList* CreateLinkedListFromArray(int itemCount, object items[])
+LinkedList* CreateLinkedListFromArray(int itemCount, const object items[])
 {
     LinkedList *result = new(LinkedList);
     *result = (LinkedList) {
@@ -156,3 +167,5 @@ LinkedList* Enumerable_ToLinkedList(IEnumerable* source)
     }
     return result;
 }
+
+#pragma endregion

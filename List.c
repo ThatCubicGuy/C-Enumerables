@@ -23,13 +23,19 @@ static void ListReset(IEnumerator *This)
     This->Current = NULL;
 }
 
-static IEnumerator* ListGetEnumerator(IEnumerable* This)
+static void ListDispose(IEnumerator *This)
+{
+    free(This);
+}
+
+static IEnumerator* ListGetEnumerator(const IEnumerable* This)
 {
     ListEnumerator* result = new(ListEnumerator);
     *result = (ListEnumerator) {
         ._parent = (IEnumerator) {
             .MoveNext = ListMoveNext,
             .Reset = ListReset,
+            .Dispose = ListDispose
         },
         ._currentIndex = 0,
         ._list = (List*)This
@@ -61,7 +67,7 @@ void List_TrimExcess(List* source)
 /// @brief Add an element to the end of the list.
 /// @param list List to add an element to.
 /// @param item Item to add to the end of the list.
-void List_Add(List* source, object item)
+void List_Add(List* source, const object item)
 {
     if (source->Count >= source->Capacity) {
         List_EnsureCapacity(source, source->Capacity * 2);
@@ -72,7 +78,7 @@ void List_Add(List* source, object item)
 /// @brief Removes an element from the list.
 /// @param source List to remove the element from.
 /// @param item Item to remove from the list.
-void List_Remove(List* source, object item)
+void List_Remove(List* source, const object item)
 {
     for (int i = 0; i < source->Count; ++i) {
         if (source->_items[i] == item) {
@@ -89,7 +95,7 @@ void List_Remove(List* source, object item)
 /// @param source List to insert the element into.
 /// @param item Item to insert into the list.
 /// @param index Index to insert the item at.
-void List_Insert(List* source, object item, int index)
+void List_Insert(List* source, const object item, int index)
 {
     if (source->Count >= source->Capacity) {
         List_EnsureCapacity(source, source->Capacity * 2);
@@ -109,12 +115,21 @@ List* CreateList(int capacity)
     *result = (List) {
         .Capacity = capacity,
         .Count = 0,
-        ._items = malloc(sizeof(void*) * capacity),
+        ._items = new_arr(object, capacity),
         ._parent = (IEnumerable) {
             .GetEnumerator = ListGetEnumerator
         }
     };
     return result;
+}
+
+/// @brief Frees all memory relating to a list.
+/// @param list 
+void DestroyList(List** list)
+{
+    free((*list)->_items);
+    free(*list);
+    *list = NULL;
 }
 
 List* Enumerable_ToList(IEnumerable *source)
