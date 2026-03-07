@@ -1,26 +1,25 @@
-#include "Enumerable.h"
-#include "List.h"
+#include "Collections/Enumerable.h"
+#include "Collections/Generic/ListImplement.h"
+#include "Collections/Generic/EnumerableImplement.h"
 #include "Tests.h"
 
 typedef struct employee_s {
     char Name[16];
-    List* Coworkers;
+    void* Coworkers;
     int Age;
 } Employee;
 
-void showData(object item)
+ENUMERABLE_DEFINE(Employee)
+LIST_DEFINE(Employee)
+
+void showData(Employee item)
 {
-    Employee* employee = (Employee*)item;
-    printf("%s, age %d\n", employee->Name, employee->Age);
+    printf("%s, age %d\n", item.Name, item.Age);
 }
 
-void ShowAllData(const IEnumerable* source)
+void ShowAllData(const IEnumerable_Employee* source)
 {
-    IEnumerator* e = source->GetEnumerator(source);
-    while (e->MoveNext(e)) {
-        showData(e->Current);
-    }
-    e->Dispose(e);
+    foreach(Employee, employee, source, showData(employee));
 }
 
 void ShowStrings(const IEnumerable* source)
@@ -42,19 +41,19 @@ void ShowNumbers(const IEnumerable* source)
     printf("\n");
 }
 
-object selectNames(object item)
+char* selectNames(Employee item)
 {
-    return ((Employee*)item)->Name;
+    return item.Name;
 }
 
-object selectAge(object item)
+int selectAge(Employee item)
 {
-    return &((Employee*)item)->Age;
+    return item.Age;
 }
 
-IEnumerable* selectCoworkers(object item)
+IEnumerable_Employee* selectCoworkers(Employee item)
 {
-    return (IEnumerable*)((Employee*)item)->Coworkers;
+    return (IEnumerable_Employee*)item.Coworkers;
 }
 
 void test_with_structs(void) {
@@ -71,28 +70,31 @@ void test_with_structs(void) {
         .Name = "Obama",
         .Age = 420
     };
-    List* workers = List__ctor(4);
-    joe.Coworkers = Enumerable_ToList(Enumerable_Append(Enumerable_Append(Enumerable_Append((IEnumerable*)workers, &bidome), &barack), &obama));
-    bidome.Coworkers = Enumerable_ToList(Enumerable_Append(Enumerable_Append(Enumerable_Append((IEnumerable*)workers, &joe), &barack), &obama));
-    barack.Coworkers = Enumerable_ToList(Enumerable_Append(Enumerable_Append(Enumerable_Append((IEnumerable*)workers, &joe), &bidome), &obama));
-    obama.Coworkers = Enumerable_ToList(Enumerable_Append(Enumerable_Append(Enumerable_Append((IEnumerable*)workers, &joe), &bidome), &barack));
-    List_Add(workers, &joe);
-    List_Add(workers, &bidome);
-    List_Add(workers, &barack);
-    List_Add(workers, &obama);
-    List* revWorkers = List__ctor(4);
-    List_Add(revWorkers, &obama);
-    List_Add(revWorkers, &barack);
-    List_Add(revWorkers, &bidome);
-    List_Add(revWorkers, &joe);
-    IEnumerable* concat = Enumerable_Concat((IEnumerable*)workers, (IEnumerable*)revWorkers);
-    Enumerable_ForEach(concat, showData);
-    List_Remove(workers, &obama);
-    if (Enumerable_Contains((IEnumerable*)workers, &obama)) {
+    List_Employee* workers = new(List_Employee)(4);
+    joe.Coworkers = Enumerable_ToList_Employee(Enumerable_Employee_Append(Enumerable_Employee_Append(Enumerable_Employee_Append((IEnumerable_Employee*)workers, bidome), barack), obama));
+    bidome.Coworkers = Enumerable_ToList_Employee(Enumerable_Employee_Append(Enumerable_Employee_Append(Enumerable_Employee_Append((IEnumerable_Employee*)workers, joe), barack), obama));
+    barack.Coworkers = Enumerable_ToList_Employee(Enumerable_Employee_Append(Enumerable_Employee_Append(Enumerable_Employee_Append((IEnumerable_Employee*)workers, joe), bidome), obama));
+    obama.Coworkers = Enumerable_ToList_Employee(Enumerable_Employee_Append(Enumerable_Employee_Append(Enumerable_Employee_Append((IEnumerable_Employee*)workers, joe), bidome), barack));
+    List_Employee_Add(workers, joe);
+    List_Employee_Add(workers, bidome);
+    List_Employee_Add(workers, barack);
+    List_Employee_Add(workers, obama);
+    List_Employee* revWorkers = new(List_Employee)(4);
+    List_Employee_Add(revWorkers, obama);
+    List_Employee_Add(revWorkers, barack);
+    List_Employee_Add(revWorkers, bidome);
+    List_Employee_Add(revWorkers, joe);
+    IEnumerable_Employee* concat = Enumerable_Employee_Concat((IEnumerable_Employee*)workers, (IEnumerable_Employee*)revWorkers);
+    foreach(Employee, employee, concat, showData(employee));
+    List_Employee_Remove(workers, obama);
+    if (Enumerable_Employee_Contains((IEnumerable_Employee*)workers, obama)) {
         printf("Yup, he's in there.\n");
     } else printf("WARNING: HE HAS BREACHED CONTAINMENT\n");
-    Enumerable_ForEach(concat, showData);
-    if (Enumerable_SequenceEqual((IEnumerable*)workers, (IEnumerable*)workers)) {
+    foreach(Employee, employee, concat, showData(employee));
+    if (Enumerable_Employee_SequenceEqual((IEnumerable_Employee*)workers, (IEnumerable_Employee*)workers)) {
         printf("Sequence is equal to itself. Who would've guessed!\n");
     } else printf("U h  o h .\n");
 }
+
+ENUMERABLE_IMPLEMENT(Employee)
+LIST_IMPLEMENT(Employee)

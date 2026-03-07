@@ -1,7 +1,36 @@
-#ifndef ENUMERABLE
-#define ENUMERABLE
+#ifndef COLLECTIONS_ENUMERABLE
+#define COLLECTIONS_ENUMERABLE
 
 #include "Defines.h"
+
+/**
+ * @brief Enumerates an IEnumerable and sets var to
+ * the current enumeration value before executing code.
+ */
+#define foreach_as(T, var, source, code) do {           \
+    IEnumerator* __e = ((IEnumerable*)source)           \
+        ->GetEnumerator((IEnumerable*)source);          \
+    while (__e->MoveNext(__e)) {                        \
+        T var = (T)__e->Current;                        \
+        code;                                           \
+    }                                                   \
+    __e->Dispose(__e);                                  \
+} while(0)
+
+/**
+ * @brief Enumerates an IEnumerable and casts the
+ * current enumeration value to a T pointer before
+ * dereferencing it into var and executing code.
+ */
+#define foreach_ref(T, var, source, code) do {          \
+    IEnumerator* __e = ((IEnumerable*)source)           \
+        ->GetEnumerator((IEnumerable*)source);          \
+    while (__e->MoveNext(__e)) {                        \
+        T var = *(T*)__e->Current;                      \
+        code;                                           \
+    }                                                   \
+    __e->Dispose(__e);                                  \
+} while(0)
 
 typedef struct enumerator_s {
     bool (*MoveNext)(struct enumerator_s* This);

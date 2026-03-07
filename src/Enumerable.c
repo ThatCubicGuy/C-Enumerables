@@ -1,26 +1,24 @@
-#include "Enumerable.h"
+#include "Collections/Enumerable.h"
 #include "Defines.h"
-#include "List.h"
-#include "LinkedList.h"
 
-#pragma region Generics
+#pragma region Helpers
 
-typedef struct generic_enumerator_s {
+typedef struct compound_enumerator_s {
     IEnumerator _parent;
     IEnumerator* _currentEnumerator;
     const IEnumerable* _baseEnumerable;
-} ModifiedEnumerator;
+} CompoundEnumerator;
 
 static void ModifiedReset(IEnumerator *This)
 {
     This->Current = NULL;
-    ModifiedEnumerator* e = (ModifiedEnumerator*)This;
+    CompoundEnumerator* e = (CompoundEnumerator*)This;
     e->_currentEnumerator->Reset(e->_currentEnumerator);
 }
 
 static void ModifiedDispose(IEnumerator *This)
 {
-    ModifiedEnumerator* e = (ModifiedEnumerator*)This;
+    CompoundEnumerator* e = (CompoundEnumerator*)This;
     e->_currentEnumerator->Dispose(e->_currentEnumerator);
     free(This);
 }
@@ -37,7 +35,7 @@ typedef struct where_enumerable_s {
 
 static bool WhereMoveNext(IEnumerator *This)
 {
-    ModifiedEnumerator* where = (ModifiedEnumerator*)This;
+    CompoundEnumerator* where = (CompoundEnumerator*)This;
     while (where->_currentEnumerator->MoveNext(where->_currentEnumerator)) {
         This->Current = where->_currentEnumerator->Current;
         if (((const WhereEnumerable*)where->_baseEnumerable)->_filter(This->Current)) return true;
@@ -50,9 +48,9 @@ static IEnumerator* GetWhereEnumerator(const IEnumerable *This)
 {
     const WhereEnumerable* where = (const WhereEnumerable*)This;
 
-    ModifiedEnumerator* result = bare(ModifiedEnumerator);
+    CompoundEnumerator* result = alloc(CompoundEnumerator);
 
-    *result = (ModifiedEnumerator) {
+    *result = (CompoundEnumerator) {
         ._parent = (IEnumerator) {
             .MoveNext = WhereMoveNext,
             .Reset = ModifiedReset,
@@ -71,7 +69,7 @@ static IEnumerator* GetWhereEnumerator(const IEnumerable *This)
 /// @return A new enumerable.
 IEnumerable* Enumerable_Where(const IEnumerable* source, PredicateFunc* filter)
 {
-    WhereEnumerable* result = bare(WhereEnumerable);
+    WhereEnumerable* result = alloc(WhereEnumerable);
     *result = (WhereEnumerable) {
         ._parent = (IEnumerable) {
             .GetEnumerator = GetWhereEnumerator
@@ -94,7 +92,7 @@ typedef struct select_enumerable_s {
 
 static bool SelectMoveNext(IEnumerator *This)
 {
-    ModifiedEnumerator* select = (ModifiedEnumerator*)This;
+    CompoundEnumerator* select = (CompoundEnumerator*)This;
     if (select->_currentEnumerator->MoveNext(select->_currentEnumerator)) {
         This->Current = ((const SelectEnumerable*)select->_baseEnumerable)->_selector(select->_currentEnumerator->Current);
         return true;
@@ -107,9 +105,9 @@ static IEnumerator* GetSelectEnumerator(const IEnumerable *This)
 {
     const SelectEnumerable* select = (const SelectEnumerable*)This;
 
-    ModifiedEnumerator* result = bare(ModifiedEnumerator);
+    CompoundEnumerator* result = alloc(CompoundEnumerator);
 
-    *result = (ModifiedEnumerator) {
+    *result = (CompoundEnumerator) {
         ._parent = (IEnumerator) {
             .MoveNext = SelectMoveNext,
             .Reset = ModifiedReset,
@@ -128,7 +126,7 @@ static IEnumerator* GetSelectEnumerator(const IEnumerable *This)
 /// @return A new enumerable.
 IEnumerable* Enumerable_Select(const IEnumerable* source, SelectorFunc* selector)
 {
-    SelectEnumerable* result = bare(SelectEnumerable);
+    SelectEnumerable* result = alloc(SelectEnumerable);
     *result = (SelectEnumerable) {
         ._parent = (IEnumerable) {
             .GetEnumerator = GetSelectEnumerator
@@ -192,7 +190,7 @@ static IEnumerator* GetSelectManyEnumerator(const IEnumerable* This)
 {
     const SelectManyEnumerable* selectMany = (const SelectManyEnumerable*)This;
 
-    SelectManyEnumerator* result = bare(SelectManyEnumerator);
+    SelectManyEnumerator* result = alloc(SelectManyEnumerator);
 
     *result = (SelectManyEnumerator) {
         ._parent = (IEnumerator) {
@@ -213,7 +211,7 @@ static IEnumerator* GetSelectManyEnumerator(const IEnumerable* This)
 /// @return A new enumerable.
 IEnumerable* Enumerable_SelectMany(const IEnumerable* source, SelectManyFunc* selector)
 {
-    SelectManyEnumerable* result = bare(SelectManyEnumerable);
+    SelectManyEnumerable* result = alloc(SelectManyEnumerable);
     *result = (SelectManyEnumerable) {
         ._parent = (IEnumerable) {
             .GetEnumerator = GetSelectManyEnumerator,
@@ -236,13 +234,13 @@ typedef struct take_skip_enumerable_s {
 
 
 typedef struct take_skip_enumerator_s {
-    ModifiedEnumerator _parent;
+    CompoundEnumerator _parent;
     int Count;
 } LimitedEnumerator;
 
 static void LimitedReset(IEnumerator *This)
 {
-    ((LimitedEnumerator*)This)->Count = ((LimitedEnumerable*)((ModifiedEnumerator*)This)->_baseEnumerable)->Count;
+    ((LimitedEnumerator*)This)->Count = ((LimitedEnumerable*)((CompoundEnumerator*)This)->_baseEnumerable)->Count;
     ModifiedReset(This);
 }
 
@@ -250,7 +248,7 @@ static bool TakeMoveNext(IEnumerator *This)
 {
     if (((LimitedEnumerator*)This)->Count == 0) return false;
     ((LimitedEnumerator*)This)->Count -= 1;
-    ModifiedEnumerator* modified = (ModifiedEnumerator*)This;
+    CompoundEnumerator* modified = (CompoundEnumerator*)This;
     if (modified->_currentEnumerator->MoveNext(modified->_currentEnumerator)) {
         This->Current = modified->_currentEnumerator->Current;
         return true;
@@ -262,10 +260,10 @@ static IEnumerator* GetTakeEnumerator(const IEnumerable *This)
 {
     const LimitedEnumerable* limited = (const LimitedEnumerable*)This;
 
-    LimitedEnumerator* result = bare(LimitedEnumerator);
+    LimitedEnumerator* result = alloc(LimitedEnumerator);
 
     *result = (LimitedEnumerator) {
-        ._parent = (ModifiedEnumerator) {
+        ._parent = (CompoundEnumerator) {
             ._parent = (IEnumerator) {
                 .MoveNext = TakeMoveNext,
                 .Reset = LimitedReset,
@@ -282,7 +280,7 @@ static IEnumerator* GetTakeEnumerator(const IEnumerable *This)
 
 static bool SkipMoveNext(IEnumerator *This)
 {
-    ModifiedEnumerator* modified = (ModifiedEnumerator*)This;
+    CompoundEnumerator* modified = (CompoundEnumerator*)This;
     while (((LimitedEnumerator*)This)->Count > 0) {
         ((LimitedEnumerator*)This)->Count -= 1;
         modified->_currentEnumerator->MoveNext(modified->_currentEnumerator);
@@ -298,10 +296,10 @@ static IEnumerator* GetSkipEnumerator(const IEnumerable *This)
 {
     const LimitedEnumerable* limited = (const LimitedEnumerable*)This;
 
-    LimitedEnumerator* result = bare(LimitedEnumerator);
+    LimitedEnumerator* result = alloc(LimitedEnumerator);
 
     *result = (LimitedEnumerator) {
-        ._parent = (ModifiedEnumerator) {
+        ._parent = (CompoundEnumerator) {
             ._parent = (IEnumerator) {
                 .MoveNext = SkipMoveNext,
                 .Reset = LimitedReset,
@@ -322,7 +320,7 @@ static IEnumerator* GetSkipEnumerator(const IEnumerable *This)
 /// @return A new enumerable.
 IEnumerable* Enumerable_Take(const IEnumerable* source, int count)
 {
-    LimitedEnumerable* result = bare(LimitedEnumerable);
+    LimitedEnumerable* result = alloc(LimitedEnumerable);
 
     *result = (LimitedEnumerable) {
         ._parent = (IEnumerable) {
@@ -341,7 +339,7 @@ IEnumerable* Enumerable_Take(const IEnumerable* source, int count)
 /// @return A new enumerable.
 IEnumerable* Enumerable_Skip(const IEnumerable* source, int count)
 {
-    LimitedEnumerable* result = bare(LimitedEnumerable);
+    LimitedEnumerable* result = alloc(LimitedEnumerable);
 
     *result = (LimitedEnumerable) {
         ._parent = (IEnumerable) {
@@ -365,7 +363,7 @@ typedef struct extended_enumerable_s {
 } ExtendEnumerable;
 
 typedef struct extended_enumerator_s {
-    ModifiedEnumerator _parent;
+    CompoundEnumerator _parent;
     bool _hasEnumeratedExtra;
 } ExtendEnumerator;
 
@@ -377,7 +375,7 @@ static void ExtendReset(IEnumerator *This)
 
 static bool AppendMoveNext(IEnumerator *This)
 {
-    ModifiedEnumerator* modified = (ModifiedEnumerator*)This;
+    CompoundEnumerator* modified = (CompoundEnumerator*)This;
     if (modified->_currentEnumerator->MoveNext(modified->_currentEnumerator)) {
         This->Current = modified->_currentEnumerator->Current;
         return true;
@@ -394,10 +392,10 @@ static IEnumerator* GetAppendEnumerator(const IEnumerable *This)
 {
     const ExtendEnumerable* extend = (const ExtendEnumerable*)This;
 
-    ExtendEnumerator* result = bare(ExtendEnumerator);
+    ExtendEnumerator* result = alloc(ExtendEnumerator);
 
     *result = (ExtendEnumerator) {
-        ._parent = (ModifiedEnumerator) {
+        ._parent = (CompoundEnumerator) {
             ._parent = (IEnumerator) {
                 .MoveNext = AppendMoveNext,
                 .Reset = ExtendReset,
@@ -414,7 +412,7 @@ static IEnumerator* GetAppendEnumerator(const IEnumerable *This)
 
 static bool PrependMoveNext(IEnumerator *This)
 {
-    ModifiedEnumerator* modified = (ModifiedEnumerator*)This;
+    CompoundEnumerator* modified = (CompoundEnumerator*)This;
     if (!((ExtendEnumerator*)This)->_hasEnumeratedExtra) {
         This->Current = ((ExtendEnumerable*)modified->_baseEnumerable)->_added;
         ((ExtendEnumerator*)This)->_hasEnumeratedExtra = true;
@@ -431,10 +429,10 @@ static IEnumerator* GetPrependEnumerator(const IEnumerable *This)
 {
     const ExtendEnumerable* extend = (const ExtendEnumerable*)This;
 
-    ExtendEnumerator* result = bare(ExtendEnumerator);
+    ExtendEnumerator* result = alloc(ExtendEnumerator);
 
     *result = (ExtendEnumerator) {
-        ._parent = (ModifiedEnumerator) {
+        ._parent = (CompoundEnumerator) {
             ._parent = (IEnumerator) {
                 .MoveNext = PrependMoveNext,
                 .Reset = ExtendReset,
@@ -455,7 +453,7 @@ static IEnumerator* GetPrependEnumerator(const IEnumerable *This)
 /// @return A new enumerable.
 IEnumerable* Enumerable_Append(const IEnumerable* source, object item)
 {
-    ExtendEnumerable* result = bare(ExtendEnumerable);
+    ExtendEnumerable* result = alloc(ExtendEnumerable);
 
     *result = (ExtendEnumerable) {
         ._parent = (IEnumerable) {
@@ -474,7 +472,7 @@ IEnumerable* Enumerable_Append(const IEnumerable* source, object item)
 /// @return A new enumerable.
 IEnumerable* Enumerable_Prepend(const IEnumerable* source, object item)
 {
-    ExtendEnumerable* result = bare(ExtendEnumerable);
+    ExtendEnumerable* result = alloc(ExtendEnumerable);
 
     *result = (ExtendEnumerable) {
         ._parent = (IEnumerable) {
@@ -498,13 +496,13 @@ typedef struct concat_enumerable_s {
 } ConcatEnumerable;
 
 typedef struct concat_enumerator_s {
-    ModifiedEnumerator _parent;
+    CompoundEnumerator _parent;
     bool _startedSecondEnumeration;
 } ConcatEnumerator;
 
 static bool ConcatMoveNext(IEnumerator *This)
 {
-    ModifiedEnumerator* modified = (ModifiedEnumerator*)This;
+    CompoundEnumerator* modified = (CompoundEnumerator*)This;
     if (modified->_currentEnumerator->MoveNext(modified->_currentEnumerator)) {
         This->Current = modified->_currentEnumerator->Current;
         return true;
@@ -528,10 +526,10 @@ static IEnumerator* GetConcatEnumerator(const IEnumerable *This)
 {
     const ConcatEnumerable* concat = (const ConcatEnumerable*)This;
 
-    ConcatEnumerator* result = bare(ConcatEnumerator);
+    ConcatEnumerator* result = alloc(ConcatEnumerator);
 
     *result = (ConcatEnumerator) {
-        ._parent = (ModifiedEnumerator) {
+        ._parent = (CompoundEnumerator) {
             ._parent = (IEnumerator) {
                 .MoveNext = ConcatMoveNext,
                 .Reset = ConcatReset,
@@ -552,7 +550,7 @@ static IEnumerator* GetConcatEnumerator(const IEnumerable *This)
 /// @return A new enumerable.
 IEnumerable* Enumerable_Concat(const IEnumerable* first, const IEnumerable* second)
 {
-    ConcatEnumerable* result = bare(ConcatEnumerable);
+    ConcatEnumerable* result = alloc(ConcatEnumerable);
 
     *result = (ConcatEnumerable) {
         ._parent = (IEnumerable) {

@@ -1,4 +1,4 @@
-#include "Array.h"
+#include "Collections/Array.h"
 
 typedef struct array_enumerator_s {
     IEnumerator _parent;
@@ -10,7 +10,7 @@ static bool ArrayMoveNext(IEnumerator *This)
 {
     ArrayEnumerator *e = (ArrayEnumerator*)This;
     if (e->_currentIndex < e->_array->Length) {
-        This->Current = e->_array->Values[e->_currentIndex];
+        This->Current = (e->_array->Values + e->_currentIndex * e->_array->_memberSize);
         e->_currentIndex += 1;
         return true;
     }
@@ -28,9 +28,9 @@ static void ArrayDispose(IEnumerator *This)
     free(This);
 }
 
-static IEnumerator* ArrayGetEnumerator(const IEnumerable* This)
+IEnumerator* ArrayGetEnumerator(const IEnumerable* This)
 {
-    ArrayEnumerator* result = bare(ArrayEnumerator);
+    ArrayEnumerator* result = alloc(ArrayEnumerator);
     *result = (ArrayEnumerator) {
         ._parent = (IEnumerator) {
             .MoveNext = ArrayMoveNext,
@@ -43,94 +43,80 @@ static IEnumerator* ArrayGetEnumerator(const IEnumerable* This)
     return (IEnumerator*)result;
 }
 
-static int DefaultEqualityComparer(object left, object right)
+Array* Array__ctor(int memberSize, int maxLength)
 {
-    if (left < right) return 1;
-    if (left > right) return -1;
-    return 0;
-}
-
-object Array__ctor(int maxLength)
-{
-    Array* result = bare(Array);
-    *result = (Array) {
-        .MaxLength = maxLength,
-        .Length = 0,
-        ._parent = (IEnumerable) {
-            .GetEnumerator = ArrayGetEnumerator
-        }
-    };
-    if (maxLength > 0) {
-        result->Values = new_array(object, maxLength);
-    }
-    return result;
-}
-
-Array* Enumerable_ToArray(IEnumerable* source)
-{
-    // Assume initial capacity
-    int maxLength = 32;
-    IEnumerator* e = source->GetEnumerator(source);
-    Array* result = bare(Array);
+    Array* result = alloc(Array);
     *result = (Array) {
         ._parent = (IEnumerable) {
             .GetEnumerator = ArrayGetEnumerator
         },
-        .Length = 0,
         .MaxLength = maxLength,
-        .Values = new_array(object, maxLength)
+        .Length = 0,
+        ._memberSize = memberSize
     };
-    for (int i = 0; e->MoveNext(e); ++i) {
-        if (i >= result->MaxLength) {
-            Array_Resize(result, result->MaxLength * 2);
-        }
-        result->Values[i] = e->Current;
-        result->Length += 1;
+    if (maxLength > 0) {
+        result->Values = alloc_array(byte, maxLength * memberSize);
     }
-    Array_Resize(result, result->Length);
     return result;
 }
 
 void Array_Clear(Array* source)
 {
-    for (int i = 0; i < source->MaxLength; ++i) {
-        source->Values[i] = NULL;
+    for (int i = 0; i < source->Length; ++i) {
+        for (int j = 0; j < source->_memberSize; ++j) {
+            ((byte*)source->Values + i * source->_memberSize)[j] = 0;
+        }
     }
     source->Length = 0;
 }
 
 void Array_CopyTo(Array* source, Array* dest)
 {
+    Array_Clear(dest);
+    dest->_memberSize = source->_memberSize;
+    Array_Resize(dest, dest->MaxLength);
     if (dest->MaxLength < source->Length) Array_Resize(dest, source->Length);
     for (dest->Length = 0; dest->Length < source->Length; ++dest->Length) {
-        dest->Values[dest->Length] = source->Values[dest->Length];
+        for (int j = 0; j < dest->_memberSize; ++j) {
+            ((byte*)dest->Values + dest->Length * dest->_memberSize)[j] =
+                ((byte*)source->Values + dest->Length * source->_memberSize)[j];
+        }
     }
 }
 
-void Array_Fill(Array* source, object item)
+void Array_Destroy(Array** source)
+{
+    free((*source)->Values);
+    free(*source);
+    source = NULL;
+}
+
+void Array_Fill(Array* source, object itemRef)
 {
     for (int i = 0; i < source->MaxLength; ++i) {
-        source->Values[i] = item;
+        MemCopy(source->Values + i * source->_memberSize, itemRef, source->_memberSize);
     }
     source->Length = source->MaxLength;
 }
 
-void Array_FillConstructible(Array* source, ctor* item_ctor)
+object Array_Get(Array* source, int index)
 {
-    for (int i = 0; i < source->MaxLength; ++i) {
-        source->Values[i] = item_ctor();
-    }
-    source->Length = source->MaxLength;
+    return source->Values + index * source->_memberSize;
 }
 
 void Array_Resize(Array* source, int newMaxLength)
 {
     if (newMaxLength <= 0) return;
-    source->Values = realloc(source->Values, newMaxLength);
+    source->Values = realloc(source->Values, newMaxLength * source->_memberSize);
+}
+
+void Array_Set(Array* source, int index, object itemRef)
+{
+    MemCopy(source->Values + index * source->_memberSize, itemRef, source->_memberSize);
 }
 
 void Array_Sort(Array* source, Comparer* comparer)
 {
-    if (comparer == NULL) comparer = DefaultEqualityComparer;
-    qsort(source->Values, source->Length, sizeof(object), comparer);
+    if (comparer == NULL) comparer = ReferenceComparer;
+    qsort(source->Values, source->Length, source->_memberSize, comparer);
 }

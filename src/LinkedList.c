@@ -1,5 +1,4 @@
-#include "Enumerable.h"
-#include "LinkedList.h"
+#include "Collections/LinkedList.h"
 #include "Defines.h"
 
 #pragma region Enumerator
@@ -37,7 +36,7 @@ static void LinkedListDispose(IEnumerator *This)
 
 static IEnumerator* LinkedListGetEnumerator(const IEnumerable *This)
 {
-    LinkedListEnumerator *result = bare(LinkedListEnumerator);
+    LinkedListEnumerator *result = alloc(LinkedListEnumerator);
     *result = (LinkedListEnumerator) {
         ._parent = (IEnumerator) {
             .MoveNext = LinkedListMoveNext,
@@ -60,13 +59,13 @@ void LinkedList_Add(LinkedList* source, object item)
 {
     if (source->Count > 0) {
         source->Count += 1;
-        source->_end->Next = bare(LinkedNode);
+        source->_end->Next = alloc(LinkedNode);
         source->_end = source->_end->Next;
         source->_end->Value = item;
         return;
     }
 
-    source->_start = bare(LinkedNode);
+    source->_start = alloc(LinkedNode);
     source->_end = source->_start;
     source->_start->Value = item;
     source->Count = 1;
@@ -99,7 +98,7 @@ void LinkedList_Insert(LinkedList* source, object item, int index)
     if (index > source->Count) return;
     source->Count += 1;
     if (index == 0) {
-        LinkedNode* newNode = bare(LinkedNode);
+        LinkedNode* newNode = alloc(LinkedNode);
         *newNode = (LinkedNode) {
             .Value = item,
             .Next = source->_start
@@ -109,7 +108,7 @@ void LinkedList_Insert(LinkedList* source, object item, int index)
     }
 
     if (index == source->Count - 1) {
-        LinkedNode* newNode = bare(LinkedNode);
+        LinkedNode* newNode = alloc(LinkedNode);
         *newNode = (LinkedNode) {
             .Value = item,
         };
@@ -123,7 +122,7 @@ void LinkedList_Insert(LinkedList* source, object item, int index)
         index -= 1;
         current = current->Next;
     }
-    LinkedNode* newNode = bare(LinkedNode);
+    LinkedNode* newNode = alloc(LinkedNode);
     *newNode = (LinkedNode) {
         .Value = item,
         .Next = current->Next,
@@ -135,7 +134,7 @@ void LinkedList_Insert(LinkedList* source, object item, int index)
 /// @return A new LinkedList with no elements.
 LinkedList* LinkedList__ctor()
 {
-    LinkedList *result = bare(LinkedList);
+    LinkedList *result = alloc(LinkedList);
     *result = (LinkedList) {
         ._parent = (IEnumerable) {
             .GetEnumerator = LinkedListGetEnumerator
@@ -153,7 +152,7 @@ LinkedList* LinkedList__ctor()
 /// @return A new LinkedList with elements from the array.
 LinkedList* CreateLinkedListFromArray(int itemCount, object items[])
 {
-    LinkedList *result = bare(LinkedList);
+    LinkedList *result = alloc(LinkedList);
     *result = (LinkedList) {
         ._parent = (IEnumerable) {
             .GetEnumerator = LinkedListGetEnumerator
@@ -163,11 +162,11 @@ LinkedList* CreateLinkedListFromArray(int itemCount, object items[])
         ._end = NULL
     };
     if (itemCount == 0) return result;
-    LinkedNode *current = bare(LinkedNode);
+    LinkedNode *current = alloc(LinkedNode);
     result->_start = current;
     current->Value = items[0];
     for (int i = 1; i < itemCount; ++i) {
-        current->Next = bare(LinkedNode);
+        current->Next = alloc(LinkedNode);
         current = current->Next;
         current->Value = items[i];
     }
@@ -179,7 +178,7 @@ LinkedList* CreateLinkedListFromArray(int itemCount, object items[])
 /// @return A new LinkedList with elements from source.
 LinkedList* Enumerable_ToLinkedList(IEnumerable* source)
 {
-    LinkedList* result = bare(LinkedList);
+    LinkedList* result = alloc(LinkedList);
     IEnumerator* e = source->GetEnumerator(source);
     if (e->MoveNext(e)) LinkedList_Add(result, e->Current);
     while (e->MoveNext(e)) {

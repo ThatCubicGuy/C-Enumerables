@@ -1,7 +1,7 @@
 #ifndef LINKED_LIST
 #define LINKED_LIST
 
-#include "Enumerable.h"
+#include "Collections/Enumerable.h"
 
 /// @brief A node inside a linked list.
 typedef struct linked_node_s {

@@ -1,5 +1,5 @@
-#include "Enumerable.h"
-#include "LinkedList.h"
+#include "Collections/Enumerable.h"
+#include "Collections/LinkedList.h"
 #include "Tests.h"
 
 typedef struct list_item_s {
