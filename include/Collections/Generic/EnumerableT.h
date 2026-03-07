@@ -10,8 +10,8 @@
  * the current enumeration value before executing code.
  */
 #define foreach(T, var, source, code) do {                  \
-    IEnumerator_##T* __e = ((IEnumerable_##T*)source)       \
-        ->GetEnumerator((IEnumerable_##T*)source);          \
+    IEnumerable_##T* __src = (IEnumerable_##T*)source;      \
+    IEnumerator_##T* __e = (__src)->GetEnumerator(__src);   \
     while (__e->MoveNext(__e)) {                            \
         T var = __e->Current;                               \
         code;                                               \
@@ -136,7 +136,7 @@ bool Enumerable_##T##_SequenceEqual(const IEnumerable_##T* first, const IEnumera
  * @param selector Function to apply to each element.                                                                                                   \
  * @return A new enumerable.                                                                                                                            \
  */                                                                                                                                                     \
-IEnumerable_##TSource* Enumerable_##TSource##_Select_##TResult(const IEnumerable_##TSource* source, TResult (*selector)(TSource));                      \
+IEnumerable_##TResult* Enumerable_##TSource##_Select_##TResult(const IEnumerable_##TSource* source, TResult (*selector)(TSource));                      \
 
 #define ENUMERABLE_DEFINE_SELECTMANY(TSource, TResult)                                                                                                  \
 /**                                                                                                                                                     \

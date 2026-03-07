@@ -13,6 +13,7 @@
 #define DEFINE_BASE_CTOR(TYPE) TYPE TYPE##__ctor(void) { return (TYPE){0}; }
 
 typedef const void* object;
+typedef const char* string;
 typedef unsigned char byte;
 
 typedef void Action(object);

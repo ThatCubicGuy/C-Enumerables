@@ -6,7 +6,10 @@
 #define INT_ENUMERABLE_DEFINED
 ENUMERABLE_DEFINE(int)
 #endif
+#ifndef INT_LINKED_LIST_DEFINED
+#define INT_LINKED_LIST_DEFINED
 LINKED_LIST_DEFINE(int)
+#endif
 
 void test_generic_linked_lists(void)
 {
@@ -20,5 +23,3 @@ void test_generic_linked_lists(void)
         printf("Item in list: %d\n", var);
     });
 }
-
-LINKED_LIST_IMPLEMENT(int)

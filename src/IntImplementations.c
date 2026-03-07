@@ -1,5 +1,6 @@
-#include "Collections/Generic/ListImplement.h"
 #include "Collections/Generic/EnumerableImplement.h"
+#include "Collections/Generic/ListImplement.h"
+#include "Collections/Generic/LinkedListImplement.h"
 #include "Collections/Array.h"
 
 #ifndef INT_DEFAULT_CONSTRUCTOR_DEFINED
@@ -21,10 +22,15 @@ ARRAY_DEFINE(int)
 #define INT_LIST_DEFINED
 LIST_DEFINE(int)
 #endif
+#ifndef INT_LINKED_LIST_DEFINED
+#define INT_LINKED_LIST_DEFINED
+LINKED_LIST_DEFINE(int)
+#endif
 
 ENUMERABLE_IMPLEMENT(int)
 ARRAY_IMPLEMENT(int)
 LIST_IMPLEMENT(int)
+LINKED_LIST_IMPLEMENT(int)
 ENUMERABLE_IMPLEMENT_SELECT(int, int)
 ENUMERABLE_IMPLEMENT_SELECTMANY(int, int)
 ENUMERABLE_IMPLEMENT_AGGREGATE(int, int)

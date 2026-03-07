@@ -4,13 +4,15 @@
 #include "Tests.h"
 
 typedef struct employee_s {
-    char Name[16];
+    string Name;
     void* Coworkers;
     int Age;
 } Employee;
 
 ENUMERABLE_DEFINE(Employee)
 LIST_DEFINE(Employee)
+ENUMERABLE_DEFINE(string)
+ENUMERABLE_DEFINE_SELECT(Employee, string)
 
 void showData(Employee item)
 {
@@ -41,7 +43,7 @@ void ShowNumbers(const IEnumerable* source)
     printf("\n");
 }
 
-char* selectNames(Employee item)
+string selectNames(Employee item)
 {
     return item.Name;
 }
@@ -94,7 +96,12 @@ void test_with_structs(void) {
     if (Enumerable_Employee_SequenceEqual((IEnumerable_Employee*)workers, (IEnumerable_Employee*)workers)) {
         printf("Sequence is equal to itself. Who would've guessed!\n");
     } else printf("U h  o h .\n");
+    foreach(string, name, Enumerable_Employee_Select_string((IEnumerable_Employee*)workers, selectNames), {
+        printf("Employee name: %s\n", name);
+    });
 }
 
 ENUMERABLE_IMPLEMENT(Employee)
 LIST_IMPLEMENT(Employee)
+ENUMERABLE_IMPLEMENT(string)
+ENUMERABLE_IMPLEMENT_SELECT(Employee, string)
