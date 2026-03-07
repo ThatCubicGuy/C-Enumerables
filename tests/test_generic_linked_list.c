@@ -27,10 +27,9 @@ void test_generic_linked_lists(void)
     LinkedList_int_Add(int_list, 7);
     LinkedList_int_Add(int_list, 1);
     LinkedList_int_Add(int_list, 3);
-    printf("List address: %x\n", int_list);
+    printf("List address: %p\n", int_list);
     foreach(int, var, int_list, {
         printf("Item in list: %d\n", var);
-        fprintf(stderr, "This feels like a buffering issue in the weirdest way\n");
     });
     printf("Select first 4 as multiplied by 3:\n");
     foreach(int, var, Enumerable_int_Take(Enumerable_int_Select_int(base(int_list), multBy3), 4), {

@@ -13,11 +13,13 @@
 // Allocates an array of CAPACITY elements of type ARRAY_TYPE and returns its location.
 #define alloc_array(ARRAY_TYPE, CAPACITY) ((ARRAY_TYPE*)calloc(sizeof(ARRAY_TYPE), CAPACITY))
 // Initializes a potentially readonly struct pointer with a given initializer.
-#define init(BASE_TYPE, var) *(struct BASE_TYPE*)var = (struct BASE_TYPE)
+#define init(STRUCT_TYPE, var) *(struct STRUCT_TYPE*)var = (struct STRUCT_TYPE)
 // Initializes a readonly location with the given reference value.
 #define init_ro(REF_TYPE, var) *(REF_TYPE*)&var = (REF_TYPE)
+// Allocates memory for a struct of type BASE_TYPE and initializes it with a given initializer.
+#define allocinit(STUCT_TYPE, var) var = alloc(struct STUCT_TYPE); init(STUCT_TYPE, var)
 // Returns the type that this type directly inherits from.
-#define base(REFTYPE) (&(REFTYPE)->_parent)
+#define base(REF_TYPE) (&(REF_TYPE)->_parent)
 // Returns the default (zero initialized) value for the given type.
 #define default(TYPE) ((TYPE){0})
 // Defines the empty constructor for a value type (that is, initializing all of its values with zero.)

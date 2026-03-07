@@ -4,53 +4,48 @@
 #pragma region Enumerator
 
 typedef struct linked_list_enumerator_s {
-    IEnumerator _parent;
-    LinkedList *_source;
-    LinkedNode *_currentNode;
-} LinkedListEnumerator;
+    struct enumerator_s _parent;
+    LinkedList _source;
+    LinkedNode _currentNode;
+} *LinkedListEnumerator;
 
-static bool LinkedListMoveNext(IEnumerator *This)
+static bool LinkedListMoveNext(IEnumerator This)
 {
-    fprintf(stderr, "WERE YOU EDGING OR WERE YOU GOONING?\n");
-    LinkedListEnumerator *LLE = (LinkedListEnumerator*)This;
+    LinkedListEnumerator LLE = (LinkedListEnumerator)This;
     if (LLE->_currentNode == NULL) {
         if (LLE->_source->_start == NULL) return false;
         LLE->_currentNode = LLE->_source->_start;
         This->Current = LLE->_source->_start->Value;
         return true;
     }
-    fprintf(stderr, "ANSWER!!!!!! %x\n", LLE->_currentNode->Next->Value);
     if (LLE->_currentNode->Next == NULL) {
-        fprintf(stderr, "Edging...\n");
         return false;
     }
-    fprintf(stderr, "Gooning...\n");
     LLE->_currentNode = LLE->_currentNode->Next;
     This->Current = LLE->_currentNode->Value;
-    fprintf(stderr, "Oh my freaking gyatt...\n");
     return true;
 }
 
-static void LinkedListReset(IEnumerator *This)
+static void LinkedListReset(IEnumerator This)
 {
-    ((LinkedListEnumerator*)This)->_currentNode = NULL;
+    ((LinkedListEnumerator)This)->_currentNode = NULL;
+    This->Current = NULL;
 }
 
-static void LinkedListDispose(IEnumerator *This)
+static void LinkedListDispose(IEnumerator This)
 {
     free(This);
 }
 
-static IEnumerator* LinkedListGetEnumerator(const IEnumerable *This)
+static IEnumerator LinkedListGetEnumerator(const IEnumerable This)
 {
-    LinkedListEnumerator *result = alloc(LinkedListEnumerator);
-    *result = (LinkedListEnumerator) {
-        ._parent = (IEnumerator) {
+    LinkedListEnumerator allocinit(linked_list_enumerator_s, result) {
+        ._parent = (struct enumerator_s) {
             .MoveNext = LinkedListMoveNext,
             .Reset = LinkedListReset,
             .Dispose = LinkedListDispose
         },
-        ._source = (LinkedList*)This
+        ._source = (LinkedList)This
     };
     return base(result);
 }
@@ -62,26 +57,24 @@ static IEnumerator* LinkedListGetEnumerator(const IEnumerable *This)
 /// @brief Add an element to the end of the list.
 /// @param list List to add an element to.
 /// @param item Item to add to the end of the list.
-void LinkedList_Add(LinkedList* source, object item)
+void LinkedList_Add(LinkedList source, object item)
 {
     if (source->Count > 0) {
         source->Count += 1;
-        source->_end->Next = alloc(struct linked_node_s);
-        source->_end = source->_end->Next;
-        init(struct linked_node_s, source->_end) {
+        allocinit(linked_node_s, source->_end->Next) {
             .Next = NULL,
             .Value = item
         };
         return;
     }
 
-    source->_start = alloc(LinkedNode);
+    allocinit(linked_node_s, source->_start) default(struct linked_node_s);
     source->_end = source->_start;
     source->_start->Value = item;
     source->Count = 1;
 }
 
-static void RemoveNodes(LinkedNode* startingPoint)
+static void RemoveNodes(LinkedNode startingPoint)
 {
     if (startingPoint == NULL) return;
     if (startingPoint->Next != NULL) {
@@ -92,9 +85,8 @@ static void RemoveNodes(LinkedNode* startingPoint)
 
 /// @brief Removes all elements from the linked list.
 /// @param source Linked list to clear.
-void LinkedList_Clear(LinkedList* source)
+void LinkedList_Clear(LinkedList source)
 {
-    fprintf(stderr, "HEEEEEEHHHHH ???? \n");
     RemoveNodes(source->_start);
     source->_start = NULL;
     source->_end = NULL;
@@ -105,13 +97,12 @@ void LinkedList_Clear(LinkedList* source)
 /// @param source List to insert the element into.
 /// @param item Item to insert into the list.
 /// @param index Index to insert the item at.
-void LinkedList_Insert(LinkedList* source, object item, int index)
+void LinkedList_Insert(LinkedList source, object item, int index)
 {
     if (index > source->Count) return;
     source->Count += 1;
     if (index == 0) {
-        LinkedNode* newNode = alloc(LinkedNode);
-        *newNode = (LinkedNode) {
+        LinkedNode allocinit(linked_node_s, newNode) {
             .Value = item,
             .Next = source->_start
         };
@@ -120,8 +111,7 @@ void LinkedList_Insert(LinkedList* source, object item, int index)
     }
 
     if (index == source->Count - 1) {
-        LinkedNode* newNode = alloc(LinkedNode);
-        *newNode = (LinkedNode) {
+        LinkedNode allocinit(linked_node_s, newNode) {
             .Value = item,
         };
         source->_end->Next = newNode;
@@ -129,13 +119,12 @@ void LinkedList_Insert(LinkedList* source, object item, int index)
         return;
     }
 
-    LinkedNode* current = source->_start;
+    LinkedNode current = source->_start;
     while (index > 1) {
         index -= 1;
         current = current->Next;
     }
-    LinkedNode* newNode = alloc(LinkedNode);
-    *newNode = (LinkedNode) {
+    LinkedNode allocinit(linked_node_s, newNode) {
         .Value = item,
         .Next = current->Next,
     };
@@ -144,11 +133,10 @@ void LinkedList_Insert(LinkedList* source, object item, int index)
 
 /// @brief Creates a new instance of the LinkedList enumerable.
 /// @return A new LinkedList with no elements.
-LinkedList* LinkedList__ctor()
+LinkedList LinkedList__ctor()
 {
-    LinkedList *result = alloc(LinkedList);
-    *result = (LinkedList) {
-        ._parent = (IEnumerable) {
+    LinkedList allocinit(linked_list_s, result) {
+        ._parent = (struct enumerable_s) {
             .GetEnumerator = LinkedListGetEnumerator
         },
         .Count = 0,
@@ -160,7 +148,7 @@ LinkedList* LinkedList__ctor()
 
 /// @brief Frees up all memory occupied by a linked list.
 /// @param source List to destroy.
-void DestroyLinkedList(LinkedList** source)
+void DestroyLinkedList(LinkedList* source)
 {
     LinkedList_Clear(*source);
     free(*source);
@@ -171,11 +159,10 @@ void DestroyLinkedList(LinkedList** source)
 /// @param itemCount Amount of items in the array.
 /// @param items Array of items.
 /// @return A new LinkedList with elements from the array.
-LinkedList* CreateLinkedListFromArray(int itemCount, object items[])
+LinkedList CreateLinkedListFromArray(int itemCount, object items[])
 {
-    LinkedList *result = alloc(LinkedList);
-    *result = (LinkedList) {
-        ._parent = (IEnumerable) {
+    LinkedList allocinit(linked_list_s, result) {
+        ._parent = (struct enumerable_s) {
             .GetEnumerator = LinkedListGetEnumerator
         },
         .Count = itemCount,
@@ -183,11 +170,11 @@ LinkedList* CreateLinkedListFromArray(int itemCount, object items[])
         ._end = NULL
     };
     if (itemCount == 0) return result;
-    LinkedNode *current = alloc(LinkedNode);
+    LinkedNode allocinit(linked_node_s, current) default(struct linked_node_s);
     result->_start = current;
     current->Value = items[0];
     for (int i = 1; i < itemCount; ++i) {
-        current->Next = alloc(LinkedNode);
+        allocinit(linked_node_s, current->Next) default(struct linked_node_s);
         current = current->Next;
         current->Value = items[i];
     }
@@ -197,14 +184,10 @@ LinkedList* CreateLinkedListFromArray(int itemCount, object items[])
 /// @brief Creates a LinkedList from an IEnumerable.
 /// @param source Source enumerable to take items from.
 /// @return A new LinkedList with elements from source.
-LinkedList* Enumerable_ToLinkedList(IEnumerable* source)
+LinkedList Enumerable_ToLinkedList(IEnumerable source)
 {
-    LinkedList* result = alloc(LinkedList);
-    IEnumerator* e = source->GetEnumerator(source);
-    if (e->MoveNext(e)) LinkedList_Add(result, e->Current);
-    while (e->MoveNext(e)) {
-        LinkedList_Add(result, e->Current);
-    }
+    LinkedList allocinit(linked_list_s, result) default(struct linked_list_s);
+    foreach_as(object, item, source, LinkedList_Add(result, item));
     return result;
 }
 

@@ -8,8 +8,8 @@
  * the current enumeration value before executing code.
  */
 #define foreach_as(T, var, source, code) do {           \
-    IEnumerable __src = (IEnumerable)source;          \
-    IEnumerator __e = (__src)->GetEnumerator(__src);   \
+    IEnumerable __src = (IEnumerable)source;            \
+    IEnumerator __e = (__src)->GetEnumerator(__src);    \
     while (__e->MoveNext(__e)) {                        \
         T var = (T)__e->Current;                        \
         code;                                           \

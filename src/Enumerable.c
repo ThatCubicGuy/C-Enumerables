@@ -48,9 +48,7 @@ static IEnumerator GetWhereEnumerator(IEnumerable This)
 {
     WhereEnumerable where = (WhereEnumerable)This;
 
-    CompoundEnumerator result = alloc(struct compound_enumerator_s);
-
-    init(struct compound_enumerator_s, result) {
+    CompoundEnumerator allocinit(compound_enumerator_s, result) {
         ._parent = (struct enumerator_s) {
             .MoveNext = WhereMoveNext,
             .Reset = ModifiedReset,
@@ -69,8 +67,7 @@ static IEnumerator GetWhereEnumerator(IEnumerable This)
 /// @return A new enumerable.
 IEnumerable Enumerable_Where(IEnumerable source, PredicateFunc* filter)
 {
-    WhereEnumerable result = alloc(struct where_enumerable_s);
-    init(struct where_enumerable_s, result) {
+    WhereEnumerable allocinit(where_enumerable_s, result) {
         ._parent = (struct enumerable_s) {
             .GetEnumerator = GetWhereEnumerator
         },
@@ -105,9 +102,7 @@ static IEnumerator GetSelectEnumerator(IEnumerable This)
 {
     SelectEnumerable select = (SelectEnumerable)This;
 
-    CompoundEnumerator result = alloc(struct compound_enumerator_s);
-
-    init(struct compound_enumerator_s, result) {
+    CompoundEnumerator allocinit(compound_enumerator_s, result) {
         ._parent = (struct enumerator_s) {
             .MoveNext = SelectMoveNext,
             .Reset = ModifiedReset,
@@ -126,8 +121,7 @@ static IEnumerator GetSelectEnumerator(IEnumerable This)
 /// @return A new enumerable.
 IEnumerable Enumerable_Select(IEnumerable source, SelectorFunc* selector)
 {
-    SelectEnumerable result = alloc(struct select_enumerable_s);
-    init(struct select_enumerable_s, result) {
+    SelectEnumerable allocinit(select_enumerable_s, result) {
         ._parent = (struct enumerable_s) {
             .GetEnumerator = GetSelectEnumerator
         },
@@ -190,9 +184,7 @@ static IEnumerator GetSelectManyEnumerator(IEnumerable This)
 {
     SelectManyEnumerable selectMany = (SelectManyEnumerable)This;
 
-    SelectManyEnumerator result = alloc(struct select_many_enumerator_s);
-
-    init(struct select_many_enumerator_s, result) {
+    SelectManyEnumerator allocinit(select_many_enumerator_s, result) {
         ._parent = (struct enumerator_s) {
             .MoveNext = SelectManyMoveNext,
             .Reset = SelectManyReset,
@@ -211,8 +203,7 @@ static IEnumerator GetSelectManyEnumerator(IEnumerable This)
 /// @return A new enumerable.
 IEnumerable Enumerable_SelectMany(IEnumerable source, SelectManyFunc* selector)
 {
-    SelectManyEnumerable result = alloc(struct select_many_enumerable_s);
-    init(struct select_many_enumerable_s, result) {
+    SelectManyEnumerable allocinit(select_many_enumerable_s, result) {
         ._parent = (struct enumerable_s) {
             .GetEnumerator = GetSelectManyEnumerator,
         },
@@ -259,9 +250,7 @@ static IEnumerator GetTakeEnumerator(IEnumerable This)
 {
     LimitedEnumerable limited = (LimitedEnumerable)This;
 
-    LimitedEnumerator result = alloc(struct limited_enumerator_s);
-
-    init(struct limited_enumerator_s, result) {
+    LimitedEnumerator allocinit(limited_enumerator_s, result) {
         ._parent = (struct compound_enumerator_s) {
             ._parent = (struct enumerator_s) {
                 .MoveNext = TakeMoveNext,
@@ -295,9 +284,7 @@ static IEnumerator GetSkipEnumerator(IEnumerable This)
 {
     LimitedEnumerable limited = (LimitedEnumerable)This;
 
-    LimitedEnumerator result = alloc(struct limited_enumerator_s);
-
-    init(struct limited_enumerator_s, result) {
+    LimitedEnumerator allocinit(limited_enumerator_s, result) {
         ._parent = (struct compound_enumerator_s) {
             ._parent = (struct enumerator_s) {
                 .MoveNext = SkipMoveNext,
@@ -319,9 +306,7 @@ static IEnumerator GetSkipEnumerator(IEnumerable This)
 /// @return A new enumerable.
 IEnumerable Enumerable_Take(IEnumerable source, int count)
 {
-    LimitedEnumerable result = alloc(struct limited_enumerable_s);
-
-    init(struct limited_enumerable_s, result) {
+    LimitedEnumerable allocinit(limited_enumerable_s, result) {
         ._parent = (struct enumerable_s) {
             .GetEnumerator = GetTakeEnumerator
         },
@@ -338,9 +323,7 @@ IEnumerable Enumerable_Take(IEnumerable source, int count)
 /// @return A new enumerable.
 IEnumerable Enumerable_Skip(IEnumerable source, int count)
 {
-    LimitedEnumerable result = alloc(struct limited_enumerable_s);
-
-    init(struct limited_enumerable_s, result) {
+    LimitedEnumerable allocinit(limited_enumerable_s, result) {
         ._parent = (struct enumerable_s) {
             .GetEnumerator = GetSkipEnumerator
         },
@@ -391,9 +374,7 @@ static IEnumerator GetAppendEnumerator(IEnumerable This)
 {
     ExtendEnumerable extend = (ExtendEnumerable)This;
 
-    ExtendEnumerator result = alloc(struct extend_enumerator_s);
-
-    init(struct extend_enumerator_s, result) {
+    ExtendEnumerator allocinit(extend_enumerator_s, result) {
         ._parent = (struct compound_enumerator_s) {
             ._parent = (struct enumerator_s) {
                 .MoveNext = AppendMoveNext,
@@ -428,9 +409,7 @@ static IEnumerator GetPrependEnumerator(IEnumerable This)
 {
     ExtendEnumerable extend = (ExtendEnumerable)This;
 
-    ExtendEnumerator result = alloc(struct extend_enumerator_s);
-
-    init(struct extend_enumerator_s, result) {
+    ExtendEnumerator allocinit(extend_enumerator_s, result) {
         ._parent = (struct compound_enumerator_s) {
             ._parent = (struct enumerator_s) {
                 .MoveNext = PrependMoveNext,
@@ -452,9 +431,7 @@ static IEnumerator GetPrependEnumerator(IEnumerable This)
 /// @return A new enumerable.
 IEnumerable Enumerable_Append(IEnumerable source, object item)
 {
-    ExtendEnumerable result = alloc(struct extend_enumerable_s);
-
-    init(struct extend_enumerable_s, result) {
+    ExtendEnumerable allocinit(extend_enumerable_s, result) {
         ._parent = (struct enumerable_s) {
             .GetEnumerator = GetAppendEnumerator
         },
@@ -471,9 +448,7 @@ IEnumerable Enumerable_Append(IEnumerable source, object item)
 /// @return A new enumerable.
 IEnumerable Enumerable_Prepend(IEnumerable source, object item)
 {
-    ExtendEnumerable result = alloc(struct extend_enumerable_s);
-
-    init(struct extend_enumerable_s, result) {
+    ExtendEnumerable allocinit(extend_enumerable_s, result) {
         ._parent = (struct enumerable_s) {
             .GetEnumerator = GetPrependEnumerator
         },
@@ -525,9 +500,7 @@ static IEnumerator GetConcatEnumerator(IEnumerable This)
 {
     ConcatEnumerable concat = (ConcatEnumerable)This;
 
-    ConcatEnumerator result = alloc(struct concat_enumerator_s);
-
-    init(struct concat_enumerator_s, result) {
+    ConcatEnumerator allocinit(concat_enumerator_s, result) {
         ._parent = (struct compound_enumerator_s) {
             ._parent = (struct enumerator_s) {
                 .MoveNext = ConcatMoveNext,
@@ -549,9 +522,7 @@ static IEnumerator GetConcatEnumerator(IEnumerable This)
 /// @return A new enumerable.
 IEnumerable Enumerable_Concat(IEnumerable first, IEnumerable second)
 {
-    ConcatEnumerable result = alloc(struct concat_enumerable_s);
-
-    init(struct concat_enumerable_s, result) {
+    ConcatEnumerable allocinit(concat_enumerable_s, result) {
         ._parent = (struct enumerable_s) {
             .GetEnumerator = GetConcatEnumerator
         },

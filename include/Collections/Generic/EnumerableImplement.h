@@ -42,8 +42,7 @@ static bool WhereMoveNext_##T(IEnumerator_##T This)                             
 static IEnumerator_##T GetWhereEnumerator_##T(IEnumerable_##T This)                                     \
 {                                                                                                       \
     WhereEnumerable_##T where = (WhereEnumerable_##T)This;                                              \
-    CompoundEnumerator_##T result = alloc(struct generic_compound_enumerator_##T##_s);                  \
-    init(struct generic_compound_enumerator_##T##_s, result) {                                          \
+    CompoundEnumerator_##T allocinit(generic_compound_enumerator_##T##_s, result) {                                          \
         ._parent = (struct generic_enumerator_##T##_s) {                                                \
             .MoveNext = WhereMoveNext_##T,                                                              \
             .Reset = CompoundReset_##T,                                                                 \
@@ -57,8 +56,7 @@ static IEnumerator_##T GetWhereEnumerator_##T(IEnumerable_##T This)             
 \
 IEnumerable_##T Enumerable_##T##_Where(IEnumerable_##T source, bool (*filter)(T))                       \
 {                                                                                                       \
-    WhereEnumerable_##T result = alloc(struct generic_where_enumerable_##T##_s);                        \
-    init(struct generic_where_enumerable_##T##_s, result) {                                             \
+    WhereEnumerable_##T allocinit(generic_where_enumerable_##T##_s, result) {                                             \
         ._parent = (struct generic_enumerable_##T##_s) {                                                \
             .GetEnumerator = GetWhereEnumerator_##T                                                     \
         },                                                                                              \
@@ -97,8 +95,7 @@ static bool TakeMoveNext_##T(IEnumerator_##T This)                              
 static IEnumerator_##T GetTakeEnumerator_##T(IEnumerable_##T This)                                      \
 {                                                                                                       \
     LimitedEnumerable_##T limited = (LimitedEnumerable_##T)This;                                        \
-    LimitedEnumerator_##T result = alloc(struct generic_limited_enumerator_##T##_s);                    \
-    init(struct generic_limited_enumerator_##T##_s, result) {                                           \
+    LimitedEnumerator_##T allocinit(generic_limited_enumerator_##T##_s, result) {                                           \
         ._parent = (struct generic_compound_enumerator_##T##_s) {                                       \
             ._parent = (struct generic_enumerator_##T##_s) {                                            \
                 .MoveNext = TakeMoveNext_##T,                                                           \
@@ -129,8 +126,7 @@ static bool SkipMoveNext_##T(IEnumerator_##T This)                              
 static IEnumerator_##T GetSkipEnumerator_##T(IEnumerable_##T This)                                      \
 {                                                                                                       \
     LimitedEnumerable_##T limited = (LimitedEnumerable_##T)This;                                        \
-    LimitedEnumerator_##T result = alloc(struct generic_limited_enumerator_##T##_s);                    \
-    init(struct generic_limited_enumerator_##T##_s, result) {                                           \
+    LimitedEnumerator_##T allocinit(generic_limited_enumerator_##T##_s, result) {                                           \
         ._parent = (struct generic_compound_enumerator_##T##_s) {                                       \
             ._parent = (struct generic_enumerator_##T##_s) {                                            \
                 .MoveNext = SkipMoveNext_##T,                                                           \
@@ -148,8 +144,7 @@ static IEnumerator_##T GetSkipEnumerator_##T(IEnumerable_##T This)              
 \
 IEnumerable_##T Enumerable_##T##_Take(IEnumerable_##T source, int count)                                \
 {                                                                                                       \
-    LimitedEnumerable_##T result = alloc(struct generic_limited_enumerable_##T##_s);                    \
-    init(struct generic_limited_enumerable_##T##_s, result) {                                           \
+    LimitedEnumerable_##T allocinit(generic_limited_enumerable_##T##_s, result) {                                           \
         ._parent = (struct generic_enumerable_##T##_s) {                                                \
             .GetEnumerator = GetTakeEnumerator_##T                                                      \
         },                                                                                              \
@@ -161,8 +156,7 @@ IEnumerable_##T Enumerable_##T##_Take(IEnumerable_##T source, int count)        
 \
 IEnumerable_##T Enumerable_##T##_Skip(IEnumerable_##T source, int count)                                \
 {                                                                                                       \
-    LimitedEnumerable_##T result = alloc(struct generic_limited_enumerable_##T##_s);                    \
-    init(struct generic_limited_enumerable_##T##_s, result) {                                           \
+    LimitedEnumerable_##T allocinit(generic_limited_enumerable_##T##_s, result) {                                           \
         ._parent = (struct generic_enumerable_##T##_s) {                                                \
             .GetEnumerator = GetSkipEnumerator_##T                                                      \
         },                                                                                              \
@@ -201,8 +195,7 @@ static bool AppendMoveNext_##T(IEnumerator_##T This)                            
 static IEnumerator_##T GetAppendEnumerator_##T(IEnumerable_##T This)                                    \
 {                                                                                                       \
     ExtendEnumerable_##T extend = (ExtendEnumerable_##T)This;                                           \
-    ExtendEnumerator_##T result = alloc(struct generic_extend_enumerator_##T##_s);                      \
-    init(struct generic_extend_enumerator_##T##_s, result) {                                            \
+    ExtendEnumerator_##T allocinit(generic_extend_enumerator_##T##_s, result) {                                            \
         ._parent = (struct generic_compound_enumerator_##T##_s) {                                       \
             ._parent = (struct generic_enumerator_##T##_s) {                                            \
                 .MoveNext = AppendMoveNext_##T,                                                         \
@@ -233,8 +226,7 @@ static bool PrependMoveNext_##T(IEnumerator_##T This)                           
 static IEnumerator_##T GetPrependEnumerator_##T(IEnumerable_##T This)                                   \
 {                                                                                                       \
     ExtendEnumerable_##T extend = (ExtendEnumerable_##T)This;                                           \
-    ExtendEnumerator_##T result = alloc(struct generic_extend_enumerator_##T##_s);                      \
-    init(struct generic_extend_enumerator_##T##_s, result) {                                            \
+    ExtendEnumerator_##T allocinit(generic_extend_enumerator_##T##_s, result) {                                            \
         ._parent = (struct generic_compound_enumerator_##T##_s) {                                       \
             ._parent = (struct generic_enumerator_##T##_s) {                                            \
                 .MoveNext = PrependMoveNext_##T,                                                        \
@@ -252,8 +244,7 @@ static IEnumerator_##T GetPrependEnumerator_##T(IEnumerable_##T This)           
 \
 IEnumerable_##T Enumerable_##T##_Append(IEnumerable_##T source, T item)                                 \
 {                                                                                                       \
-    ExtendEnumerable_##T result = alloc(struct generic_extend_enumerable_##T##_s);                      \
-    init(struct generic_extend_enumerable_##T##_s, result) {                                            \
+    ExtendEnumerable_##T allocinit(generic_extend_enumerable_##T##_s, result) {                                            \
         ._parent = (struct generic_enumerable_##T##_s) {                                                \
             .GetEnumerator = GetAppendEnumerator_##T                                                    \
         },                                                                                              \
@@ -265,8 +256,7 @@ IEnumerable_##T Enumerable_##T##_Append(IEnumerable_##T source, T item)         
 \
 IEnumerable_##T Enumerable_##T##_Prepend(IEnumerable_##T source, T item)                                \
 {                                                                                                       \
-    ExtendEnumerable_##T result = alloc(struct generic_extend_enumerable_##T##_s);                      \
-    init(struct generic_extend_enumerable_##T##_s, result) {                                            \
+    ExtendEnumerable_##T allocinit(generic_extend_enumerable_##T##_s, result) {                                            \
         ._parent = (struct generic_enumerable_##T##_s) {                                                \
             .GetEnumerator = GetPrependEnumerator_##T                                                   \
         },                                                                                              \
@@ -308,8 +298,7 @@ static void ConcatReset_##T(IEnumerator_##T This)                               
 static IEnumerator_##T GetConcatEnumerator_##T(IEnumerable_##T This)                                    \
 {                                                                                                       \
     ConcatEnumerable_##T concat = (ConcatEnumerable_##T)This;                                           \
-    ConcatEnumerator_##T result = alloc(struct generic_concat_enumerator_##T##_s);                      \
-    init(struct generic_concat_enumerator_##T##_s, result) {                                            \
+    ConcatEnumerator_##T allocinit(generic_concat_enumerator_##T##_s, result) {                                            \
         ._parent = (struct generic_compound_enumerator_##T##_s) {                                       \
             ._parent = (struct generic_enumerator_##T##_s) {                                            \
                 .MoveNext = ConcatMoveNext_##T,                                                         \
@@ -327,8 +316,7 @@ static IEnumerator_##T GetConcatEnumerator_##T(IEnumerable_##T This)            
 \
 IEnumerable_##T Enumerable_##T##_Concat(IEnumerable_##T first, IEnumerable_##T second)                  \
 {                                                                                                       \
-    ConcatEnumerable_##T result = alloc(struct generic_concat_enumerable_##T##_s);                      \
-    init(struct generic_concat_enumerable_##T##_s, result) {                                            \
+    ConcatEnumerable_##T allocinit(generic_concat_enumerable_##T##_s, result) {                                            \
         ._parent = (struct generic_enumerable_##T##_s) {                                                \
             .GetEnumerator = GetConcatEnumerator_##T                                                    \
         },                                                                                              \
@@ -483,9 +471,7 @@ static void SelectDispose_##TSource##_##TResult(IEnumerator_##TResult This)     
 static IEnumerator_##TResult GetSelectEnumerator_##TSource##_##TResult(IEnumerable_##TResult This)      \
 {                                                                                                       \
     SelectEnumerable_##TSource##_##TResult select = (SelectEnumerable_##TSource##_##TResult)This;       \
-    SelectEnumerator_##TSource##_##TResult result =                                                     \
-        alloc(struct generic_select_enumerator_##TSource##_to_##TResult##_s);                           \
-    init(struct generic_select_enumerator_##TSource##_to_##TResult##_s, result) {                       \
+    SelectEnumerator_##TSource##_##TResult allocinit(generic_select_enumerator_##TSource##_to_##TResult##_s, result) {                       \
         ._parent = (struct generic_enumerator_##TResult##_s) {                                          \
             .MoveNext = SelectMoveNext_##TSource##_##TResult,                                           \
             .Reset = SelectReset_##TSource##_##TResult,                                                 \
@@ -499,9 +485,7 @@ static IEnumerator_##TResult GetSelectEnumerator_##TSource##_##TResult(IEnumerab
 \
 IEnumerable_##TResult Enumerable_##TSource##_Select_##TResult(IEnumerable_##TSource source, TResult (*selector)(TSource))   \
 {                                                                                                       \
-    SelectEnumerable_##TSource##_##TResult result =                                                     \
-        alloc(struct generic_select_enumerable_##TSource##_to_##TResult##_s);                           \
-    init(struct generic_select_enumerable_##TSource##_to_##TResult##_s, result) {                       \
+    SelectEnumerable_##TSource##_##TResult allocinit(generic_select_enumerable_##TSource##_to_##TResult##_s, result) {                       \
         ._parent = (struct generic_enumerable_##TResult##_s) {                                          \
             .GetEnumerator = GetSelectEnumerator_##TSource##_##TResult                                  \
         },                                                                                              \
@@ -564,9 +548,7 @@ static IEnumerator_##TResult GetSelectManyEnumerator_##TSource##_##TResult(IEnum
 {                                                                                                       \
     SelectManyEnumerable_##TSource##_##TResult selectMany =                                             \
         (SelectManyEnumerable_##TSource##_##TResult)This;                                               \
-    SelectManyEnumerator_##TSource##_##TResult result =                                                 \
-        alloc(struct generic_select_many_enumerator_##TSource##_to_##TResult##_s);                      \
-    init(struct generic_select_many_enumerator_##TSource##_to_##TResult##_s, result) {                  \
+    SelectManyEnumerator_##TSource##_##TResult allocinit(generic_select_many_enumerator_##TSource##_to_##TResult##_s, result) {                  \
         ._parent = (struct generic_enumerator_##TResult##_s) {                                          \
             .MoveNext = SelectManyMoveNext_##TSource##_##TResult,                                       \
             .Reset = SelectManyReset_##TSource##_##TResult,                                             \
@@ -580,9 +562,7 @@ static IEnumerator_##TResult GetSelectManyEnumerator_##TSource##_##TResult(IEnum
 \
 IEnumerable_##TResult Enumerable_##TSource##_SelectMany_##TResult(IEnumerable_##TSource source, IEnumerable_##TResult (*selector)(TSource)) \
 {                                                                                                       \
-    SelectManyEnumerable_##TSource##_##TResult result =                                                 \
-        alloc(struct generic_select_many_enumerable_##TSource##_to_##TResult##_s);                      \
-    init(struct generic_select_many_enumerable_##TSource##_to_##TResult##_s, result) {                  \
+    SelectManyEnumerable_##TSource##_##TResult allocinit(generic_select_many_enumerable_##TSource##_to_##TResult##_s, result) {                  \
         ._parent = (struct generic_enumerable_##TResult##_s) {                                          \
             .GetEnumerator = GetSelectManyEnumerator_##TSource##_##TResult,                             \
         },                                                                                              \

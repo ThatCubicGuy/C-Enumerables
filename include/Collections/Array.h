@@ -10,7 +10,7 @@
  * stored contiguously in memory.
  */
 typedef struct array_s {
-    IEnumerable _parent;
+    struct enumerable_s _parent;
     // Amount of items contained in the array.
     int Length;
     // Maximum amount of items that this array can hold without resizing.
@@ -57,25 +57,23 @@ void Array_Sort(Array source, Comparer* comparer);
 #define IMPL_ENUMERABLE_TO_ARRAY(T)                                 \
 Array Enumerable_##T##_ToArray(IEnumerable_##T source)              \
 {                                                                   \
-    /* Assume initial capacity */                                   \
-    int maxLength = 32;                                             \
-    IEnumerator_##T e = source->GetEnumerator(source);              \
-    Array result = alloc(struct array_s);                           \
-    init(struct array_s, result) {                                  \
-        ._parent = (IEnumerable) {                                  \
+    /* Assume initial capacity to avoid useless enumeration */      \
+    int maxLength = 16;                                             \
+    Array allocinit(array_s, result) {                              \
+        ._parent = (struct enumerable_s) {                          \
             .GetEnumerator = ArrayGetEnumerator                     \
         },                                                          \
         .Length = 0,                                                \
         .MaxLength = maxLength,                                     \
         .Values = alloc_array(T, maxLength)                         \
     };                                                              \
-    for (int i = 0; e->MoveNext(e); ++i) {                          \
-        if (i >= result->MaxLength) {                               \
+    foreach(T, item, source, {                                      \
+        if (result->Length >= result->MaxLength) {                  \
             Array_Resize(result, result->MaxLength * 2);            \
         }                                                           \
-        ((T*)result->Values)[i] = e->Current;                       \
+        ((T*)result->Values)[result->Length] = item;                \
         result->Length += 1;                                        \
-    }                                                               \
+    });                                                             \
     Array_Resize(result, result->Length);                           \
     return result;                                                  \
 }
@@ -100,19 +98,15 @@ DEF_ENUMERABLE_TO_ARRAY(T)
 
 #pragma region Implement
 
-IEnumerator* ArrayGetEnumerator(const IEnumerable* This);
+IEnumerator ArrayGetEnumerator(IEnumerable This);
 
 #define ARRAY_IMPLEMENT(T)                                                      \
 Array Array_##T##__ctor(int maxLength)                                          \
 {                                                                               \
     if (maxLength < 0) return NULL;                                             \
-    Array result = alloc(struct array_s);                                       \
-    if (maxLength == 0) {                                                       \
-        *result = default(struct array_s);                                      \
-        return result;                                                          \
-    }                                                                           \
-    init(struct array_s, result) {                                              \
-        ._parent = (IEnumerable) {                                              \
+    if (maxLength == 0) return alloc(struct array_s);                           \
+    Array allocinit(array_s, result) {                                          \
+        ._parent = (struct enumerable_s) {                                      \
             .GetEnumerator = ArrayGetEnumerator                                 \
         },                                                                      \
         .Length = 0,                                                            \

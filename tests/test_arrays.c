@@ -18,8 +18,7 @@ typedef const struct cart_s {
 
 CarClass CarClass__ctor(void)
 {
-    CarClass result = alloc(struct car_s);
-    init(struct car_s, result) {
+    CarClass allocinit(car_s, result) {
         .Manufacturer = new(string)("Unknown"),
         .Year = 1970
     };
@@ -28,12 +27,11 @@ CarClass CarClass__ctor(void)
 
 CartRecord CartRecord__ctor(string manufacturer, int maxSpeed, float acceleration)
 {
-    CartRecord result = alloc(struct cart_s);
-    init(struct cart_s, result) {
+    CartRecord allocinit(cart_s, result) {
         .MaxSpeed = maxSpeed,
         .Acceleration = acceleration
     };
-    init(string, &result->Manufacturer) new(string)("Toyota");
+    init_ro(string, result->Manufacturer) new(string)("Toyota");
     return result;
 }
 

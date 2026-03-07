@@ -24,8 +24,8 @@ void test_linked_lists(void)
         .Number = 7,
         .Name = "watahelly"
     };
-    LinkedList* list = LinkedList__ctor();
-    printf("List address: %x\n", list);
+    LinkedList list = LinkedList__ctor();
+    printf("List address: %p\n", list);
     LinkedList_Add(list, &c);
     LinkedList_Add(list, &b);
     LinkedList_Add(list, &a);

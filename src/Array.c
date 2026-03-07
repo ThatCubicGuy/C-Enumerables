@@ -1,12 +1,12 @@
 #include "Collections/Array.h"
 
 typedef struct array_enumerator_s {
-    IEnumerator _parent;
+    struct enumerator_s _parent;
     int _currentIndex;
     Array _array;
 } *ArrayEnumerator;
 
-static bool ArrayMoveNext(IEnumerator *This)
+static bool ArrayMoveNext(IEnumerator This)
 {
     ArrayEnumerator e = (ArrayEnumerator)This;
     if (e->_currentIndex < e->_array->Length) {
@@ -17,22 +17,21 @@ static bool ArrayMoveNext(IEnumerator *This)
     return false;
 }
 
-static void ArrayReset(IEnumerator *This)
+static void ArrayReset(IEnumerator This)
 {
     ((ArrayEnumerator)This)->_currentIndex = 0;
     This->Current = NULL;
 }
 
-static void ArrayDispose(IEnumerator *This)
+static void ArrayDispose(IEnumerator This)
 {
     free(This);
 }
 
-IEnumerator* ArrayGetEnumerator(const IEnumerable* This)
+IEnumerator ArrayGetEnumerator(const IEnumerable This)
 {
-    ArrayEnumerator result = alloc(struct array_enumerator_s);
-    init(struct array_enumerator_s, result) {
-        ._parent = (IEnumerator) {
+    ArrayEnumerator allocinit(array_enumerator_s, result) {
+        ._parent = (struct enumerator_s) {
             .MoveNext = ArrayMoveNext,
             .Reset = ArrayReset,
             .Dispose = ArrayDispose
@@ -40,7 +39,7 @@ IEnumerator* ArrayGetEnumerator(const IEnumerable* This)
         ._currentIndex = 0,
         ._array = (Array)This
     };
-    return (IEnumerator*)result;
+    return (IEnumerator)result;
 }
 
 Array Array__ctor(int memberSize, int maxLength)
@@ -51,8 +50,8 @@ Array Array__ctor(int memberSize, int maxLength)
         *result = default(struct array_s);
         return result;
     }
-    init(struct array_s, result) {
-        ._parent = (IEnumerable) {
+    init(array_s, result) {
+        ._parent = (struct enumerable_s) {
             .GetEnumerator = ArrayGetEnumerator
         },
         .MaxLength = maxLength,
