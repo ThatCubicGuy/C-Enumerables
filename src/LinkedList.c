@@ -11,6 +11,7 @@ typedef struct linked_list_enumerator_s {
 
 static bool LinkedListMoveNext(IEnumerator *This)
 {
+    fprintf(stderr, "WERE YOU EDGING OR WERE YOU GOONING?\n");
     LinkedListEnumerator *LLE = (LinkedListEnumerator*)This;
     if (LLE->_currentNode == NULL) {
         if (LLE->_source->_start == NULL) return false;
@@ -18,15 +19,21 @@ static bool LinkedListMoveNext(IEnumerator *This)
         This->Current = LLE->_source->_start->Value;
         return true;
     }
-    if (((LinkedNode*)LLE->_currentNode)->Next == NULL) return false;
+    fprintf(stderr, "ANSWER!!!!!! %x\n", LLE->_currentNode->Next->Value);
+    if (LLE->_currentNode->Next == NULL) {
+        fprintf(stderr, "Edging...\n");
+        return false;
+    }
+    fprintf(stderr, "Gooning...\n");
     LLE->_currentNode = LLE->_currentNode->Next;
     This->Current = LLE->_currentNode->Value;
+    fprintf(stderr, "Oh my freaking gyatt...\n");
     return true;
 }
 
 static void LinkedListReset(IEnumerator *This)
 {
-    This->Current = NULL;
+    ((LinkedListEnumerator*)This)->_currentNode = NULL;
 }
 
 static void LinkedListDispose(IEnumerator *This)
@@ -45,7 +52,7 @@ static IEnumerator* LinkedListGetEnumerator(const IEnumerable *This)
         },
         ._source = (LinkedList*)This
     };
-    return (IEnumerator*)result;
+    return base(result);
 }
 
 #pragma endregion
@@ -59,9 +66,12 @@ void LinkedList_Add(LinkedList* source, object item)
 {
     if (source->Count > 0) {
         source->Count += 1;
-        source->_end->Next = alloc(LinkedNode);
+        source->_end->Next = alloc(struct linked_node_s);
         source->_end = source->_end->Next;
-        source->_end->Value = item;
+        init(struct linked_node_s, source->_end) {
+            .Next = NULL,
+            .Value = item
+        };
         return;
     }
 
@@ -73,6 +83,7 @@ void LinkedList_Add(LinkedList* source, object item)
 
 static void RemoveNodes(LinkedNode* startingPoint)
 {
+    if (startingPoint == NULL) return;
     if (startingPoint->Next != NULL) {
         RemoveNodes(startingPoint->Next);
     }
@@ -83,6 +94,7 @@ static void RemoveNodes(LinkedNode* startingPoint)
 /// @param source Linked list to clear.
 void LinkedList_Clear(LinkedList* source)
 {
+    fprintf(stderr, "HEEEEEEHHHHH ???? \n");
     RemoveNodes(source->_start);
     source->_start = NULL;
     source->_end = NULL;
@@ -144,6 +156,15 @@ LinkedList* LinkedList__ctor()
         ._end = NULL
     };
     return result;
+}
+
+/// @brief Frees up all memory occupied by a linked list.
+/// @param source List to destroy.
+void DestroyLinkedList(LinkedList** source)
+{
+    LinkedList_Clear(*source);
+    free(*source);
+    *source = NULL;
 }
 
 /// @brief Creates a LinkedList from a static array.

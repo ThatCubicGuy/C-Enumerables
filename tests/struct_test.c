@@ -31,27 +31,25 @@ void showData(Employee item)
     printf("%s, age %d\n", item.Name, item.Age);
 }
 
-void ShowAllData(const IEnumerable_Employee* source)
+void ShowAllData(IEnumerable_Employee source)
 {
-    foreach(Employee, employee, source, showData(employee));
+    foreach_ref(Employee, employee, source, {
+        showData(employee);
+    });
 }
 
-void ShowStrings(const IEnumerable* source)
+void ShowStrings(IEnumerable source)
 {
-    IEnumerator* e = source->GetEnumerator(source);
-    while (e->MoveNext(e)) {
-        printf("%s\n", (char*)e->Current);
-    }
-    e->Dispose(e);
+    foreach(string, str, source, {
+        printf("%s\n", str);
+    });
 }
 
-void ShowNumbers(const IEnumerable* source)
+void ShowNumbers(IEnumerable source)
 {
-    IEnumerator* e = source->GetEnumerator(source);
-    while (e->MoveNext(e)) {
-        printf("%d ", *(int*)e->Current);
-    }
-    e->Dispose(e);
+    foreach_ref(int, item, source, {
+        printf("%d ", item);
+    });
     printf("\n");
 }
 
@@ -114,4 +112,6 @@ void test_with_structs(void) {
     });
     printf("We have our list of victors: %s\n", string_Join(", ", Enumerable_Employee_Select_string(base(workers), selectNames)));
     #endif
+    DestroyList_Employee(&workers);
+    DestroyList_Employee(&revWorkers);
 }

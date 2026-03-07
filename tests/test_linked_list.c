@@ -25,6 +25,7 @@ void test_linked_lists(void)
         .Name = "watahelly"
     };
     LinkedList* list = LinkedList__ctor();
+    printf("List address: %x\n", list);
     LinkedList_Add(list, &c);
     LinkedList_Add(list, &b);
     LinkedList_Add(list, &a);
@@ -39,4 +40,7 @@ void test_linked_lists(void)
     printf("It's-a %d!\n", ((ListItem*)list->_end->Value)->Number);
     Enumerable_ForEach(base(list), showItemNumber);
     printf("Count: %d\n", list->Count);
+    LinkedList_Clear(list);
+    printf("Count: %d\n", list->Count);
+    DestroyLinkedList(&list);
 }

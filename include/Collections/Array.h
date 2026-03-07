@@ -85,12 +85,12 @@ Array Enumerable_##T##_ToArray(IEnumerable_##T source)              \
 #endif
 #define ARRAY_DEFINE(T)                                     \
 Array Array_##T##__ctor(int maxLength);                     \
-DEF_ENUMERABLE_TO_ARRAY(T)                                  \
 T Array_##T##_Get(Array source, int index);                 \
 void Array_##T##_Set(Array source, int index, T value);     \
 int Array_##T##_IndexOf(Array source, T item);              \
 void Array_##T##_Fill(Array source, T item);                \
-void Array_##T##_Initialize(Array source);
+void Array_##T##_Initialize(Array source);                  \
+DEF_ENUMERABLE_TO_ARRAY(T)
 
 #define new_array(T) Array_##T##__ctor
 
@@ -130,7 +130,6 @@ void Array_##T##_Set(Array source, int index, T value)                          
 {                                                                               \
     ((T*)source->Values)[index] = value;                                        \
 }                                                                               \
-IMPL_ENUMERABLE_TO_ARRAY(T)                                                     \
 int Array_##T##_IndexOf(Array source, T item)                                   \
 {                                                                               \
     for (int i = 0; i < source->Length; ++i) {                                  \
@@ -152,7 +151,8 @@ void Array_##T##_Initialize(Array source)                                       
         ((T*)source->Values)[i] = new(T)();                                     \
     }                                                                           \
     source->Length = source->MaxLength;                                         \
-}
+}                                                                               \
+IMPL_ENUMERABLE_TO_ARRAY(T)
 
 #pragma endregion
 

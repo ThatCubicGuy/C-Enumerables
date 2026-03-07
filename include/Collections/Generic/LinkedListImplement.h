@@ -62,6 +62,7 @@ void LinkedList_##T##_Add(LinkedList_##T source, T item)                        
 }                                                                                   \
 static void RemoveNodes_##T(LinkedNode_##T startingPoint)                           \
 {                                                                                   \
+    if (startingPoint == NULL) return;                                              \
     if (startingPoint->Next != NULL) {                                              \
         RemoveNodes_##T(startingPoint->Next);                                       \
     }                                                                               \
@@ -149,6 +150,12 @@ LinkedList_##T Enumerable_##T##_ToLinkedList(IEnumerable_##T source)            
     result->_end = current;                                                         \
     e->Dispose(e);                                                                  \
     return result;                                                                  \
+}                                                                                   \
+void DestroyLinkedList_##T(LinkedList_##T* source)                                  \
+{                                                                                   \
+    LinkedList_##T##_Clear(*source);                                                \
+    free(*source);                                                                  \
+    *source = NULL;                                                                 \
 }
 
 #pragma endregion

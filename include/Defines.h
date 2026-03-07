@@ -12,8 +12,10 @@
 #define alloc(TYPE) ((TYPE*)malloc(sizeof(TYPE)))
 // Allocates an array of CAPACITY elements of type ARRAY_TYPE and returns its location.
 #define alloc_array(ARRAY_TYPE, CAPACITY) ((ARRAY_TYPE*)calloc(sizeof(ARRAY_TYPE), CAPACITY))
-// Initializes a potentially readonly pointer with a given initializer.
-#define init(BASE_TYPE, var) *(BASE_TYPE*)var = (BASE_TYPE)
+// Initializes a potentially readonly struct pointer with a given initializer.
+#define init(BASE_TYPE, var) *(struct BASE_TYPE*)var = (struct BASE_TYPE)
+// Initializes a readonly location with the given reference value.
+#define init_ro(REF_TYPE, var) *(REF_TYPE*)&var = (REF_TYPE)
 // Returns the type that this type directly inherits from.
 #define base(REFTYPE) (&(REFTYPE)->_parent)
 // Returns the default (zero initialized) value for the given type.

@@ -42,4 +42,8 @@ void LinkedList_Insert(LinkedList* source, object item, int index);
 /// @param source Linked list to clear.
 void LinkedList_Clear(LinkedList* source);
 
+/// @brief Frees up all memory occupied by a linked list.
+/// @param source List to destroy.
+void DestroyLinkedList(LinkedList** source);
+
 #endif

@@ -45,6 +45,11 @@ void LinkedList_##T##_Insert(LinkedList_##T source, T item, int index);     \
  * @brief Removes all elements from the linked list.                        \
  * @param source Linked list to clear.                                      \
  */                                                                         \
-void LinkedList_##T##_Clear(LinkedList_##T source);
+void LinkedList_##T##_Clear(LinkedList_##T source);                         \
+/**                                                                         \
+ * @brief Frees up all memory occupied by a LinkedList<T>.                  \
+ * @param source List to destroy.                                           \
+ */                                                                         \
+void DestroyLinkedList_##T(LinkedList_##T* source);
 
 #endif

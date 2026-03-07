@@ -60,6 +60,7 @@ void test_arrays(void)
     printf("Array Length: %d; MaxLength: %d, _memberSize: %d\n", arr->Length, arr->MaxLength, arr->_memberSize);
     printf("Array has values:\n");
     foreach_ref(CarClass, var, arr, showItem(var));
+    Array_Destroy(&arr);
 }
 
 ARRAY_IMPLEMENT(CarClass);
