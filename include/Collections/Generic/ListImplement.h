@@ -1,5 +1,5 @@
-#ifndef GENERIC_LIST_IMPLEMENTATIONS
-#define GENERIC_LIST_IMPLEMENTATIONS
+#ifndef COLLECTIONS_GENERIC_LIST_IMPLEMENTATIONS
+#define COLLECTIONS_GENERIC_LIST_IMPLEMENTATIONS
 #include "Collections/Generic/ListT.h"
 
 #pragma region Implement
@@ -121,7 +121,7 @@ void DestroyList_##T(List_##T** list)                                           
     free(*list);                                                                                \
     *list = NULL;                                                                               \
 }                                                                                               \
-List_##T* Enumerable_ToList_##T(IEnumerable_##T *source)                                        \
+List_##T* Enumerable_##T##_ToList(IEnumerable_##T *source)                                      \
 {                                                                                               \
     /* Assume initial capacity */                                                               \
     int capacity = 16;                                                                          \

@@ -5,6 +5,10 @@
 
 #pragma region Define
 
+/**
+ * @brief Enumerates an IEnumerable<T> and sets var to
+ * the current enumeration value before executing code.
+ */
 #define foreach(T, var, source, code) do {                  \
     IEnumerator_##T* __e = ((IEnumerable_##T*)source)       \
         ->GetEnumerator((IEnumerable_##T*)source);          \

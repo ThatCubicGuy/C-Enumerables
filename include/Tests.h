@@ -9,4 +9,6 @@ void test_linked_lists(void);
 
 void test_arrays(void);
 
+void test_generic_linked_lists(void);
+
 #endif

@@ -11,6 +11,8 @@ int main(void)
     test_linked_lists();
     printf("--------------ARRAY--------------\n");
     test_arrays();
+    printf("-------GENERIC LINKED LIST-------\n");
+    test_generic_linked_lists();
     printf("\n----------TESTS CLEARED----------\n");
     return 0;
 }

@@ -10,6 +10,8 @@
 #define alloc(TYPE) ((TYPE*)malloc(sizeof(TYPE)))
 #define alloc_array(ARRAY_TYPE, CAPACITY) ((ARRAY_TYPE*)calloc(sizeof(ARRAY_TYPE), CAPACITY))
 
+#define DEFINE_BASE_CTOR(TYPE) TYPE TYPE##__ctor(void) { return (TYPE){0}; }
+
 typedef const void* object;
 typedef unsigned char byte;
 

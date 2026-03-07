@@ -71,10 +71,10 @@ void test_with_structs(void) {
         .Age = 420
     };
     List_Employee* workers = new(List_Employee)(4);
-    joe.Coworkers = Enumerable_ToList_Employee(Enumerable_Employee_Append(Enumerable_Employee_Append(Enumerable_Employee_Append((IEnumerable_Employee*)workers, bidome), barack), obama));
-    bidome.Coworkers = Enumerable_ToList_Employee(Enumerable_Employee_Append(Enumerable_Employee_Append(Enumerable_Employee_Append((IEnumerable_Employee*)workers, joe), barack), obama));
-    barack.Coworkers = Enumerable_ToList_Employee(Enumerable_Employee_Append(Enumerable_Employee_Append(Enumerable_Employee_Append((IEnumerable_Employee*)workers, joe), bidome), obama));
-    obama.Coworkers = Enumerable_ToList_Employee(Enumerable_Employee_Append(Enumerable_Employee_Append(Enumerable_Employee_Append((IEnumerable_Employee*)workers, joe), bidome), barack));
+    joe.Coworkers = Enumerable_Employee_ToList(Enumerable_Employee_Append(Enumerable_Employee_Append(Enumerable_Employee_Append((IEnumerable_Employee*)workers, bidome), barack), obama));
+    bidome.Coworkers = Enumerable_Employee_ToList(Enumerable_Employee_Append(Enumerable_Employee_Append(Enumerable_Employee_Append((IEnumerable_Employee*)workers, joe), barack), obama));
+    barack.Coworkers = Enumerable_Employee_ToList(Enumerable_Employee_Append(Enumerable_Employee_Append(Enumerable_Employee_Append((IEnumerable_Employee*)workers, joe), bidome), obama));
+    obama.Coworkers = Enumerable_Employee_ToList(Enumerable_Employee_Append(Enumerable_Employee_Append(Enumerable_Employee_Append((IEnumerable_Employee*)workers, joe), bidome), barack));
     List_Employee_Add(workers, joe);
     List_Employee_Add(workers, bidome);
     List_Employee_Add(workers, barack);

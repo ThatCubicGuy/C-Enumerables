@@ -1,12 +1,12 @@
-#ifndef LINKED_LIST
-#define LINKED_LIST
+#ifndef COLLECTIONS_LINKED_LIST
+#define COLLECTIONS_LINKED_LIST
 
 #include "Collections/Enumerable.h"
 
 /// @brief A node inside a linked list.
 typedef struct linked_node_s {
-    object Value;
     struct linked_node_s *Next;
+    object Value;
 } LinkedNode;
 
 /// @brief A list of items stored by reference.

@@ -1,5 +1,5 @@
-#ifndef GENERIC_LIST
-#define GENERIC_LIST
+#ifndef COLLECTIONS_GENERIC_LIST
+#define COLLECTIONS_GENERIC_LIST
 
 #include "Collections/Generic/EnumerableT.h"
 
@@ -30,7 +30,7 @@ void DestroyList_##T(List_##T** list);                              \
  * @param list List to add an element to.
  * @param item Item to add to the end of the list.
  */                                                                 \
-List_##T* Enumerable_ToList_##T(IEnumerable_##T *source);           \
+List_##T* Enumerable_##T##_ToList(IEnumerable_##T* source);         \
 /**
  * @brief Removes an element from the list.
  * @param source List to remove the element from.

@@ -53,13 +53,13 @@ void Array_Sort(Array* source, Comparer* comparer);
 #pragma region Generics
 
 #ifdef COLLECTIONS_GENERIC_ENUMERABLE
-#define DEF_ENUMERABLE_TO_ARRAY(T) Array* Enumerable_##T##_ToArray(IEnumerable_##T##* source);
+#define DEF_ENUMERABLE_TO_ARRAY(T) Array* Enumerable_##T##_ToArray(IEnumerable_##T* source);
 #define IMPL_ENUMERABLE_TO_ARRAY(T)                                 \
 Array* Enumerable_##T##_ToArray(IEnumerable_##T* source)            \
 {                                                                   \
     /* Assume initial capacity */                                   \
     int maxLength = 32;                                             \
-    IEnumerator* e = source->GetEnumerator(source);                 \
+    IEnumerator_##T* e = source->GetEnumerator(source);             \
     Array* result = alloc(Array);                                   \
     *result = (Array) {                                             \
         ._parent = (IEnumerable) {                                  \
@@ -73,7 +73,7 @@ Array* Enumerable_##T##_ToArray(IEnumerable_##T* source)            \
         if (i >= result->MaxLength) {                               \
             Array_Resize(result, result->MaxLength * 2);            \
         }                                                           \
-        *(result->Values + result->_memberSize * i) = e->Current;   \
+        ((T*)result->Values)[i] = e->Current;                       \
         result->Length += 1;                                        \
     }                                                               \
     Array_Resize(result, result->Length);                           \
@@ -119,7 +119,6 @@ Array* Array_##T##__ctor(int maxLength)                                         
     }                                                                           \
     return result;                                                              \
 }                                                                               \
-IMPL_ENUMERABLE_TO_ARRAY(T)                                                     \
 T Array_##T##_Get(Array* source, int index)                                     \
 {                                                                               \
     return ((T*)source->Values)[index];                                         \
@@ -128,6 +127,7 @@ void Array_##T##_Set(Array* source, int index, T value)                         
 {                                                                               \
     ((T*)source->Values)[index] = value;                                        \
 }                                                                               \
+IMPL_ENUMERABLE_TO_ARRAY(T)                                                     \
 int Array_##T##_IndexOf(Array* source, T item)                                  \
 {                                                                               \
     for (int i = 0; i < source->Length; ++i) {                                  \
