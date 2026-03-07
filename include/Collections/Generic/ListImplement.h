@@ -5,7 +5,7 @@
 #pragma region Implement
 
 #define LIST_IMPLEMENT(T)                                                                       \
-typedef struct list_enumerator_s {                                                              \
+typedef struct generic_list_enumerator_##T##_s {                                                \
     IEnumerator_##T _parent;                                                                    \
     int _currentIndex;                                                                          \
     List_##T* _list;                                                                            \
@@ -23,7 +23,7 @@ static bool ListMoveNext_##T(IEnumerator_##T *This)                             
 static void ListReset_##T(IEnumerator_##T *This)                                                \
 {                                                                                               \
     ((ListEnumerator_##T*)This)->_currentIndex = 0;                                             \
-    This->Current = (T){0};                                                                     \
+    This->Current = default(T);                                                                 \
 }                                                                                               \
 static void ListDispose_##T(IEnumerator_##T *This)                                              \
 {                                                                                               \
@@ -72,7 +72,7 @@ void List_##T##_Remove(List_##T* source, T item)                                
             for (int j = i; j < source->Count; ++j) {                                           \
                 source->Values[j] = source->Values[j + 1];                                      \
             }                                                                                   \
-            source->Values[source->Count] = (T){0};                                             \
+            source->Values[source->Count] = default(T);                                         \
             return;                                                                             \
         }                                                                                       \
     }                                                                                           \
@@ -80,7 +80,7 @@ void List_##T##_Remove(List_##T* source, T item)                                
 void List_##T##_Clear(List_##T* source)                                                         \
 {                                                                                               \
     for (int i = 0; i < source->Count; ++i) {                                                   \
-        source->Values[i] = (T){0};                                                             \
+        source->Values[i] = default(T);                                                         \
     }                                                                                           \
     source->Count = 0;                                                                          \
 }                                                                                               \

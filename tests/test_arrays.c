@@ -3,14 +3,14 @@
 #include "Tests.h"
 
 typedef struct car_s {
-    char Manufacturer[16];
+    string Manufacturer;
     int Year;
 } *CarClass;
 
 ARRAY_DEFINE(CarClass);
 
 typedef const struct cart_s {
-    char Manufacturer[16];
+    string Manufacturer;
     int MaxSpeed;
     float Acceleration;
 } *CartRecord;

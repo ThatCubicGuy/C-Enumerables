@@ -28,7 +28,7 @@ void test_linked_lists(void)
     LinkedList_Add(list, &c);
     LinkedList_Add(list, &b);
     LinkedList_Add(list, &a);
-    Enumerable_ForEach((IEnumerable*)list, showItemNumber);
+    Enumerable_ForEach(base(list), showItemNumber);
     LinkedList_Clear(list);
     LinkedList_Add(list, &c);
     LinkedList_Add(list, &c);
@@ -37,6 +37,6 @@ void test_linked_lists(void)
     LinkedList_Insert(list, &a, 2);
     LinkedList_Insert(list, &a, 2);
     printf("It's-a %d!\n", ((ListItem*)list->_end->Value)->Number);
-    Enumerable_ForEach((IEnumerable*)list, showItemNumber);
+    Enumerable_ForEach(base(list), showItemNumber);
     printf("Count: %d\n", list->Count);
 }

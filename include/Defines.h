@@ -10,7 +10,10 @@
 #define alloc(TYPE) ((TYPE*)malloc(sizeof(TYPE)))
 #define alloc_array(ARRAY_TYPE, CAPACITY) ((ARRAY_TYPE*)calloc(sizeof(ARRAY_TYPE), CAPACITY))
 
-#define DEFINE_BASE_CTOR(TYPE) TYPE TYPE##__ctor(void) { return (TYPE){0}; }
+#define base(REFTYPE) (&(REFTYPE)->_parent)
+#define default(TYPE) ((TYPE){0})
+
+#define DEFINE_EMPTY_CTOR(TYPE) TYPE TYPE##__ctor(void) { return (TYPE){0}; }
 
 typedef const void* object;
 typedef const char* string;

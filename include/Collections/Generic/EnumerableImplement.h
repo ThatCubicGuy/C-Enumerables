@@ -13,7 +13,7 @@ typedef struct generic_compound_enumerator_##T##_s {                            
 } CompoundEnumerator_##T;                                                                               \
 static void CompoundReset_##T(IEnumerator_##T *This)                                                    \
 {                                                                                                       \
-    This->Current = (T){0};                                                                             \
+    This->Current = default(T);                                                                         \
     CompoundEnumerator_##T* e = (CompoundEnumerator_##T*)This;                                          \
     e->_currentEnumerator->Reset(e->_currentEnumerator);                                                \
 }                                                                                                       \
@@ -397,7 +397,7 @@ T Enumerable_##T##_FirstOrDefault(const IEnumerable_##T* source, bool (*predicat
         }                                                                                               \
     }                                                                                                   \
     e->Dispose(e);                                                                                      \
-    return (T){0};                                                                                      \
+    return default(T);                                                                                  \
 }                                                                                                       \
 \
 bool Enumerable_##T##_Contains(const IEnumerable_##T* source, T item)                                   \
