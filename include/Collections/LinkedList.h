@@ -4,14 +4,14 @@
 #include "Collections/Enumerable.h"
 
 /// @brief A node inside a linked list.
-typedef struct linked_node_s {
-    struct linked_node_s *Next;
+typedef struct LinkedNode_s {
+    struct LinkedNode_s *Next;
     object Value;
 } *LinkedNode;
 
 /// @brief A list of items stored by reference.
-typedef struct linked_list_s {
-    struct enumerable_s _parent;
+typedef struct LinkedList_s {
+    struct IEnumerable_s _parent;
     LinkedNode _start;
     LinkedNode _end;
     int Count;

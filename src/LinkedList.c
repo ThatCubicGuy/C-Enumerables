@@ -3,8 +3,8 @@
 
 #pragma region Enumerator
 
-typedef struct linked_list_enumerator_s {
-    struct enumerator_s _parent;
+typedef struct LinkedListEnumerator_s {
+    struct IEnumerator_s _parent;
     LinkedList _source;
     LinkedNode _currentNode;
 } *LinkedListEnumerator;
@@ -39,8 +39,8 @@ static void LinkedListDispose(IEnumerator This)
 
 static IEnumerator LinkedListGetEnumerator(const IEnumerable This)
 {
-    LinkedListEnumerator allocinit(linked_list_enumerator_s, result) {
-        ._parent = (struct enumerator_s) {
+    LinkedListEnumerator allocinit(LinkedListEnumerator, result) {
+        ._parent = (struct IEnumerator_s) {
             .MoveNext = LinkedListMoveNext,
             .Reset = LinkedListReset,
             .Dispose = LinkedListDispose
@@ -61,14 +61,14 @@ void LinkedList_Add(LinkedList source, object item)
 {
     if (source->Count > 0) {
         source->Count += 1;
-        allocinit(linked_node_s, source->_end->Next) {
+        allocinit(LinkedNode, source->_end->Next) {
             .Next = NULL,
             .Value = item
         };
         return;
     }
 
-    allocinit(linked_node_s, source->_start) default(struct linked_node_s);
+    allocinit(LinkedNode, source->_start) default(struct LinkedNode_s);
     source->_end = source->_start;
     source->_start->Value = item;
     source->Count = 1;
@@ -102,7 +102,7 @@ void LinkedList_Insert(LinkedList source, object item, int index)
     if (index > source->Count) return;
     source->Count += 1;
     if (index == 0) {
-        LinkedNode allocinit(linked_node_s, newNode) {
+        LinkedNode allocinit(LinkedNode, newNode) {
             .Value = item,
             .Next = source->_start
         };
@@ -111,7 +111,7 @@ void LinkedList_Insert(LinkedList source, object item, int index)
     }
 
     if (index == source->Count - 1) {
-        LinkedNode allocinit(linked_node_s, newNode) {
+        LinkedNode allocinit(LinkedNode, newNode) {
             .Value = item,
         };
         source->_end->Next = newNode;
@@ -124,7 +124,7 @@ void LinkedList_Insert(LinkedList source, object item, int index)
         index -= 1;
         current = current->Next;
     }
-    LinkedNode allocinit(linked_node_s, newNode) {
+    LinkedNode allocinit(LinkedNode, newNode) {
         .Value = item,
         .Next = current->Next,
     };
@@ -135,8 +135,8 @@ void LinkedList_Insert(LinkedList source, object item, int index)
 /// @return A new LinkedList with no elements.
 LinkedList LinkedList__ctor()
 {
-    LinkedList allocinit(linked_list_s, result) {
-        ._parent = (struct enumerable_s) {
+    LinkedList allocinit(LinkedList, result) {
+        ._parent = (struct IEnumerable_s) {
             .GetEnumerator = LinkedListGetEnumerator
         },
         .Count = 0,
@@ -161,8 +161,8 @@ void DestroyLinkedList(LinkedList* source)
 /// @return A new LinkedList with elements from the array.
 LinkedList CreateLinkedListFromArray(int itemCount, object items[])
 {
-    LinkedList allocinit(linked_list_s, result) {
-        ._parent = (struct enumerable_s) {
+    LinkedList allocinit(LinkedList, result) {
+        ._parent = (struct IEnumerable_s) {
             .GetEnumerator = LinkedListGetEnumerator
         },
         .Count = itemCount,
@@ -170,11 +170,11 @@ LinkedList CreateLinkedListFromArray(int itemCount, object items[])
         ._end = NULL
     };
     if (itemCount == 0) return result;
-    LinkedNode allocinit(linked_node_s, current) default(struct linked_node_s);
+    LinkedNode allocinit(LinkedNode, current) default(struct LinkedNode_s);
     result->_start = current;
     current->Value = items[0];
     for (int i = 1; i < itemCount; ++i) {
-        allocinit(linked_node_s, current->Next) default(struct linked_node_s);
+        allocinit(LinkedNode, current->Next) default(struct LinkedNode_s);
         current = current->Next;
         current->Value = items[i];
     }
@@ -186,7 +186,7 @@ LinkedList CreateLinkedListFromArray(int itemCount, object items[])
 /// @return A new LinkedList with elements from source.
 LinkedList Enumerable_ToLinkedList(IEnumerable source)
 {
-    LinkedList allocinit(linked_list_s, result) default(struct linked_list_s);
+    LinkedList allocinit(LinkedList, result) default(struct LinkedList_s);
     foreach_as(object, item, source, LinkedList_Add(result, item));
     return result;
 }

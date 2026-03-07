@@ -20,14 +20,14 @@
 } while(0)
 
 #define ENUMERABLE_DEFINE(T)                                                                            \
-typedef struct generic_enumerator_##T##_s {                                                             \
-    bool (*MoveNext)(struct generic_enumerator_##T##_s* This);                                          \
-    void (*Reset)(struct generic_enumerator_##T##_s* This);                                             \
-    void (*Dispose)(struct generic_enumerator_##T##_s* This);                                           \
+typedef struct IEnumerator_##T##_s {                                                                    \
+    bool (*MoveNext)(struct IEnumerator_##T##_s* This);                                                 \
+    void (*Reset)(struct IEnumerator_##T##_s* This);                                                    \
+    void (*Dispose)(struct IEnumerator_##T##_s* This);                                                  \
     T Current;                                                                                          \
 } *IEnumerator_##T;                                                                                     \
-typedef const struct generic_enumerable_##T##_s {                                                       \
-    IEnumerator_##T (*GetEnumerator)(const struct generic_enumerable_##T##_s* This);                    \
+typedef const struct IEnumerable_##T##_s {                                                              \
+    IEnumerator_##T (*GetEnumerator)(const struct IEnumerable_##T##_s* This);                           \
 } *IEnumerable_##T;                                                                                     \
 /**                                                                                                     \
  * @brief Filters a sequence based on a predicate.                                                      \

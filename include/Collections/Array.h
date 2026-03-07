@@ -9,8 +9,8 @@
  * @brief Managed array with variable amount of items
  * stored contiguously in memory.
  */
-typedef struct array_s {
-    struct enumerable_s _parent;
+typedef struct Array_s {
+    struct IEnumerable_s _parent;
     // Amount of items contained in the array.
     int Length;
     // Maximum amount of items that this array can hold without resizing.
@@ -59,8 +59,8 @@ Array Enumerable_##T##_ToArray(IEnumerable_##T source)              \
 {                                                                   \
     /* Assume initial capacity to avoid useless enumeration */      \
     int maxLength = 16;                                             \
-    Array allocinit(array_s, result) {                              \
-        ._parent = (struct enumerable_s) {                          \
+    Array allocinit(Array, result) {                                \
+        ._parent = (struct IEnumerable_s) {                         \
             .GetEnumerator = ArrayGetEnumerator                     \
         },                                                          \
         .Length = 0,                                                \
@@ -104,9 +104,9 @@ IEnumerator ArrayGetEnumerator(IEnumerable This);
 Array Array_##T##__ctor(int maxLength)                                          \
 {                                                                               \
     if (maxLength < 0) return NULL;                                             \
-    if (maxLength == 0) return alloc(struct array_s);                           \
-    Array allocinit(array_s, result) {                                          \
-        ._parent = (struct enumerable_s) {                                      \
+    if (maxLength == 0) return alloc(Array);                                    \
+    Array allocinit(Array, result) {                                            \
+        ._parent = (struct IEnumerable_s) {                                     \
             .GetEnumerator = ArrayGetEnumerator                                 \
         },                                                                      \
         .Length = 0,                                                            \

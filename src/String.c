@@ -74,3 +74,28 @@ string string_Join(string separator, IEnumerable_string values)
 #endif
 #endif
 #endif
+
+#ifdef STRING_ENUMERABLE_DEFINED
+#ifndef STRING_ENUMERABLE_IMPLEMENTED
+#define STRING_ENUMERABLE_IMPLEMENTED
+#include "Collections/Generic/EnumerableImplement.h"
+ENUMERABLE_IMPLEMENT(string)
+ENUMERABLE_IMPLEMENT_SELECT(string, string)
+ENUMERABLE_IMPLEMENT_SELECTMANY(string, string)
+ENUMERABLE_IMPLEMENT_AGGREGATE(string, string)
+#endif
+#endif
+#ifdef STRING_LIST_DEFINED
+#ifndef STRING_LIST_IMPLEMENTED
+#define STRING_LIST_IMPLEMENTED
+#include "Collections/Generic/ListImplement.h"
+LIST_IMPLEMENT(string)
+#endif
+#endif
+#ifdef STRING_INT_AGGREGATE_DEFINED
+#ifndef STRING_INT_AGGREGATE_IMPLEMENTED
+#define STRING_INT_AGGREGATE_IMPLEMENTED
+#include "Collections/Generic/EnumerableImplement.h"
+ENUMERABLE_IMPLEMENT_AGGREGATE(string, int)
+#endif
+#endif

@@ -3,14 +3,14 @@
 #include "Tests.h"
 #include "Text/String.h"
 
-typedef struct car_s {
+typedef struct CarClass_s {
     string Manufacturer;
     int Year;
 } *CarClass;
 
 ARRAY_DEFINE(CarClass);
 
-typedef const struct cart_s {
+typedef const struct CartRecord_s {
     string Manufacturer;
     int MaxSpeed;
     float Acceleration;
@@ -18,7 +18,7 @@ typedef const struct cart_s {
 
 CarClass CarClass__ctor(void)
 {
-    CarClass allocinit(car_s, result) {
+    CarClass allocinit(CarClass, result) {
         .Manufacturer = new(string)("Unknown"),
         .Year = 1970
     };
@@ -27,7 +27,7 @@ CarClass CarClass__ctor(void)
 
 CartRecord CartRecord__ctor(string manufacturer, int maxSpeed, float acceleration)
 {
-    CartRecord allocinit(cart_s, result) {
+    CartRecord allocinit(CartRecord, result) {
         .MaxSpeed = maxSpeed,
         .Acceleration = acceleration
     };

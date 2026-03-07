@@ -8,16 +8,16 @@
 
 // Calls the primary constructor of TYPE.
 #define new(TYPE) TYPE##__ctor
-// Allocates a single instance of TYPE and returns its memory location.
-#define alloc(TYPE) ((TYPE*)malloc(sizeof(TYPE)))
+// Allocates a single instance of REF_TYPE and returns its memory location.
+#define alloc(REF_TYPE) ((REF_TYPE)malloc(sizeof(struct REF_TYPE##_s)))
 // Allocates an array of CAPACITY elements of type ARRAY_TYPE and returns its location.
 #define alloc_array(ARRAY_TYPE, CAPACITY) ((ARRAY_TYPE*)calloc(sizeof(ARRAY_TYPE), CAPACITY))
-// Initializes a potentially readonly struct pointer with a given initializer.
-#define init(STRUCT_TYPE, var) *(struct STRUCT_TYPE*)var = (struct STRUCT_TYPE)
+// Initializes a potentially readonly reference type with a given initializer.
+#define init(REF_TYPE, var) *(struct REF_TYPE##_s*)var = (struct REF_TYPE##_s)
 // Initializes a readonly location with the given reference value.
 #define init_ro(REF_TYPE, var) *(REF_TYPE*)&var = (REF_TYPE)
-// Allocates memory for a struct of type BASE_TYPE and initializes it with a given initializer.
-#define allocinit(STUCT_TYPE, var) var = alloc(struct STUCT_TYPE); init(STUCT_TYPE, var)
+// Allocates memory for a reference type and initializes its value with a given initializer.
+#define allocinit(REF_TYPE, var) var = alloc(REF_TYPE); init(REF_TYPE, var)
 // Returns the type that this type directly inherits from.
 #define base(REF_TYPE) (&(REF_TYPE)->_parent)
 // Returns the default (zero initialized) value for the given type.

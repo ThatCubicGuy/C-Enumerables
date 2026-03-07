@@ -1,7 +1,7 @@
 #include "Collections/Array.h"
 
-typedef struct array_enumerator_s {
-    struct enumerator_s _parent;
+typedef struct ArrayEnumerator_s {
+    struct IEnumerator_s _parent;
     int _currentIndex;
     Array _array;
 } *ArrayEnumerator;
@@ -30,8 +30,8 @@ static void ArrayDispose(IEnumerator This)
 
 IEnumerator ArrayGetEnumerator(const IEnumerable This)
 {
-    ArrayEnumerator allocinit(array_enumerator_s, result) {
-        ._parent = (struct enumerator_s) {
+    ArrayEnumerator allocinit(ArrayEnumerator, result) {
+        ._parent = (struct IEnumerator_s) {
             .MoveNext = ArrayMoveNext,
             .Reset = ArrayReset,
             .Dispose = ArrayDispose
@@ -45,13 +45,13 @@ IEnumerator ArrayGetEnumerator(const IEnumerable This)
 Array Array__ctor(int memberSize, int maxLength)
 {
     if (maxLength < 0) return NULL;
-    Array result = alloc(struct array_s);
+    Array result = alloc(Array);
     if (maxLength == 0) {
-        *result = default(struct array_s);
+        *result = default(struct Array_s);
         return result;
     }
-    init(array_s, result) {
-        ._parent = (struct enumerable_s) {
+    init(Array, result) {
+        ._parent = (struct IEnumerable_s) {
             .GetEnumerator = ArrayGetEnumerator
         },
         .MaxLength = maxLength,

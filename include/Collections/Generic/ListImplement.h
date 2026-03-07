@@ -5,8 +5,8 @@
 #pragma region Implement
 
 #define LIST_IMPLEMENT(T)                                                                       \
-typedef struct generic_list_enumerator_##T##_s {                                                \
-    struct generic_enumerator_##T##_s _parent;                                                  \
+typedef struct ListEnumerator_##T##_s {                                                         \
+    struct IEnumerator_##T##_s _parent;                                                         \
     int _currentIndex;                                                                          \
     List_##T _list;                                                                             \
 } *ListEnumerator_##T;                                                                          \
@@ -31,9 +31,9 @@ static void ListDispose_##T(IEnumerator_##T This)                               
 }                                                                                               \
 static IEnumerator_##T ListGetEnumerator_##T(const IEnumerable_##T This)                        \
 {                                                                                               \
-    ListEnumerator_##T result = alloc(struct generic_list_enumerator_##T##_s);                  \
-    *result = (struct generic_list_enumerator_##T##_s) {                                        \
-        ._parent = (struct generic_enumerator_##T##_s) {                                        \
+    ListEnumerator_##T result = alloc(ListEnumerator_##T);                                      \
+    *result = (struct ListEnumerator_##T##_s) {                                                 \
+        ._parent = (struct IEnumerator_##T##_s) {                                               \
             .MoveNext = ListMoveNext_##T,                                                       \
             .Reset = ListReset_##T,                                                             \
             .Dispose = ListDispose_##T                                                          \
@@ -102,11 +102,11 @@ void List_##T##_ForEach(List_##T source, void (*action)(T*))                    
 }                                                                                               \
 List_##T List_##T##__ctor(int capacity)                                                         \
 {                                                                                               \
-    List_##T result = alloc(struct generic_list_##T##_s);                                       \
-    *result = (struct generic_list_##T##_s) {                                                   \
+    List_##T result = alloc(List_##T);                                                          \
+    *result = (struct List_##T##_s) {                                                           \
         .Capacity = capacity,                                                                   \
         .Count = 0,                                                                             \
-        ._parent = (struct generic_enumerable_##T##_s) {                                        \
+        ._parent = (struct IEnumerable_##T##_s) {                                               \
             .GetEnumerator = ListGetEnumerator_##T                                              \
         }                                                                                       \
     };                                                                                          \
@@ -125,9 +125,9 @@ List_##T Enumerable_##T##_ToList(IEnumerable_##T source)                        
 {                                                                                               \
     /* Assume initial capacity */                                                               \
     int capacity = 16;                                                                          \
-    List_##T result = alloc(struct generic_list_##T##_s);                                       \
-    *result = (struct generic_list_##T##_s) {                                                   \
-        ._parent = (struct generic_enumerable_##T##_s) {                                        \
+    List_##T result = alloc(List_##T);                                                          \
+    *result = (struct List_##T##_s) {                                                           \
+        ._parent = (struct IEnumerable_##T##_s) {                                               \
             .GetEnumerator = ListGetEnumerator_##T                                              \
         },                                                                                      \
         .Count = 0,                                                                             \

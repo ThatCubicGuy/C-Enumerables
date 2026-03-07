@@ -32,15 +32,15 @@
     __e->Dispose(__e);                                  \
 } while(0)
 
-typedef struct enumerator_s {
-    bool (*MoveNext)(struct enumerator_s* This);
-    void (*Reset)(struct enumerator_s* This);
-    void (*Dispose)(struct enumerator_s* This);
+typedef struct IEnumerator_s {
+    bool (*MoveNext)(struct IEnumerator_s* This);
+    void (*Reset)(struct IEnumerator_s* This);
+    void (*Dispose)(struct IEnumerator_s* This);
     object Current;
 } *IEnumerator;
 
-typedef const struct enumerable_s {
-    const IEnumerator (*GetEnumerator)(const struct enumerable_s* This);
+typedef const struct IEnumerable_s {
+    const IEnumerator (*GetEnumerator)(const struct IEnumerable_s* This);
 } *IEnumerable;
 
 typedef bool PredicateFunc(object);

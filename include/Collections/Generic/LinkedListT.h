@@ -5,13 +5,13 @@
 
 #define LINKED_LIST_DEFINE(T)                                               \
 /* @brief A node inside a linked list. */                                   \
-typedef struct generic_linked_node_##T##_s {                                \
-    struct generic_linked_node_##T##_s *Next;                               \
+typedef struct LinkedNode_##T##_s {                                         \
+    struct LinkedNode_##T##_s *Next;                                        \
     T Value;                                                                \
 } *LinkedNode_##T;                                                          \
 /* @brief A list of items stored by reference. */                           \
-typedef struct generic_linked_list_##T##_s {                                \
-    struct generic_enumerable_##T##_s _parent;                              \
+typedef struct LinkedList_##T##_s {                                         \
+    struct IEnumerable_##T##_s _parent;                                     \
     LinkedNode_##T _start;                                                  \
     LinkedNode_##T _end;                                                    \
     int Count;                                                              \
