@@ -21,7 +21,7 @@ int multBy3(int item)
 
 void test_generic_linked_lists(void)
 {
-    LinkedList_int* int_list = new(LinkedList_int)();
+    LinkedList_int int_list = new(LinkedList_int)();
     LinkedList_int_Add(int_list, 4);
     LinkedList_int_Add(int_list, 5);
     LinkedList_int_Add(int_list, 7);

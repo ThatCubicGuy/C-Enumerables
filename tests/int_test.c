@@ -11,7 +11,7 @@ ENUMERABLE_DEFINE_AGGREGATE(int, int)
 #include "Collections/Generic/EnumerableImplement.h"
 #include "Collections/Generic/ListImplement.h"
 
-static void ShowValues(const IEnumerable_int* source)
+static void ShowValues(IEnumerable_int source)
 {
     foreach(int, var, source,{
         fprintf(stderr, "Success! Value: %d\n", var);
@@ -33,13 +33,13 @@ bool filter(int item)
     return item % 2 == 0;
 }
 
-IEnumerable_int* selectMany(int item)
+IEnumerable_int selectMany(int item)
 {
-    List_int* L = new(List_int)(3);
+    List_int L = new(List_int)(3);
     List_int_Add(L, item);
     List_int_Add(L, item);
     List_int_Add(L, item);
-    return (IEnumerable_int*)L;
+    return base(L);
 }
 
 int aggregate(int accumulate, int item)
@@ -49,9 +49,8 @@ int aggregate(int accumulate, int item)
 
 void test_with_numbers(void)
 {
-    int x = 4, y = 1, z = 5, t = 17;
     int items[] = { 17, 4, 1, 5 };
-    List_int* int_list = new(List_int)(7);
+    List_int int_list = new(List_int)(7);
     printf("Item count: %d\nList capacity: %d\n", int_list->Count, int_list->Capacity);
     printf("Array items: ");
     for (int i = 0; i < 4; ++i)
@@ -62,7 +61,7 @@ void test_with_numbers(void)
     printf("\nItem count: %d\nList capacity: %d\n", int_list->Count, int_list->Capacity);
     List_int_TrimExcess(int_list);
     printf("Item count: %d\nList capacity: %d\n", int_list->Count, int_list->Capacity);
-    IEnumerable_int* enumerable = (IEnumerable_int*)int_list;
+    IEnumerable_int enumerable = base(int_list);
     ShowValues(enumerable);
     printf("Selector function that adds 3:\n");
     enumerable = Enumerable_int_Select_int(enumerable, selector);
@@ -83,7 +82,7 @@ void test_with_numbers(void)
     enumerable = Enumerable_int_Skip(enumerable, 2);
     ShowValues(enumerable);
     printf("Original list enumeration:\n");
-    enumerable = (IEnumerable_int*)int_list;
+    enumerable = base(int_list);
     ShowValues(enumerable);
     printf("First even number in the list: %d\n", Enumerable_int_FirstOrDefault(enumerable, filter));
     printf("Index of first even number in the list: %d\n", Enumerable_int_IndexOf(enumerable, Enumerable_int_FirstOrDefault(enumerable, filter)));

@@ -6,80 +6,81 @@
 
 #define LINKED_LIST_IMPLEMENT(T)                                                    \
 typedef struct generic_linked_list_enumerator_##T##_s {                             \
-    IEnumerator_##T _parent;                                                        \
-    LinkedList_##T *_source;                                                        \
-    LinkedNode_##T *_currentNode;                                                   \
-} LinkedListEnumerator_##T;                                                         \
-static bool LinkedListMoveNext_##T(IEnumerator_##T *This)                           \
+    struct generic_enumerator_##T##_s _parent;                                      \
+    LinkedList_##T _source;                                                         \
+    LinkedNode_##T _currentNode;                                                    \
+} *LinkedListEnumerator_##T;                                                        \
+static bool LinkedListMoveNext_##T(IEnumerator_##T This)                            \
 {                                                                                   \
-    LinkedListEnumerator_##T *LLE = (LinkedListEnumerator_##T*)This;                \
+    LinkedListEnumerator_##T LLE = (LinkedListEnumerator_##T)This;                  \
     if (LLE->_currentNode == NULL) {                                                \
         if (LLE->_source->_start == NULL) return false;                             \
         LLE->_currentNode = LLE->_source->_start;                                   \
         This->Current = LLE->_source->_start->Value;                                \
         return true;                                                                \
     }                                                                               \
-    if (((LinkedNode_##T*)LLE->_currentNode)->Next == NULL) return false;           \
+    if ((LLE->_currentNode)->Next == NULL) return false;                            \
     LLE->_currentNode = LLE->_currentNode->Next;                                    \
     This->Current = LLE->_currentNode->Value;                                       \
     return true;                                                                    \
 }                                                                                   \
-static void LinkedListReset_##T(IEnumerator_##T *This)                              \
+static void LinkedListReset_##T(IEnumerator_##T This)                               \
 {                                                                                   \
-    ((LinkedListEnumerator_##T*)This)->_currentNode = NULL;                         \
+    ((LinkedListEnumerator_##T)This)->_currentNode = NULL;                          \
 }                                                                                   \
-static void LinkedListDispose_##T(IEnumerator_##T *This)                            \
+static void LinkedListDispose_##T(IEnumerator_##T This)                             \
 {                                                                                   \
     free(This);                                                                     \
 }                                                                                   \
-static IEnumerator_##T* LinkedListGetEnumerator_##T(const IEnumerable_##T *This)    \
+static IEnumerator_##T LinkedListGetEnumerator_##T(const IEnumerable_##T This)      \
 {                                                                                   \
-    LinkedListEnumerator_##T *result = alloc(LinkedListEnumerator_##T);             \
-    *result = (LinkedListEnumerator_##T) {                                          \
-        ._parent = (IEnumerator_##T) {                                              \
+    LinkedListEnumerator_##T result =                                               \
+        alloc(struct generic_linked_list_enumerator_##T##_s);                       \
+    *result = (struct generic_linked_list_enumerator_##T##_s) {                     \
+        ._parent = (struct generic_enumerator_##T##_s) {                            \
             .MoveNext = LinkedListMoveNext_##T,                                     \
             .Reset = LinkedListReset_##T,                                           \
             .Dispose = LinkedListDispose_##T                                        \
         },                                                                          \
-        ._source = (LinkedList_##T*)This                                            \
+        ._source = (LinkedList_##T)This                                             \
     };                                                                              \
-    return (IEnumerator_##T*)result;                                                \
+    return base(result);                                                            \
 }                                                                                   \
-void LinkedList_##T##_Add(LinkedList_##T* source, T item)                           \
+void LinkedList_##T##_Add(LinkedList_##T source, T item)                            \
 {                                                                                   \
     if (source->Count > 0) {                                                        \
         source->Count += 1;                                                         \
-        source->_end->Next = alloc(LinkedNode_##T);                                 \
+        source->_end->Next = alloc(struct generic_linked_node_##T##_s);             \
         source->_end = source->_end->Next;                                          \
         source->_end->Value = item;                                                 \
         return;                                                                     \
     }                                                                               \
-    source->_start = alloc(LinkedNode_##T);                                         \
+    source->_start = alloc(struct generic_linked_node_##T##_s);                     \
     source->_end = source->_start;                                                  \
     source->_start->Value = item;                                                   \
     source->Count = 1;                                                              \
 }                                                                                   \
-static void RemoveNodes_##T(LinkedNode_##T* startingPoint)                          \
+static void RemoveNodes_##T(LinkedNode_##T startingPoint)                           \
 {                                                                                   \
     if (startingPoint->Next != NULL) {                                              \
         RemoveNodes_##T(startingPoint->Next);                                       \
     }                                                                               \
     free(startingPoint);                                                            \
 }                                                                                   \
-void LinkedList_##T##_Clear(LinkedList_##T* source)                                 \
+void LinkedList_##T##_Clear(LinkedList_##T source)                                  \
 {                                                                                   \
     RemoveNodes_##T(source->_start);                                                \
     source->_start = NULL;                                                          \
     source->_end = NULL;                                                            \
     source->Count = 0;                                                              \
 }                                                                                   \
-void LinkedList_##T##_Insert(LinkedList_##T* source, T item, int index)             \
+void LinkedList_##T##_Insert(LinkedList_##T source, T item, int index)              \
 {                                                                                   \
     if (index > source->Count) return;                                              \
     source->Count += 1;                                                             \
     if (index == 0) {                                                               \
-        LinkedNode_##T* newNode = alloc(LinkedNode_##T);                            \
-        *newNode = (LinkedNode_##T) {                                               \
+        LinkedNode_##T newNode = alloc(struct generic_linked_node_##T##_s);         \
+        *newNode = (struct generic_linked_node_##T##_s) {                           \
             .Value = item,                                                          \
             .Next = source->_start                                                  \
         };                                                                          \
@@ -87,31 +88,31 @@ void LinkedList_##T##_Insert(LinkedList_##T* source, T item, int index)         
         return;                                                                     \
     }                                                                               \
     if (index == source->Count - 1) {                                               \
-        LinkedNode_##T* newNode = alloc(LinkedNode_##T);                            \
-        *newNode = (LinkedNode_##T) {                                               \
+        LinkedNode_##T newNode = alloc(struct generic_linked_node_##T##_s);         \
+        *newNode = (struct generic_linked_node_##T##_s) {                           \
             .Value = item,                                                          \
         };                                                                          \
         source->_end->Next = newNode;                                               \
         source->_end = newNode;                                                     \
         return;                                                                     \
     }                                                                               \
-    LinkedNode_##T* current = source->_start;                                       \
+    LinkedNode_##T current = source->_start;                                        \
     while (index > 1) {                                                             \
         index -= 1;                                                                 \
         current = current->Next;                                                    \
     }                                                                               \
-    LinkedNode_##T* newNode = alloc(LinkedNode_##T);                                \
-    *newNode = (LinkedNode_##T) {                                                   \
+    LinkedNode_##T newNode = alloc(struct generic_linked_node_##T##_s);             \
+    *newNode = (struct generic_linked_node_##T##_s) {                               \
         .Value = item,                                                              \
         .Next = current->Next,                                                      \
     };                                                                              \
     current->Next = newNode;                                                        \
 }                                                                                   \
-LinkedList_##T* LinkedList_##T##__ctor()                                            \
+LinkedList_##T LinkedList_##T##__ctor()                                             \
 {                                                                                   \
-    LinkedList_##T *result = alloc(LinkedList_##T);                                 \
-    *result = (LinkedList_##T) {                                                    \
-        ._parent = (IEnumerable_##T) {                                              \
+    LinkedList_##T result = alloc(struct generic_linked_list_##T##_s);              \
+    *result = (struct generic_linked_list_##T##_s) {                                \
+        ._parent = (struct generic_enumerable_##T##_s) {                            \
             .GetEnumerator = LinkedListGetEnumerator_##T                            \
         },                                                                          \
         .Count = 0,                                                                 \
@@ -120,28 +121,28 @@ LinkedList_##T* LinkedList_##T##__ctor()                                        
     };                                                                              \
     return result;                                                                  \
 }                                                                                   \
-LinkedList_##T* Enumerable_##T##_ToLinkedList(IEnumerable_##T* source)              \
+LinkedList_##T Enumerable_##T##_ToLinkedList(IEnumerable_##T source)                \
 {                                                                                   \
-    LinkedList_##T *result = alloc(LinkedList_##T);                                 \
-    *result = (LinkedList_##T) {                                                    \
-        ._parent = (IEnumerable_##T) {                                              \
+    LinkedList_##T result = alloc(struct generic_linked_list_##T##_s);              \
+    *result = (struct generic_linked_list_##T##_s) {                                \
+        ._parent = (struct generic_enumerable_##T##_s) {                            \
             .GetEnumerator = LinkedListGetEnumerator_##T                            \
         },                                                                          \
         ._start = NULL,                                                             \
         ._end = NULL,                                                               \
         .Count = 0,                                                                 \
     };                                                                              \
-    IEnumerator_##T *e = source->GetEnumerator(source);                             \
+    IEnumerator_##T e = source->GetEnumerator(source);                              \
     if (!e->MoveNext(e)) {                                                          \
         e->Dispose(e);                                                              \
         return result;                                                              \
     }                                                                               \
-    result->_start = alloc(LinkedNode_##T);                                         \
-    LinkedNode_##T* current = result->_start;                                       \
+    result->_start = alloc(struct generic_linked_node_##T##_s);                     \
+    LinkedNode_##T current = result->_start;                                        \
     current->Value = e->Current;                                                    \
     while (e->MoveNext(e)) {                                                        \
         ++result->Count;                                                            \
-        current->Next = alloc(LinkedNode_##T);                                      \
+        current->Next = alloc(struct generic_linked_node_##T##_s);                  \
         current = current->Next;                                                    \
         current->Value = e->Current;                                                \
     }                                                                               \

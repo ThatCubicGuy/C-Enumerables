@@ -19,26 +19,26 @@ typedef struct array_s {
     int _memberSize;
     // Values contained in this array.
     void* Values;
-} Array;
+} *Array;
 
-Array* Array__ctor(int memberSize, int maxLength);
+Array Array__ctor(int memberSize, int maxLength);
 
-void Array_Clear(Array* source);
+void Array_Clear(Array source);
 
-void Array_CopyTo(Array* source, Array* dest);
+void Array_CopyTo(Array source, Array dest);
 
-void Array_Destroy(Array** source);
+void Array_Destroy(Array* source);
 
-void Array_Fill(Array* source, object itemRef);
+void Array_Fill(Array source, object itemRef);
 
 /**
  * @brief Returns a reference to the given element in the array.
  * @param source Array to get the item from.
  * @param index Index of the item to get.
  */
-object Array_Get(Array* source, int index);
+object Array_Get(Array source, int index);
 
-void Array_Resize(Array* source, int newMaxLength);
+void Array_Resize(Array source, int newMaxLength);
 
 /**
  * @brief Sets the value at the index to the value at the given reference.
@@ -46,22 +46,22 @@ void Array_Resize(Array* source, int newMaxLength);
  * @param index Index at which to set the item.
  * @param valueRef Reference to the value which should be set.
  */
-void Array_Set(Array* source, int index, object valueRef);
+void Array_Set(Array source, int index, object valueRef);
 
-void Array_Sort(Array* source, Comparer* comparer);
+void Array_Sort(Array source, Comparer* comparer);
 
 #pragma region Generics
 
 #ifdef COLLECTIONS_GENERIC_ENUMERABLE
-#define DEF_ENUMERABLE_TO_ARRAY(T) Array* Enumerable_##T##_ToArray(IEnumerable_##T* source);
+#define DEF_ENUMERABLE_TO_ARRAY(T) Array Enumerable_##T##_ToArray(IEnumerable_##T source);
 #define IMPL_ENUMERABLE_TO_ARRAY(T)                                 \
-Array* Enumerable_##T##_ToArray(IEnumerable_##T* source)            \
+Array Enumerable_##T##_ToArray(IEnumerable_##T source)              \
 {                                                                   \
     /* Assume initial capacity */                                   \
     int maxLength = 32;                                             \
-    IEnumerator_##T* e = source->GetEnumerator(source);             \
-    Array* result = alloc(Array);                                   \
-    *result = (Array) {                                             \
+    IEnumerator_##T e = source->GetEnumerator(source);              \
+    Array result = alloc(struct array_s);                           \
+    init(struct array_s, result) {                                  \
         ._parent = (IEnumerable) {                                  \
             .GetEnumerator = ArrayGetEnumerator                     \
         },                                                          \
@@ -84,13 +84,13 @@ Array* Enumerable_##T##_ToArray(IEnumerable_##T* source)            \
 #define IMPL_ENUMERABLE_TO_ARRAY(T)
 #endif
 #define ARRAY_DEFINE(T)                                     \
-Array* Array_##T##__ctor(int maxLength);                    \
+Array Array_##T##__ctor(int maxLength);                     \
 DEF_ENUMERABLE_TO_ARRAY(T)                                  \
-T Array_##T##_Get(Array* source, int index);                \
-void Array_##T##_Set(Array* source, int index, T value);    \
-int Array_##T##_IndexOf(Array* source, T item);             \
-void Array_##T##_Fill(Array* source, T item);               \
-void Array_##T##_Initialize(Array* source);
+T Array_##T##_Get(Array source, int index);                 \
+void Array_##T##_Set(Array source, int index, T value);     \
+int Array_##T##_IndexOf(Array source, T item);              \
+void Array_##T##_Fill(Array source, T item);                \
+void Array_##T##_Initialize(Array source);
 
 #define new_array(T) Array_##T##__ctor
 
@@ -103,32 +103,35 @@ void Array_##T##_Initialize(Array* source);
 IEnumerator* ArrayGetEnumerator(const IEnumerable* This);
 
 #define ARRAY_IMPLEMENT(T)                                                      \
-Array* Array_##T##__ctor(int maxLength)                                         \
+Array Array_##T##__ctor(int maxLength)                                          \
 {                                                                               \
-    Array* result = alloc(Array);                                               \
-    *result = (Array) {                                                         \
+    if (maxLength < 0) return NULL;                                             \
+    Array result = alloc(struct array_s);                                       \
+    if (maxLength == 0) {                                                       \
+        *result = default(struct array_s);                                      \
+        return result;                                                          \
+    }                                                                           \
+    init(struct array_s, result) {                                              \
         ._parent = (IEnumerable) {                                              \
             .GetEnumerator = ArrayGetEnumerator                                 \
         },                                                                      \
         .Length = 0,                                                            \
         .MaxLength = maxLength,                                                 \
+        .Values = alloc_array(T, maxLength),                                    \
         ._memberSize = sizeof(T)                                                \
     };                                                                          \
-    if (maxLength > 0) {                                                        \
-        result->Values = alloc_array(T, maxLength);                             \
-    }                                                                           \
     return result;                                                              \
 }                                                                               \
-T Array_##T##_Get(Array* source, int index)                                     \
+T Array_##T##_Get(Array source, int index)                                      \
 {                                                                               \
     return ((T*)source->Values)[index];                                         \
 }                                                                               \
-void Array_##T##_Set(Array* source, int index, T value)                         \
+void Array_##T##_Set(Array source, int index, T value)                          \
 {                                                                               \
     ((T*)source->Values)[index] = value;                                        \
 }                                                                               \
 IMPL_ENUMERABLE_TO_ARRAY(T)                                                     \
-int Array_##T##_IndexOf(Array* source, T item)                                  \
+int Array_##T##_IndexOf(Array source, T item)                                   \
 {                                                                               \
     for (int i = 0; i < source->Length; ++i) {                                  \
         if (ValueEquator(sizeof(T), &((T*)source->Values)[i], &item)) {         \
@@ -137,13 +140,13 @@ int Array_##T##_IndexOf(Array* source, T item)                                  
     }                                                                           \
     return -1;                                                                  \
 }                                                                               \
-void Array_##T##_Fill(Array* source, T item)                                    \
+void Array_##T##_Fill(Array source, T item)                                     \
 {                                                                               \
     for (int i = 0; i < source->MaxLength; ++i) {                               \
         ((T*)source->Values)[i] = item;                                         \
     }                                                                           \
 }                                                                               \
-void Array_##T##_Initialize(Array* source)                                      \
+void Array_##T##_Initialize(Array source)                                       \
 {                                                                               \
     for (int i = 0; i < source->MaxLength; ++i) {                               \
         ((T*)source->Values)[i] = new(T)();                                     \

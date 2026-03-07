@@ -9,10 +9,10 @@ int main(void)
     test_with_structs();
     printf("-----------LINKED LIST-----------\n");
     test_linked_lists();
-    printf("--------------ARRAY--------------\n");
-    test_arrays();
     printf("-------GENERIC LINKED LIST-------\n");
     test_generic_linked_lists();
+    printf("--------------ARRAY--------------\n");
+    test_arrays();
     printf("\n----------TESTS CLEARED----------\n");
     return 0;
 }

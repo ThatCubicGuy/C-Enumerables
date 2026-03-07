@@ -1,6 +1,7 @@
 #include "Collections/Enumerable.h"
 #include "Collections/Array.h"
 #include "Tests.h"
+#include "Text/String.h"
 
 typedef struct car_s {
     string Manufacturer;
@@ -18,21 +19,21 @@ typedef const struct cart_s {
 CarClass CarClass__ctor(void)
 {
     CarClass result = alloc(struct car_s);
-    *result = (struct car_s) {
-        .Manufacturer = "Unknown",
+    init(struct car_s, result) {
+        .Manufacturer = new(string)("Unknown"),
         .Year = 1970
     };
     return result;
 }
 
-CartRecord CartRecord__ctor(const char* manufacturer, int maxSpeed, float acceleration)
+CartRecord CartRecord__ctor(string manufacturer, int maxSpeed, float acceleration)
 {
     CartRecord result = alloc(struct cart_s);
-    *(struct cart_s*)result = (struct cart_s) {
+    init(struct cart_s, result) {
         .MaxSpeed = maxSpeed,
         .Acceleration = acceleration
     };
-    MemCopyToNull(result->Manufacturer, manufacturer);
+    init(string, &result->Manufacturer) new(string)("Toyota");
     return result;
 }
 
@@ -46,12 +47,12 @@ void showItem(CarClass car)
 void test_arrays(void)
 {
     CarClass car = new(CarClass)();
-    MemCopyToNull(car->Manufacturer, "Toyota");
+    car->Manufacturer = new(string)("Toyota");
     car->Year = 2023;
     showItem(car);
     CartRecord cart = new(CartRecord)("Ferrari", 240, 0.8);
     printf("Cart stuff: %s; %d, %.2f\n", cart->Manufacturer, cart->MaxSpeed, cart->Acceleration);
-    Array* arr = new_array(CarClass)(16);
+    Array arr = new_array(CarClass)(16);
     Array_CarClass_Initialize(arr);
     Array_CarClass_Set(arr, 7, car);
     printf("Array value at 7:\n");
