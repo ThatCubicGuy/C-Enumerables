@@ -7,7 +7,7 @@
  * @brief Enumerates an IEnumerable and sets var to
  * the current enumeration value before executing code.
  */
-#define foreach_as(T, var, source, code) do {           \
+#define foreach_ref(T, var, source, code) do {          \
     IEnumerable __src = (IEnumerable)source;            \
     IEnumerator __e = (__src)->GetEnumerator(__src);    \
     while (__e->MoveNext(__e)) {                        \
@@ -22,7 +22,7 @@
  * current enumeration value to a T pointer before
  * dereferencing it into var and executing code.
  */
-#define foreach_ref(T, var, source, code) do {          \
+#define foreach_as(T, var, source, code) do {           \
     IEnumerable __src = (IEnumerable)source;            \
     IEnumerator __e = (__src)->GetEnumerator(__src);    \
     while (__e->MoveNext(__e)) {                        \
@@ -58,6 +58,10 @@ typedef object SelectorFunc(object);
 /// @param selector Function to apply to each element.
 /// @return A new enumerable.
 IEnumerable Enumerable_Select(IEnumerable source, SelectorFunc* selector);
+
+typedef object SelectIndexFunc(object, int);
+
+IEnumerable Enumerable_SelectIndex(IEnumerable source, SelectIndexFunc* selector);
 
 typedef IEnumerable SelectManyFunc(object);
 

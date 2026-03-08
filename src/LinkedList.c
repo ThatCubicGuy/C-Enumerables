@@ -148,7 +148,7 @@ LinkedList LinkedList__ctor()
 
 /// @brief Frees up all memory occupied by a linked list.
 /// @param source List to destroy.
-void DestroyLinkedList(LinkedList* source)
+void LinkedList_Destroy(LinkedList* source)
 {
     LinkedList_Clear(*source);
     free(*source);
@@ -187,7 +187,7 @@ LinkedList CreateLinkedListFromArray(int itemCount, object items[])
 LinkedList Enumerable_ToLinkedList(IEnumerable source)
 {
     LinkedList allocinit(LinkedList, result) default(struct LinkedList_s);
-    foreach_as(object, item, source, LinkedList_Add(result, item));
+    foreach_ref(object, item, source, LinkedList_Add(result, item));
     return result;
 }
 

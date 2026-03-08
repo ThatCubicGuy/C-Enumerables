@@ -33,7 +33,7 @@ void showData(Employee item)
 
 void ShowAllData(IEnumerable_Employee source)
 {
-    foreach_ref(Employee, employee, source, {
+    foreach_as(Employee, employee, source, {
         showData(employee);
     });
 }
@@ -47,7 +47,7 @@ void ShowStrings(IEnumerable source)
 
 void ShowNumbers(IEnumerable source)
 {
-    foreach_ref(int, item, source, {
+    foreach_as(int, item, source, {
         printf("%d ", item);
     });
     printf("\n");

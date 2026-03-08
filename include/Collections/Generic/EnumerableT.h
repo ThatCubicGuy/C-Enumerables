@@ -139,39 +139,59 @@ int Enumerable_##T##_Count(IEnumerable_##T source);                             
  * @return True if every element from first is equal to second, false otherwise.                        \
  * @pure                                                                                                \
  */                                                                                                     \
-bool Enumerable_##T##_SequenceEqual(IEnumerable_##T first, IEnumerable_##T second);
+bool Enumerable_##T##_SequenceEqual(IEnumerable_##T first, IEnumerable_##T second);                     \
 
 #pragma region Converters
 
-#define ENUMERABLE_DEFINE_SELECT(TSource, TResult)                                                                                                      \
-/**                                                                                                                                                     \
- * @brief Projects each element of a sequence into a new form.                                                                                          \
- * @param source Enumerable to project.                                                                                                                 \
- * @param selector Function to apply to each element.                                                                                                   \
- * @return A new enumerable.                                                                                                                            \
- * @pure                                                                                                                                                \
- */                                                                                                                                                     \
-IEnumerable_##TResult Enumerable_##TSource##_Select_##TResult(IEnumerable_##TSource source, TResult (*selector)(TSource));                              \
+#define ENUMERABLE_DEFINE_INDEX(T)                                          \
+/**                                                                         \
+ * @brief Transforms a sequence by incorporating                            \
+ * each element's index into a tuple.                                       \
+ * @param source Enumerable to project.                                     \
+ * @return A new enumerable.                                                \
+ */                                                                         \
+IEnumerable_##T##_int Enumerable_##T##_Index(IEnumerable_##T source);
 
-#define ENUMERABLE_DEFINE_SELECTMANY(TSource, TResult)                                                                                                  \
-/**                                                                                                                                                     \
- * @brief Projects each element of the collection into a new collection, then flattens the result.                                                      \
- * @param source Source enumerable to project the elements of.                                                                                          \
- * @param selector Selector function for the resulting collection.                                                                                      \
- * @return A new enumerable.                                                                                                                            \
- * @pure                                                                                                                                                \
- */                                                                                                                                                     \
-IEnumerable_##TResult Enumerable_##TSource##_SelectMany_##TResult(IEnumerable_##TSource source, IEnumerable_##TResult (*selector)(TSource));            \
+#define ENUMERABLE_DEFINE_SELECT(TSource, TResult)                          \
+/**                                                                         \
+ * @brief Projects each element of a sequence into a new form.              \
+ * @param source Enumerable to project.                                     \
+ * @param selector Function to apply to each element.                       \
+ * @return A new enumerable.                                                \
+ * @pure                                                                    \
+ */                                                                         \
+IEnumerable_##TResult Enumerable_##TSource##_Select_##TResult(IEnumerable_##TSource source, TResult (*selector)(TSource));
 
-#define ENUMERABLE_DEFINE_AGGREGATE(TSource, TAggregate)                                                                                                \
-/**                                                                                                                                                     \
- * @brief Applies an accumulator function over a sequence.                                                                                              \
- * @param source Enumerable to aggregate.                                                                                                               \
- * @param aggregate Accumulator function to apply.                                                                                                      \
- * @return The final accumulation value.                                                                                                                \
- * @pure                                                                                                                                                \
- */                                                                                                                                                     \
-TAggregate Enumerable_##TSource##_Aggregate_##TAggregate(IEnumerable_##TSource source, TAggregate seed, TAggregate (*aggregate)(TAggregate, TSource));  \
+#define ENUMERABLE_DEFINE_SELECTINDEX(TSource, TResult)                     \
+/**                                                                         \
+ * @brief Projects each element of a sequence into a new form by            \
+ * incorporating the element's index.                                       \
+ * @param source Enumerable to project.                                     \
+ * @param selector Function to apply to each element and its index.         \
+ * @return A new enumerable.                                                \
+ */                                                                         \
+IEnumerable_##TResult Enumerable_##TSource##_SelectIndex_##TResult(IEnumerable_##TSource source, TResult (*selector)(TSource, int));
+
+#define ENUMERABLE_DEFINE_SELECTMANY(TSource, TResult)                      \
+/**                                                                         \
+ * @brief Projects each element of the collection into a new collection,    \
+ * then flattens the result into a single collection.                       \
+ * @param source Source enumerable to project the elements of.              \
+ * @param selector Selector function for the resulting collection.          \
+ * @return A new enumerable.                                                \
+ * @pure                                                                    \
+ */                                                                         \
+IEnumerable_##TResult Enumerable_##TSource##_SelectMany_##TResult(IEnumerable_##TSource source, IEnumerable_##TResult (*selector)(TSource));
+
+#define ENUMERABLE_DEFINE_AGGREGATE(TSource, TAggregate)                    \
+/**                                                                         \
+ * @brief Applies an accumulator function over a sequence.                  \
+ * @param source Enumerable to aggregate.                                   \
+ * @param aggregate Accumulator function to apply.                          \
+ * @return The final accumulation value.                                    \
+ * @pure                                                                    \
+ */                                                                         \
+TAggregate Enumerable_##TSource##_Aggregate_##TAggregate(IEnumerable_##TSource source, TAggregate seed, TAggregate (*aggregate)(TAggregate, TSource));
 
 #pragma endregion
 #pragma endregion

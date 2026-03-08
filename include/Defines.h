@@ -10,6 +10,8 @@
 #define new(TYPE) TYPE##__ctor
 // Allocates a single instance of REF_TYPE and returns its memory location.
 #define alloc(REF_TYPE) ((REF_TYPE)malloc(sizeof(struct REF_TYPE##_s)))
+// Allocates an instance of VALUE_TYPE on the heap and returns a pointer to its location.
+#define box(VALUE_TYPE) ((VALUE_TYPE*)malloc(sizeof(VALUE_TYPE)))
 // Allocates an array of CAPACITY elements of type ARRAY_TYPE and returns its location.
 #define alloc_array(ARRAY_TYPE, CAPACITY) ((ARRAY_TYPE*)calloc(sizeof(ARRAY_TYPE), CAPACITY))
 // Initializes a potentially readonly reference type with a given initializer.

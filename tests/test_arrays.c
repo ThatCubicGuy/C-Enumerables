@@ -57,7 +57,7 @@ void test_arrays(void)
     showItem(Array_CarClass_Get(arr, 7));
     printf("Array Length: %d; MaxLength: %d, _memberSize: %d\n", arr->Length, arr->MaxLength, arr->_memberSize);
     printf("Array has values:\n");
-    foreach_ref(CarClass, var, arr, showItem(var));
+    foreach_as(CarClass, var, arr, showItem(var));
     Array_Destroy(&arr);
 }
 

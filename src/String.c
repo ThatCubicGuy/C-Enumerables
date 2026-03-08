@@ -2,6 +2,15 @@
 #include "Collections/Generic/ListT.h"
 #include "Text/String.h"
 
+#ifndef STRING_LIST_DEFINED
+#define STRING_LIST_DEFINED
+LIST_DEFINE(string)
+#endif
+#ifndef STRING_INT_AGGREGATE_DEFINED
+#define STRING_INT_AGGREGATE_DEFINED
+ENUMERABLE_DEFINE_AGGREGATE(string, int)
+#endif
+
 const string string_Empty = "";
 
 int string_Length(string source)

@@ -10,16 +10,6 @@ ENUMERABLE_DEFINE_SELECT(string, string)
 ENUMERABLE_DEFINE_SELECTMANY(string, string)
 ENUMERABLE_DEFINE_AGGREGATE(string, string)
 #endif
-#ifndef STRING_LIST_DEFINED
-#define STRING_LIST_DEFINED
-#include "Collections/Generic/ListT.h"
-LIST_DEFINE(string)
-#endif
-#ifndef STRING_INT_AGGREGATE_DEFINED
-#define STRING_INT_AGGREGATE_DEFINED
-#include "Collections/Generic/EnumerableT.h"
-ENUMERABLE_DEFINE_AGGREGATE(string, int)
-#endif
 
 /**
  * @brief Represents the empty string.

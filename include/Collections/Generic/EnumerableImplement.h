@@ -415,9 +415,58 @@ bool Enumerable_##T##_SequenceEqual(IEnumerable_##T first, IEnumerable_##T secon
     e1->Dispose(e1);                                                                                    \
     e2->Dispose(e2);                                                                                    \
     return true;                                                                                        \
-}                                                                                                       \
+}
 
 #pragma region Converters
+
+#define ENUMERABLE_IMPLEMENT_INDEX(T)                                                                   \
+typedef const struct IndexEnumerable_##T##_s {                                                          \
+    struct IEnumerable_##T##_int_s _parent;                                                             \
+    IEnumerable_##T _baseEnumerable;                                                                    \
+} *IndexEnumerable_##T;                                                                                 \
+typedef struct IndexEnumerator_##T##_s {                                                                \
+    struct IEnumerator_##T##_int_s _parent;                                                             \
+    IEnumerator_##T _currentEnumerator;                                                                 \
+    int _currentIndex;                                                                                  \
+} *IndexEnumerator_##T;                                                                                 \
+static bool IndexMoveNext_##T(IEnumerator_##T##_int This)                                               \
+{                                                                                                       \
+    IndexEnumerator_##T index = (IndexEnumerator_##T)This;                                              \
+    if (!index->_currentEnumerator->MoveNext(index->_currentEnumerator)) return false;                  \
+    index->_currentIndex += 1;                                                                          \
+    This->Current = new(T##_int)(index->_currentEnumerator->Current, index->_currentIndex);             \
+    return true;                                                                                        \
+}                                                                                                       \
+static void IndexReset_##T(IEnumerator_##T##_int This)                                                  \
+{                                                                                                       \
+    ((IndexEnumerator_##T)This)->_currentIndex = -1;                                                    \
+    CompoundReset_##T##_int(This);                                                                      \
+}                                                                                                       \
+static IEnumerator_##T##_int GetIndexEnumerator_##T(IEnumerable_##T##_int This)                         \
+{                                                                                                       \
+    IndexEnumerable_##T index = (IndexEnumerable_##T)This;                                              \
+    IndexEnumerator_##T allocinit(IndexEnumerator_##T, result) {                                        \
+        ._parent = (struct IEnumerator_##T##_int_s) {                                                   \
+            .MoveNext = IndexMoveNext_##T,                                                              \
+            .Reset = IndexReset_##T,                                                                    \
+            .Dispose = CompoundDispose_##T##_int                                                        \
+        },                                                                                              \
+        ._currentEnumerator = index->_baseEnumerable->                                                  \
+            GetEnumerator(index->_baseEnumerable),                                                      \
+        ._currentIndex = -1                                                                             \
+    };                                                                                                  \
+    return base(result);                                                                                \
+}                                                                                                       \
+IEnumerable_##T##_int Enumerable_##T##_Index(IEnumerable_##T source)                                    \
+{                                                                                                       \
+    IndexEnumerable_##T allocinit(IndexEnumerable_##T, result) {                                        \
+        ._parent = (struct IEnumerable_##T##_int_s) {                                                   \
+            .GetEnumerator = GetIndexEnumerator_##T                                                     \
+        },                                                                                              \
+        ._baseEnumerable = source                                                                       \
+    };                                                                                                  \
+    return base(result);                                                                                \
+}
 
 #define ENUMERABLE_IMPLEMENT_SELECT(TSource, TResult)                                                   \
 typedef const struct SelectEnumerable_##TSource##_##TResult##_s {                                       \
@@ -473,6 +522,73 @@ IEnumerable_##TResult Enumerable_##TSource##_Select_##TResult(IEnumerable_##TSou
         allocinit(SelectEnumerable_##TSource##_##TResult, result) {                                     \
         ._parent = (struct IEnumerable_##TResult##_s) {                                                 \
             .GetEnumerator = GetSelectEnumerator_##TSource##_##TResult                                  \
+        },                                                                                              \
+        ._selector = selector,                                                                          \
+        ._baseEnumerable = source                                                                       \
+    };                                                                                                  \
+    return base(result);                                                                                \
+}
+
+#define ENUMERABLE_IMPLEMENT_SELECTINDEX(TSource, TResult)                                              \
+typedef const struct SelectIndexEnumerable_##TSource##_##TResult##_s {                                  \
+    struct IEnumerable_##TResult##_s _parent;                                                           \
+    IEnumerable_##TSource _baseEnumerable;                                                              \
+    TResult (*_selector)(TSource, int);                                                                 \
+} *SelectIndexEnumerable_##TSource##_##TResult;                                                         \
+typedef struct SelectIndexEnumerator_##TSource##_##TResult##_s {                                        \
+    struct IEnumerator_##TResult##_s _parent;                                                           \
+    IEnumerator_##TSource _currentEnumerator;                                                           \
+    SelectIndexEnumerable_##TSource##_##TResult _baseEnumerable;                                        \
+    int _currentIndex;                                                                                  \
+} *SelectIndexEnumerator_##TSource##_##TResult;                                                         \
+static bool SelectIndexMoveNext_##TSource##_##TResult(IEnumerator_##TResult This)                       \
+{                                                                                                       \
+    SelectIndexEnumerator_##TSource##_##TResult select =                                                \
+        (SelectIndexEnumerator_##TSource##_##TResult)This;                                              \
+    if (select->_currentEnumerator->MoveNext(select->_currentEnumerator)) {                             \
+        select->_currentIndex += 1;                                                                     \
+        This->Current = ((SelectIndexEnumerable_##TSource##_##TResult)select->_baseEnumerable)->        \
+            _selector(select->_currentEnumerator->Current, select->_currentIndex);                      \
+        return true;                                                                                    \
+    }                                                                                                   \
+    return false;                                                                                       \
+}                                                                                                       \
+static void SelectIndexReset_##TSource##_##TResult(IEnumerator_##TResult This)                          \
+{                                                                                                       \
+    This->Current = default(TResult);                                                                   \
+    SelectIndexEnumerator_##TSource##_##TResult e = (SelectIndexEnumerator_##TSource##_##TResult)This;  \
+    e->_currentEnumerator->Reset(e->_currentEnumerator);                                                \
+    e->_currentIndex = -1;                                                                              \
+}                                                                                                       \
+static void SelectIndexDispose_##TSource##_##TResult(IEnumerator_##TResult This)                        \
+{                                                                                                       \
+    SelectIndexEnumerator_##TSource##_##TResult e = (SelectIndexEnumerator_##TSource##_##TResult)This;  \
+    e->_currentEnumerator->Dispose(e->_currentEnumerator);                                              \
+    free(This);                                                                                         \
+}                                                                                                       \
+static IEnumerator_##TResult GetSelectIndexEnumerator_##TSource##_##TResult(IEnumerable_##TResult This) \
+{                                                                                                       \
+    SelectIndexEnumerable_##TSource##_##TResult select =                                                \
+        (SelectIndexEnumerable_##TSource##_##TResult)This;                                              \
+    SelectIndexEnumerator_##TSource##_##TResult                                                         \
+        allocinit(SelectIndexEnumerator_##TSource##_##TResult, result) {                                \
+        ._parent = (struct IEnumerator_##TResult##_s) {                                                 \
+            .MoveNext = SelectIndexMoveNext_##TSource##_##TResult,                                      \
+            .Reset = SelectIndexReset_##TSource##_##TResult,                                            \
+            .Dispose = SelectIndexDispose_##TSource##_##TResult                                         \
+        },                                                                                              \
+        ._currentEnumerator = select->_baseEnumerable->GetEnumerator(select->_baseEnumerable),          \
+        ._baseEnumerable = select,                                                                      \
+        ._currentIndex = -1                                                                             \
+    };                                                                                                  \
+    return base(result);                                                                                \
+}                                                                                                       \
+IEnumerable_##TResult Enumerable_##TSource##_SelectIndex_##TResult(IEnumerable_##TSource source, TResult (*selector)(TSource, int))   \
+{                                                                                                       \
+    SelectIndexEnumerable_##TSource##_##TResult                                                         \
+        allocinit(SelectIndexEnumerable_##TSource##_##TResult, result) {                                \
+        ._parent = (struct IEnumerable_##TResult##_s) {                                                   \
+            .GetEnumerator = GetSelectIndexEnumerator_##TSource##_##TResult                             \
         },                                                                                              \
         ._selector = selector,                                                                          \
         ._baseEnumerable = source                                                                       \

@@ -13,6 +13,8 @@ int main(void)
     test_generic_linked_lists();
     printf("--------------ARRAY--------------\n");
     test_arrays();
+    printf("--------------INDEX--------------\n");
+    test_index();
     printf("\n----------TESTS CLEARED----------\n");
     return 0;
 }

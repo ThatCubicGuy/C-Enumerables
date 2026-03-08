@@ -44,6 +44,6 @@ void LinkedList_Clear(LinkedList source);
 
 /// @brief Frees up all memory occupied by a linked list.
 /// @param source List to destroy.
-void DestroyLinkedList(LinkedList* source);
+void LinkedList_Destroy(LinkedList* source);
 
 #endif
