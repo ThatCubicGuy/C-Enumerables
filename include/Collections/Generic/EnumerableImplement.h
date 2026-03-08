@@ -421,51 +421,51 @@ bool Enumerable_##T##_SequenceEqual(IEnumerable_##T first, IEnumerable_##T secon
 
 #define ENUMERABLE_IMPLEMENT_INDEX(T)                                                                   \
 typedef const struct IndexEnumerable_##T##_s {                                                          \
-    struct IEnumerable_##T##_int_s _parent;                                                             \
+    struct IEnumerable_int_##T##_s _parent;                                                             \
     IEnumerable_##T _baseEnumerable;                                                                    \
 } *IndexEnumerable_##T;                                                                                 \
 typedef struct IndexEnumerator_##T##_s {                                                                \
-    struct IEnumerator_##T##_int_s _parent;                                                             \
+    struct IEnumerator_int_##T##_s _parent;                                                             \
     IEnumerator_##T _currentEnumerator;                                                                 \
     int _currentIndex;                                                                                  \
 } *IndexEnumerator_##T;                                                                                 \
-static bool IndexMoveNext_##T(IEnumerator_##T##_int This)                                               \
+static bool IndexMoveNext_##T(IEnumerator_int_##T This)                                                 \
 {                                                                                                       \
     IndexEnumerator_##T index = (IndexEnumerator_##T)This;                                              \
     if (!index->_currentEnumerator->MoveNext(index->_currentEnumerator)) return false;                  \
     index->_currentIndex += 1;                                                                          \
-    This->Current = new(T##_int)(index->_currentEnumerator->Current, index->_currentIndex);             \
+    This->Current = new(int_##T)(index->_currentIndex, index->_currentEnumerator->Current);             \
     return true;                                                                                        \
 }                                                                                                       \
-static void IndexReset_##T(IEnumerator_##T##_int This)                                                  \
+static void IndexReset_##T(IEnumerator_int_##T This)                                                    \
 {                                                                                                       \
     ((IndexEnumerator_##T)This)->_currentIndex = -1;                                                    \
-    CompoundReset_##T##_int(This);                                                                      \
+    CompoundReset_int_##T(This);                                                                        \
 }                                                                                                       \
-static IEnumerator_##T##_int GetIndexEnumerator_##T(IEnumerable_##T##_int This)                         \
+static IEnumerator_int_##T GetIndexEnumerator_##T(IEnumerable_int_##T This)                             \
 {                                                                                                       \
     IndexEnumerable_##T index = (IndexEnumerable_##T)This;                                              \
     IndexEnumerator_##T allocinit(IndexEnumerator_##T, result) {                                        \
-        ._parent = (struct IEnumerator_##T##_int_s) {                                                   \
+        ._parent = (struct IEnumerator_int_##T##_s) {                                                   \
             .MoveNext = IndexMoveNext_##T,                                                              \
             .Reset = IndexReset_##T,                                                                    \
-            .Dispose = CompoundDispose_##T##_int                                                        \
+            .Dispose = CompoundDispose_int_##T                                                          \
         },                                                                                              \
         ._currentEnumerator = index->_baseEnumerable->                                                  \
             GetEnumerator(index->_baseEnumerable),                                                      \
         ._currentIndex = -1                                                                             \
     };                                                                                                  \
-    return base(result);                                                                                \
+    return (IEnumerator_int_##T)result;                                                                 \
 }                                                                                                       \
-IEnumerable_##T##_int Enumerable_##T##_Index(IEnumerable_##T source)                                    \
+IEnumerable_int_##T Enumerable_##T##_Index(IEnumerable_##T source)                                      \
 {                                                                                                       \
     IndexEnumerable_##T allocinit(IndexEnumerable_##T, result) {                                        \
-        ._parent = (struct IEnumerable_##T##_int_s) {                                                   \
+        ._parent = (struct IEnumerable_int_##T##_s) {                                                   \
             .GetEnumerator = GetIndexEnumerator_##T                                                     \
         },                                                                                              \
         ._baseEnumerable = source                                                                       \
     };                                                                                                  \
-    return base(result);                                                                                \
+    return (IEnumerable_int_##T)result;                                                                 \
 }
 
 #define ENUMERABLE_IMPLEMENT_SELECT(TSource, TResult)                                                   \

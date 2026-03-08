@@ -150,7 +150,7 @@ bool Enumerable_##T##_SequenceEqual(IEnumerable_##T first, IEnumerable_##T secon
  * @param source Enumerable to project.                                     \
  * @return A new enumerable.                                                \
  */                                                                         \
-IEnumerable_##T##_int Enumerable_##T##_Index(IEnumerable_##T source);
+IEnumerable_int_##T Enumerable_##T##_Index(IEnumerable_##T source);
 
 #define ENUMERABLE_DEFINE_SELECT(TSource, TResult)                          \
 /**                                                                         \

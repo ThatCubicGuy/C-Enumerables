@@ -51,6 +51,12 @@ typedef bool PredicateFunc(object);
 /// @return A new enumerable.
 IEnumerable Enumerable_Where(IEnumerable source, PredicateFunc* filter);
 
+/// @brief Projects a collection into a sequence of (index, element).
+/// @param source Enumerable to project.
+/// @return An enumerable of boxed tuples incorporating
+/// the element's index as Item1 and the element as Item2.
+IEnumerable Enumerable_Index(IEnumerable source);
+
 typedef object SelectorFunc(object);
 
 /// @brief Projects each element of a sequence into a new form.
@@ -61,6 +67,11 @@ IEnumerable Enumerable_Select(IEnumerable source, SelectorFunc* selector);
 
 typedef object SelectIndexFunc(object, int);
 
+/// @brief Projects each element of a sequence into a new form
+/// by incorporating the element's index.
+/// @param source Enumerable to project.
+/// @param selector Function to apply to each element.
+/// @return A new enumerable.
 IEnumerable Enumerable_SelectIndex(IEnumerable source, SelectIndexFunc* selector);
 
 typedef IEnumerable SelectManyFunc(object);

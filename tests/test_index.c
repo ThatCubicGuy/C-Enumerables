@@ -2,28 +2,23 @@
 #include "Collections/Generic/ListT.h"
 #include "Tuple.h"
 
-// temporary "fix" cuz late
-typedef struct int_int_tuple {
-    int Item1;
-    int Item2;
-} int_int;
-ENUMERABLE_DEFINE(int)
-ENUMERABLE_DEFINE(int_int)
-ENUMERABLE_DEFINE_INDEX(int)
-
-LIST_DEFINE(int)
+TUPLE_2_DEFINE(int, double)
+ENUMERABLE_DEFINE(double)
+ENUMERABLE_DEFINE(int_double)
+ENUMERABLE_DEFINE_INDEX(double)
+LIST_DEFINE(double)
 
 void test_index(void)
 {
-    List_int list = new(List_int)(16);
-    List_int_Add(list, 27);
-    List_int_Add(list, 15);
-    List_int_Add(list, 2);
-    List_int_Add(list, 7);
-    foreach (int, nr, list, {
-        printf("Number is: %d\n", nr);
+    List_double list = new(List_double)(16);
+    List_double_Add(list, 27.5);
+    List_double_Add(list, 0.15);
+    List_double_Add(list, 2.0/19);
+    List_double_Add(list, 700);
+    foreach (double, nr, list, {
+        printf("Number is: %lf\n", nr);
     });
-    foreach (int_int, tuple, Enumerable_int_Index(base(list)), {
-        printf("Number at index %d is: %d\n", tuple.Item2, tuple.Item1);
+    foreach (int_double, tuple, Enumerable_double_Index(base(list)), {
+        printf("Number at index %d is: %lf\n", tuple.Item1, tuple.Item2);
     });
 }

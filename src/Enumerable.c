@@ -723,7 +723,7 @@ bool Enumerable_SequenceEqual(IEnumerable first, IEnumerable second)
     return true;
 }
 #include "Tuple.h"
-TUPLE_2_DECLARE(object, int)
+TUPLE_2_DEFINE(int, object)
 typedef const struct IndexEnumerable_s {
     struct CompoundEnumerable_s _parent;
 } *IndexEnumerable;
@@ -736,8 +736,8 @@ static bool IndexMoveNext(IEnumerator This)
     IndexEnumerator index = (IndexEnumerator)This;
     if (!base(index)->_currentEnumerator->MoveNext(base(index)->_currentEnumerator)) return false;
     index->_currentIndex += 1;
-    This->Current = box(object_int);
-    *(object_int*)This->Current = new(object_int)(base(index)->_currentEnumerator->Current, index->_currentIndex);
+    This->Current = box(int_object);
+    *(int_object*)This->Current = new(int_object)(index->_currentIndex, base(index)->_currentEnumerator->Current);
     return true;
 }
 static IEnumerator GetIndexEnumerator(IEnumerable This)
@@ -769,3 +769,6 @@ IEnumerable Enumerable_Index(IEnumerable source)
 }
 
 #pragma endregion
+
+#pragma region Generic Implementations
+TUPLE_2_IMPLEMENT(int, object)
