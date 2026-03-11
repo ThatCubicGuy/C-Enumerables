@@ -15,12 +15,10 @@ static bool LinkedListMoveNext(IEnumerator This)
     if (LLE->_currentNode == NULL) {
         if (LLE->_source->_start == NULL) return false;
         LLE->_currentNode = LLE->_source->_start;
-        This->Current = LLE->_source->_start->Value;
+        This->Current = LLE->_currentNode->Value;
         return true;
     }
-    if (LLE->_currentNode->Next == NULL) {
-        return false;
-    }
+    if ((LLE->_currentNode)->Next == NULL) return false;
     LLE->_currentNode = LLE->_currentNode->Next;
     This->Current = LLE->_currentNode->Value;
     return true;
@@ -45,6 +43,7 @@ static IEnumerator LinkedListGetEnumerator(const IEnumerable This)
             .Reset = LinkedListReset,
             .Dispose = LinkedListDispose
         },
+        ._currentNode = NULL,
         ._source = (LinkedList)This
     };
     return base(result);
@@ -65,6 +64,7 @@ void LinkedList_Add(LinkedList source, object item)
             .Next = NULL,
             .Value = item
         };
+        source->_end = source->_end->Next;
         return;
     }
 
@@ -113,6 +113,7 @@ void LinkedList_Insert(LinkedList source, object item, int index)
     if (index == source->Count - 1) {
         LinkedNode allocinit(LinkedNode, newNode) {
             .Value = item,
+            .Next = NULL,
         };
         source->_end->Next = newNode;
         source->_end = newNode;
@@ -153,6 +154,24 @@ void LinkedList_Destroy(LinkedList* source)
     LinkedList_Clear(*source);
     free(*source);
     *source = NULL;
+}
+
+static void ReverseNodes(LinkedNode previous, LinkedNode current)
+{
+    if (!current) return;
+    if (current->Next) ReverseNodes(current, current->Next);
+    current->Next = previous;
+}
+
+void LinkedList_Reverse(LinkedList source)
+{
+    if (source->Count <= 1) return;
+    ReverseNodes(source->_start, source->_start->Next);
+    source->_start->Next = NULL;
+    LinkedNode last = source->_end;
+    source->_end = source->_start;
+    source->_start = last;
+
 }
 
 /// @brief Creates a LinkedList from a static array.

@@ -40,5 +40,5 @@ void test_generic_linked_lists(void)
     foreach(int, var, Enumerable_int_Prepend(base(int_list), 0), {
         printf("Item in list: %d\n", var);
     });
-    DestroyLinkedList_int(&int_list);
+    LinkedList_int_Destroy(&int_list);
 }

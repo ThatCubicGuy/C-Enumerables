@@ -24,9 +24,11 @@ void test_linked_lists(void)
         .Number = 7,
         .Name = "watahelly"
     };
-    LinkedList list = LinkedList__ctor();
+    LinkedList list = new(LinkedList)();
     printf("List address: %p\n", list);
     LinkedList_Add(list, &c);
+    LinkedList_Add(list, &b);
+    LinkedList_Add(list, &b);
     LinkedList_Add(list, &b);
     LinkedList_Add(list, &a);
     foreach_ref(object, item, base(list), showItemNumber(item));
@@ -42,5 +44,12 @@ void test_linked_lists(void)
     printf("Count: %d\n", list->Count);
     LinkedList_Clear(list);
     printf("Count: %d\n", list->Count);
+    LinkedList_Add(list, &a);
+    LinkedList_Add(list, &b);
+    LinkedList_Add(list, &c);
+    foreach_ref(object, item, base(list), showItemNumber(item));
+    printf("Reverse list:\n");
+    LinkedList_Reverse(list);
+    foreach_ref(object, item, base(list), showItemNumber(item));
     LinkedList_Destroy(&list);
 }

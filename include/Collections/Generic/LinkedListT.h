@@ -50,6 +50,11 @@ void LinkedList_##T##_Clear(LinkedList_##T source);                         \
  * @brief Frees up all memory occupied by a LinkedList<T>.                  \
  * @param source List to destroy.                                           \
  */                                                                         \
-void DestroyLinkedList_##T(LinkedList_##T* source);
+void LinkedList_##T##_Destroy(LinkedList_##T* source);                      \
+/**                                                                         \
+ * @brief Reverses the given list without creating a copy.                  \
+ * @param source List to reverse.                                           \
+ */                                                                         \
+void LinkedList##T##_Reverse(LinkedList_##T source);
 
 #endif

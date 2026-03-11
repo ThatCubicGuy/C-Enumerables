@@ -46,4 +46,8 @@ void LinkedList_Clear(LinkedList source);
 /// @param source List to destroy.
 void LinkedList_Destroy(LinkedList* source);
 
+/// @brief Reverses the order of the given list.
+/// @param source List to reverse.
+void LinkedList_Reverse(LinkedList source);
+
 #endif

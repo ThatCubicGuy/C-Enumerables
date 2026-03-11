@@ -24,8 +24,10 @@
 #define base(REF_TYPE) (&(REF_TYPE)->_parent)
 // Returns the default (zero initialized) value for the given type.
 #define default(TYPE) ((TYPE){0})
+// Casts var to a void pointer for easy assignment to any reference type.
+#define any(var) ((void*)var)
 // Defines the empty constructor for a value type (that is, initializing all of its values with zero.)
-#define DEFINE_EMPTY_VALUE_CTOR(VALUE_TYPE) VALUE_TYPE VALUE_TYPE##__ctor(void) { return default(VALUE_TYPE); }
+#define IMPLEMENT_EMPTY_VALUE_CTOR(VALUE_TYPE) VALUE_TYPE VALUE_TYPE##__ctor(void) { return default(VALUE_TYPE); }
 
 typedef const void* object;
 typedef const char* string;
