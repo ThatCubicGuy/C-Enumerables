@@ -15,6 +15,8 @@ int main(void)
     test_arrays();
     printf("--------------INDEX--------------\n");
     test_index();
+    printf("--------------ORDER--------------\n");
+    test_ordering();
     printf("\n----------TESTS CLEARED----------\n");
     return 0;
 }

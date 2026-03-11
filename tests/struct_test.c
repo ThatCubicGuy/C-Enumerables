@@ -33,7 +33,7 @@ void showData(Employee item)
 
 void ShowAllData(IEnumerable_Employee source)
 {
-    foreach_as(Employee, employee, source, {
+    foreach_deref(Employee, employee, source, {
         showData(employee);
     });
 }
@@ -47,7 +47,7 @@ void ShowStrings(IEnumerable source)
 
 void ShowNumbers(IEnumerable source)
 {
-    foreach_as(int, item, source, {
+    foreach_deref(int, item, source, {
         printf("%d ", item);
     });
     printf("\n");
@@ -112,6 +112,6 @@ void test_with_structs(void) {
     });
     printf("We have our list of victors: %s\n", string_Join(", ", Enumerable_Employee_Select_string(base(workers), selectNames)));
     #endif
-    DestroyList_Employee(&workers);
-    DestroyList_Employee(&revWorkers);
+    List_Employee_Destroy(&workers);
+    List_Employee_Destroy(&revWorkers);
 }

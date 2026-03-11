@@ -53,6 +53,8 @@ void Array_Sort(Array source, Comparer* comparer);
 #pragma region Generics
 
 #ifdef COLLECTIONS_GENERIC_ENUMERABLE
+#ifndef ENUMERABLE_TO_ARRAY_DEFINED
+#define ENUMERABLE_TO_ARRAY_DEFINED
 #define DEF_ENUMERABLE_TO_ARRAY(T) Array Enumerable_##T##_ToArray(IEnumerable_##T source);
 #define IMPL_ENUMERABLE_TO_ARRAY(T)                                 \
 Array Enumerable_##T##_ToArray(IEnumerable_##T source)              \
@@ -77,6 +79,7 @@ Array Enumerable_##T##_ToArray(IEnumerable_##T source)              \
     Array_Resize(result, result->Length);                           \
     return result;                                                  \
 }
+#endif
 #else
 #define DEF_ENUMERABLE_TO_ARRAY(T)
 #define IMPL_ENUMERABLE_TO_ARRAY(T)

@@ -115,7 +115,7 @@ List_##T List_##T##__ctor(int capacity)                                         
     }                                                                                           \
     return result;                                                                              \
 }                                                                                               \
-void DestroyList_##T(List_##T* list)                                                            \
+void List_##T##_Destroy(List_##T* list)                                                         \
 {                                                                                               \
     free((*list)->Values);                                                                      \
     free(*list);                                                                                \

@@ -1,6 +1,8 @@
 #include "Collections/Enumerable.h"
 #include "Defines.h"
 
+#pragma region Lazy evaluation
+
 #pragma region Helpers
 
 typedef const struct CompoundEnumerable_s {
@@ -347,6 +349,123 @@ IEnumerable Enumerable_Skip(IEnumerable source, int count)
 
 #pragma endregion
 
+#pragma region TakeWhile / SkipWhile
+
+typedef const struct PredicateEnumerable_s {
+    struct CompoundEnumerable_s _parent;
+    PredicateFunc* Predicate;
+} *PredicateEnumerable;
+
+typedef struct PredicateEnumerator_s {
+    struct CompoundEnumerator_s _parent;
+    bool _hasFinishedEnumeration;
+} *PredicateEnumerator;
+
+static void PredicateReset(IEnumerator This)
+{
+    ((PredicateEnumerator)This)->_hasFinishedEnumeration = false;
+    CompoundReset(This);
+}
+
+static bool TakeWhileMoveNext(IEnumerator This)
+{
+    if (((PredicateEnumerator)This)->_hasFinishedEnumeration) return false;
+    CompoundEnumerator modified = (CompoundEnumerator)This;
+    if (modified->_currentEnumerator->MoveNext(modified->_currentEnumerator)) return false;
+
+    if (((PredicateEnumerable)modified->_baseEnumerable)->Predicate(modified->_currentEnumerator->Current)) {
+        This->Current = modified->_currentEnumerator->Current;
+        return true;
+    } else {
+        ((PredicateEnumerator)This)->_hasFinishedEnumeration = true;
+        return false;
+    }
+}
+
+static IEnumerator GetTakeWhileEnumerator(IEnumerable This)
+{
+    PredicateEnumerable limited = (PredicateEnumerable)This;
+
+    PredicateEnumerator allocinit(PredicateEnumerator, result) {
+        ._parent = (struct CompoundEnumerator_s) {
+            ._parent = (struct IEnumerator_s) {
+                .MoveNext = TakeWhileMoveNext,
+                .Reset = PredicateReset,
+                .Dispose = CompoundDispose,
+            },
+            ._currentEnumerator = base(limited)->_baseEnumerable->GetEnumerator(base(limited)->_baseEnumerable),
+            ._baseEnumerable = (IEnumerable)limited,
+        }
+    };
+
+    return (IEnumerator)result;
+}
+
+static bool SkipWhileMoveNext(IEnumerator This)
+{
+    CompoundEnumerator modified = (CompoundEnumerator)This;
+    if (!((PredicateEnumerator)This)->_hasFinishedEnumeration) {
+        if (!modified->_currentEnumerator->MoveNext(modified->_currentEnumerator)) return false;
+        This->Current = modified->_currentEnumerator->Current;
+        while (((PredicateEnumerable)modified->_baseEnumerable)->Predicate(This->Current)) {
+            This->Current = modified->_currentEnumerator->Current;
+            modified->_currentEnumerator->MoveNext(modified->_currentEnumerator);
+        }
+        ((PredicateEnumerator)This)->_hasFinishedEnumeration = true;
+        return true;
+    }
+    if (modified->_currentEnumerator->MoveNext(modified->_currentEnumerator)) {
+        This->Current = modified->_currentEnumerator->Current;
+        return true;
+    }
+    return false;
+}
+
+static IEnumerator GetSkipWhileEnumerator(IEnumerable This)
+{
+    PredicateEnumerable limited = (PredicateEnumerable)This;
+
+    PredicateEnumerator allocinit(PredicateEnumerator, result) {
+        ._parent = (struct CompoundEnumerator_s) {
+            ._parent = (struct IEnumerator_s) {
+                .MoveNext = SkipWhileMoveNext,
+                .Reset = PredicateReset,
+                .Dispose = CompoundDispose,
+            },
+            ._currentEnumerator = base(limited)->_baseEnumerable->GetEnumerator(base(limited)->_baseEnumerable),
+            ._baseEnumerable = (IEnumerable)limited,
+        }
+    };
+
+    return (IEnumerator)result;
+}
+
+IEnumerable Enumerable_TakeWhile(IEnumerable source, PredicateFunc* predicate)
+{
+    PredicateEnumerable allocinit(PredicateEnumerable, result) {
+        ._parent = (struct IEnumerable_s) {
+            .GetEnumerator = GetTakeWhileEnumerator
+        },
+        .Predicate = predicate
+    };
+
+    return (IEnumerable)result;
+}
+
+IEnumerable Enumerable_SkipWhile(IEnumerable source, PredicateFunc* predicate)
+{
+    PredicateEnumerable allocinit(PredicateEnumerable, result) {
+        ._parent = (struct IEnumerable_s) {
+            .GetEnumerator = GetSkipWhileEnumerator
+        },
+        .Predicate = predicate
+    };
+
+    return (IEnumerable)result;
+}
+
+#pragma endregion
+
 #pragma region Append / Prepend
 
 typedef const struct ExtendEnumerable_s {
@@ -549,6 +668,85 @@ IEnumerable Enumerable_Concat(IEnumerable first, IEnumerable second)
 
 #pragma endregion
 
+#pragma endregion
+
+#pragma region Eager evaluation
+
+typedef struct OrderedEnumerator_s {
+    struct IEnumerator_s _parent;
+    int _currentIndex;
+    object* _array;
+    int _totalCount;
+} *OrderedEnumerator;
+
+bool OrderByMoveNext(IEnumerator This)
+{
+    OrderedEnumerator ordered = (OrderedEnumerator)This;
+    
+    if (ordered->_currentIndex < ordered->_totalCount) {
+        ordered->_currentIndex += 1;
+        // TODO: smth about setting this just don't work. maybe its an array issue lmao
+        This->Current = ordered->_array[ordered->_currentIndex];
+        fprintf(stderr, "Final value of ts ahh: %d\n", This->Current);
+        return true;
+    }
+
+    return false;
+}
+
+void OrderByReset(IEnumerator This)
+{
+    ((OrderedEnumerator)This)->_currentIndex = 0;
+}
+
+void OrderByDispose(IEnumerator This)
+{
+    free(((OrderedEnumerator)This)->_array);
+    free(This);
+}
+
+IEnumerator GetOrderByEnumerator(IEnumerable This)
+{
+    int capacity = 16;
+    int currentIndex = 0;
+    object* array = alloc_array(object, capacity);
+    foreach_as(object, item, ((IOrderedEnumerable)This)->_baseEnumerable, {
+        if (currentIndex >= capacity) {
+            array = realloc(array, capacity *= 2);
+        }
+        array[currentIndex] = item;
+        currentIndex += 1;
+    });
+    
+    qsort(array, currentIndex, sizeof(object), ((IOrderedEnumerable)This)->_comparer);
+    
+    OrderedEnumerator allocinit(OrderedEnumerator, result) {
+        ._parent = (struct IEnumerator_s) {
+            .MoveNext = OrderByMoveNext,
+            .Reset = OrderByReset,
+            .Dispose = OrderByDispose,
+            .Current = NULL
+        },
+        ._currentIndex = -1,
+        ._array = array
+    };
+    return (IEnumerator)result;
+}
+
+IOrderedEnumerable Enumerable_OrderBy(IEnumerable source, Comparer* comparer)
+{
+    IOrderedEnumerable allocinit(IOrderedEnumerable, result) {
+        ._parent = (struct IEnumerable_s) {
+            .GetEnumerator = GetOrderByEnumerator
+        },
+        ._comparer = comparer,
+        ._baseEnumerable = source
+    };
+    return result;
+}
+
+#pragma endregion
+
 #pragma region Non-Tunnels
 
 /// @brief Returns the element at the given zero-based index of the sequence.
@@ -690,7 +888,7 @@ bool Enumerable_Contains(IEnumerable source, object item)
 int Enumerable_Count(IEnumerable source)
 {
     int count = 0;
-    foreach_ref(object, _=_, source, {
+    foreach_as(object, _=_, source, {
         count += 1;
     });
     return count;
@@ -772,3 +970,4 @@ IEnumerable Enumerable_Index(IEnumerable source)
 
 #pragma region Generic Implementations
 TUPLE_2_IMPLEMENT(int, object)
+#pragma endregion

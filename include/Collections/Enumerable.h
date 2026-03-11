@@ -7,7 +7,7 @@
  * @brief Enumerates an IEnumerable and sets var to
  * the current enumeration value before executing code.
  */
-#define foreach_ref(T, var, source, code) do {          \
+#define foreach_as(T, var, source, code) do {           \
     IEnumerable __src = (IEnumerable)source;            \
     IEnumerator __e = (__src)->GetEnumerator(__src);    \
     while (__e->MoveNext(__e)) {                        \
@@ -22,7 +22,7 @@
  * current enumeration value to a T pointer before
  * dereferencing it into var and executing code.
  */
-#define foreach_as(T, var, source, code) do {           \
+#define foreach_deref(T, var, source, code) do {        \
     IEnumerable __src = (IEnumerable)source;            \
     IEnumerator __e = (__src)->GetEnumerator(__src);    \
     while (__e->MoveNext(__e)) {                        \
@@ -40,7 +40,7 @@ typedef struct IEnumerator_s {
 } *IEnumerator;
 
 typedef const struct IEnumerable_s {
-    const IEnumerator (*GetEnumerator)(const struct IEnumerable_s* This);
+    IEnumerator (*GetEnumerator)(const struct IEnumerable_s* This);
 } *IEnumerable;
 
 typedef bool PredicateFunc(object);
@@ -114,6 +114,18 @@ IEnumerable Enumerable_Take(IEnumerable source, int count);
 /// @return A new enumerable.
 IEnumerable Enumerable_Skip(IEnumerable source, int count);
 
+/// @brief Returns items from a sequence so long as a condition is fulfilled.
+/// @param source Enumerable to take items from.
+/// @param predicate Condition for items to fulfill.
+/// @return A new enumerable.
+IEnumerable Enumerable_TakeWhile(IEnumerable source, PredicateFunc* predicate);
+
+/// @brief Skips the first count items from a sequence that fulfill a condition before returning the rest.
+/// @param source Enumerable to skip items from.
+/// @param predicate Condition for items to fulfill.
+/// @return A new enumerable.
+IEnumerable Enumerable_SkipWhile(IEnumerable source, PredicateFunc* predicate);
+
 /// @brief Returns the element at the given zero-based index of the sequence.
 /// @param source Enumerable to extract the element from.
 /// @param index Index of the element.
@@ -170,5 +182,17 @@ int Enumerable_Count(IEnumerable source);
 /// @param second Second enumerable to compare.
 /// @return True if every element from first is equal to second, false otherwise.
 bool Enumerable_SequenceEqual(IEnumerable first, IEnumerable second);
+
+typedef const struct IOrderedEnumerable_s {
+    struct IEnumerable_s _parent;
+    IEnumerable _baseEnumerable;
+    Comparer* _comparer;
+} *IOrderedEnumerable;
+
+/// @brief Orders a collection using the provided comparer.
+/// @param source Enumerable to order.
+/// @param comparer Comparer to use to determine order.
+/// @return A new ordered enumerable.
+IOrderedEnumerable Enumerable_OrderBy(IEnumerable source, Comparer* comparer);
 
 #endif

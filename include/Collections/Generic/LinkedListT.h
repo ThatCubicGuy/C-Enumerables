@@ -27,7 +27,7 @@ LinkedList_##T LinkedList_##T##__ctor();                                    \
  * @param items Array of items.                                             \
  * @return A new LinkedList with elements from the array.                   \
  */                                                                         \
-LinkedList_##T Enumerable_ToLinkedList_##T(IEnumerable_##T source);         \
+LinkedList_##T Enumerable_##T##_ToLinkedList(IEnumerable_##T source);       \
 /**                                                                         \
  * @brief Add an element to the end of the list.                            \
  * @param list List to add an element to.                                   \
@@ -55,6 +55,13 @@ void LinkedList_##T##_Destroy(LinkedList_##T* source);                      \
  * @brief Reverses the given list without creating a copy.                  \
  * @param source List to reverse.                                           \
  */                                                                         \
-void LinkedList##T##_Reverse(LinkedList_##T source);
+void LinkedList_##T##_Reverse(LinkedList_##T source);                       \
+/**                                                                         \
+ * @brief Sorts the given linked list without creating a copy.              \
+ * @param source List to sort.                                              \
+ */                                                                         \
+void LinkedList_##T##_Sort(LinkedList_##T source, int (*comparer)(T, T));
+
+// TODO: some fixes from SDA project
 
 #endif

@@ -527,9 +527,7 @@ IEnumerable_##TResult Enumerable_##TSource##_Select_##TResult(IEnumerable_##TSou
         ._baseEnumerable = source                                                                       \
     };                                                                                                  \
     return base(result);                                                                                \
-}
-
-#define ENUMERABLE_IMPLEMENT_SELECTINDEX(TSource, TResult)                                              \
+}                                                                                                       \
 typedef const struct SelectIndexEnumerable_##TSource##_##TResult##_s {                                  \
     struct IEnumerable_##TResult##_s _parent;                                                           \
     IEnumerable_##TSource _baseEnumerable;                                                              \

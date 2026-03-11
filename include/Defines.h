@@ -13,7 +13,7 @@
 // Allocates an instance of VALUE_TYPE on the heap and returns a pointer to its location.
 #define box(VALUE_TYPE) ((VALUE_TYPE*)malloc(sizeof(VALUE_TYPE)))
 // Allocates an array of CAPACITY elements of type ARRAY_TYPE and returns its location.
-#define alloc_array(ARRAY_TYPE, CAPACITY) ((ARRAY_TYPE*)calloc(sizeof(ARRAY_TYPE), CAPACITY))
+#define alloc_array(ARRAY_TYPE, CAPACITY) ((ARRAY_TYPE*)calloc(CAPACITY, sizeof(ARRAY_TYPE)))
 // Initializes a potentially readonly reference type with a given initializer.
 #define init(REF_TYPE, var) *(struct REF_TYPE##_s*)var = (struct REF_TYPE##_s)
 // Initializes a readonly location with the given reference value.

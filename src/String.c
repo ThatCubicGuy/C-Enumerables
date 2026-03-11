@@ -62,7 +62,7 @@ string string_Join(string separator, IEnumerable_string values)
     if (values == NULL) return NULL;
     List_string list = Enumerable_string_ToList(values);
     if (list->Count == 0) {
-        DestroyList_string(&list);
+        List_string_Destroy(&list);
         return string_Empty;
     }
     int totalLength = Enumerable_string_Aggregate_int(
@@ -76,7 +76,7 @@ string string_Join(string separator, IEnumerable_string values)
         MemCopy((char*)(result + string_Length(result)), separator, string_Length(separator));
         MemCopy((char*)(result + string_Length(result)), str, string_Length(str));
     });
-    DestroyList_string(&list);
+    List_string_Destroy(&list);
     ((char*)result)[totalLength] = 0;
     return result;
 }

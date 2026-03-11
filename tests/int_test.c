@@ -87,5 +87,5 @@ void test_with_numbers(void)
     printf("First even number in the list: %d\n", Enumerable_int_FirstOrDefault(enumerable, filter));
     printf("Index of first even number in the list: %d\n", Enumerable_int_IndexOf(enumerable, Enumerable_int_FirstOrDefault(enumerable, filter)));
     printf("Sum of all values: %d\n", Enumerable_int_Aggregate_int(enumerable, 0, aggregate));
-    DestroyList_int(&int_list);
+    List_int_Destroy(&int_list);
 }

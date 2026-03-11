@@ -1,6 +1,6 @@
 # Compiler settings
 CC:=gcc
-CFLAGS:=-Wall -Iinclude
+CFLAGS:=-Wextra -Iinclude
 OUTPUT:=thing.exe
 
 # Library files
@@ -11,6 +11,9 @@ LIBOBJS:=${LIBSRCS:src/%.c=bin/lib/%.o}
 TESTSRCS:=$(wildcard tests/*.c)
 
 test: buildtest runtest
+
+pack: lib
+	ar rcs libcollections.a $(wildcard bin/lib/*.o)
 
 buildtest: lib
 	${CC} ${CFLAGS} main.c ${TESTSRCS} ${LIBOBJS} -o bin/test_${OUTPUT}

@@ -169,6 +169,18 @@ void LinkedList_##T##_Reverse(LinkedList_##T source)                            
 {                                                                                   \
     if (source->Count <= 1) return;                                                 \
     ReverseNodes_##T(source->_start, source->_start->Next);                         \
+}                                                                                   \
+void LinkedList_##T##_Sort(LinkedList_##T source, int (*comparer)(T, T))            \
+{                                                                                   \
+    for (LinkedNode_##T i = source->_start; i; i = i->Next) {                       \
+        for (LinkedNode_##T j = i; j; j = j->Next) {                                \
+            if (comparer(i->Value, j->Value) < 0) {                                 \
+                T tmp = i->Value;                                                   \
+                i->Value = j->Value;                                                \
+                j->Value = tmp;                                                     \
+            }                                                                       \
+        }                                                                           \
+    }                                                                               \
 }
 
 #pragma endregion

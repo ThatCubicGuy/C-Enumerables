@@ -13,4 +13,6 @@ void test_generic_linked_lists(void);
 
 void test_index(void);
 
+void test_ordering(void);
+
 #endif

@@ -160,9 +160,7 @@ IEnumerable_int_##T Enumerable_##T##_Index(IEnumerable_##T source);
  * @return A new enumerable.                                                \
  * @pure                                                                    \
  */                                                                         \
-IEnumerable_##TResult Enumerable_##TSource##_Select_##TResult(IEnumerable_##TSource source, TResult (*selector)(TSource));
-
-#define ENUMERABLE_DEFINE_SELECTINDEX(TSource, TResult)                     \
+IEnumerable_##TResult Enumerable_##TSource##_Select_##TResult(IEnumerable_##TSource source, TResult (*selector)(TSource)); \
 /**                                                                         \
  * @brief Projects each element of a sequence into a new form by            \
  * incorporating the element's index.                                       \
