@@ -2,6 +2,7 @@
 #include "Collections/Array.h"
 #include "Tests.h"
 #include "Text/String.h"
+#include "Defines.h"
 
 typedef struct CarClass_s {
     string Manufacturer;
@@ -31,14 +32,12 @@ CartRecord CartRecord__ctor(string manufacturer, int maxSpeed, float acceleratio
         .MaxSpeed = maxSpeed,
         .Acceleration = acceleration
     };
-    init_ro(string, result->Manufacturer) new(string)("Toyota");
+    init_ro(string, result->Manufacturer) new(string)(manufacturer);
     return result;
 }
 
 void showItem(CarClass car)
 {
-    // printf("Address: %d\n", *(CarClass*)item);
-    // CarClass car = *(CarClass*)item;
     printf("%s (%d)\n ", car->Manufacturer, car->Year);
 }
 

@@ -2,6 +2,7 @@
 #include "Collections/Generic/ListT.h"
 #include "Tuple.h"
 #include "Tests.h"
+#include "Defines.h"
 
 TUPLE_2_DEFINE(int, double)
 ENUMERABLE_DEFINE(double)

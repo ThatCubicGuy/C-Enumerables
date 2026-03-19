@@ -185,8 +185,7 @@ bool Enumerable_SequenceEqual(IEnumerable first, IEnumerable second);
 
 typedef const struct IOrderedEnumerable_s {
     struct IEnumerable_s _parent;
-    IEnumerable _baseEnumerable;
-    Comparer* _comparer;
+    struct IOrderedEnumerable_s* (*CreateOrderedEnumerable)(struct IOrderedEnumerable_s* This, Comparer* comparer, bool descending);
 } *IOrderedEnumerable;
 
 /// @brief Orders a collection using the provided comparer.
@@ -194,5 +193,11 @@ typedef const struct IOrderedEnumerable_s {
 /// @param comparer Comparer to use to determine order.
 /// @return A new ordered enumerable.
 IOrderedEnumerable Enumerable_OrderBy(IEnumerable source, Comparer* comparer);
+
+/// @brief Performs a subsequent ordering of a collection.
+/// @param source Enumerable to continue ordering.
+/// @param comparer Comparer to use to determine order.
+/// @return A subsequently ordered enumerable.
+IOrderedEnumerable Enumerable_ThenBy(IOrderedEnumerable source, Comparer* comparer);
 
 #endif

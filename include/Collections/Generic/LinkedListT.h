@@ -1,8 +1,6 @@
 #ifndef COLLECTIONS_GENERIC_LINKED_LIST
 #define COLLECTIONS_GENERIC_LINKED_LIST
 
-#include "Collections/Generic/EnumerableT.h"
-
 #define LINKED_LIST_DEFINE(T)                                               \
 /* @brief A node inside a linked list. */                                   \
 typedef struct LinkedNode_##T##_s {                                         \

@@ -1,0 +1,162 @@
+[
+  {
+    "arguments": [
+      "/usr/lib64/ccache/gcc",
+      "-c",
+      "-Wextra",
+      "-Iinclude",
+      "bin/lib/Array.o",
+      "bin/lib/Enumerable.o",
+      "bin/lib/LinkedList.o",
+      "bin/lib/StandardTypeImplementations.o",
+      "bin/lib/String.o",
+      "bin/lib/System.o",
+      "-o",
+      "bin/test_thing.exe",
+      "main.c"
+    ],
+    "directory": "/home/Cubic/repos/c-enumerables",
+    "file": "/home/Cubic/repos/c-enumerables/main.c",
+    "output": "/home/Cubic/repos/c-enumerables/bin/test_thing.exe"
+  },
+  {
+    "arguments": [
+      "/usr/lib64/ccache/gcc",
+      "-c",
+      "-Wextra",
+      "-Iinclude",
+      "bin/lib/Array.o",
+      "bin/lib/Enumerable.o",
+      "bin/lib/LinkedList.o",
+      "bin/lib/StandardTypeImplementations.o",
+      "bin/lib/String.o",
+      "bin/lib/System.o",
+      "-o",
+      "bin/test_thing.exe",
+      "tests/int_test.c"
+    ],
+    "directory": "/home/Cubic/repos/c-enumerables",
+    "file": "/home/Cubic/repos/c-enumerables/tests/int_test.c",
+    "output": "/home/Cubic/repos/c-enumerables/bin/test_thing.exe"
+  },
+  {
+    "arguments": [
+      "/usr/lib64/ccache/gcc",
+      "-c",
+      "-Wextra",
+      "-Iinclude",
+      "bin/lib/Array.o",
+      "bin/lib/Enumerable.o",
+      "bin/lib/LinkedList.o",
+      "bin/lib/StandardTypeImplementations.o",
+      "bin/lib/String.o",
+      "bin/lib/System.o",
+      "-o",
+      "bin/test_thing.exe",
+      "tests/struct_test.c"
+    ],
+    "directory": "/home/Cubic/repos/c-enumerables",
+    "file": "/home/Cubic/repos/c-enumerables/tests/struct_test.c",
+    "output": "/home/Cubic/repos/c-enumerables/bin/test_thing.exe"
+  },
+  {
+    "arguments": [
+      "/usr/lib64/ccache/gcc",
+      "-c",
+      "-Wextra",
+      "-Iinclude",
+      "bin/lib/Array.o",
+      "bin/lib/Enumerable.o",
+      "bin/lib/LinkedList.o",
+      "bin/lib/StandardTypeImplementations.o",
+      "bin/lib/String.o",
+      "bin/lib/System.o",
+      "-o",
+      "bin/test_thing.exe",
+      "tests/test_arrays.c"
+    ],
+    "directory": "/home/Cubic/repos/c-enumerables",
+    "file": "/home/Cubic/repos/c-enumerables/tests/test_arrays.c",
+    "output": "/home/Cubic/repos/c-enumerables/bin/test_thing.exe"
+  },
+  {
+    "arguments": [
+      "/usr/lib64/ccache/gcc",
+      "-c",
+      "-Wextra",
+      "-Iinclude",
+      "bin/lib/Array.o",
+      "bin/lib/Enumerable.o",
+      "bin/lib/LinkedList.o",
+      "bin/lib/StandardTypeImplementations.o",
+      "bin/lib/String.o",
+      "bin/lib/System.o",
+      "-o",
+      "bin/test_thing.exe",
+      "tests/test_generic_linked_list.c"
+    ],
+    "directory": "/home/Cubic/repos/c-enumerables",
+    "file": "/home/Cubic/repos/c-enumerables/tests/test_generic_linked_list.c",
+    "output": "/home/Cubic/repos/c-enumerables/bin/test_thing.exe"
+  },
+  {
+    "arguments": [
+      "/usr/lib64/ccache/gcc",
+      "-c",
+      "-Wextra",
+      "-Iinclude",
+      "bin/lib/Array.o",
+      "bin/lib/Enumerable.o",
+      "bin/lib/LinkedList.o",
+      "bin/lib/StandardTypeImplementations.o",
+      "bin/lib/String.o",
+      "bin/lib/System.o",
+      "-o",
+      "bin/test_thing.exe",
+      "tests/test_index.c"
+    ],
+    "directory": "/home/Cubic/repos/c-enumerables",
+    "file": "/home/Cubic/repos/c-enumerables/tests/test_index.c",
+    "output": "/home/Cubic/repos/c-enumerables/bin/test_thing.exe"
+  },
+  {
+    "arguments": [
+      "/usr/lib64/ccache/gcc",
+      "-c",
+      "-Wextra",
+      "-Iinclude",
+      "bin/lib/Array.o",
+      "bin/lib/Enumerable.o",
+      "bin/lib/LinkedList.o",
+      "bin/lib/StandardTypeImplementations.o",
+      "bin/lib/String.o",
+      "bin/lib/System.o",
+      "-o",
+      "bin/test_thing.exe",
+      "tests/test_linked_list.c"
+    ],
+    "directory": "/home/Cubic/repos/c-enumerables",
+    "file": "/home/Cubic/repos/c-enumerables/tests/test_linked_list.c",
+    "output": "/home/Cubic/repos/c-enumerables/bin/test_thing.exe"
+  },
+  {
+    "arguments": [
+      "/usr/lib64/ccache/gcc",
+      "-c",
+      "-Wextra",
+      "-Iinclude",
+      "bin/lib/Array.o",
+      "bin/lib/Enumerable.o",
+      "bin/lib/LinkedList.o",
+      "bin/lib/StandardTypeImplementations.o",
+      "bin/lib/String.o",
+      "bin/lib/System.o",
+      "-o",
+      "bin/test_thing.exe",
+      "tests/test_ordering.c"
+    ],
+    "directory": "/home/Cubic/repos/c-enumerables",
+    "file": "/home/Cubic/repos/c-enumerables/tests/test_ordering.c",
+    "output": "/home/Cubic/repos/c-enumerables/bin/test_thing.exe"
+  }
+]

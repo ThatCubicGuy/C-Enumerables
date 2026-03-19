@@ -144,5 +144,14 @@ List_##T Enumerable_##T##_ToList(IEnumerable_##T source)                        
     return result;                                                                              \
 }
 
+// void List_T_Sort(List_T source, int (*comparer)(T, T))
+// {
+//     int iPivot = source->Count / 2;
+//     for (int i = 0; i < source->Count; ++i) {
+//         if (i == iPivot) i += 1;
+//         if (source->Values[i] < )
+//     }
+// }
+
 #pragma endregion
 #endif

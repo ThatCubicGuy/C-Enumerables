@@ -1,7 +1,7 @@
-#include "Collections/Generic/EnumerableImplement.h"
-#include "Collections/Generic/LinkedListImplement.h"
+#include "Collections/Generic/EnumerableT.h"
+#include "Collections/Generic/LinkedListT.h"
 #include "Tests.h"
-
+#include "Defines.h"
 #ifndef INT_ENUMERABLE_DEFINED
 #define INT_ENUMERABLE_DEFINED
 ENUMERABLE_DEFINE(int)

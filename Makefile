@@ -1,5 +1,5 @@
 # Compiler settings
-CC:=gcc
+CC:=clang
 CFLAGS:=-Wextra -Iinclude
 OUTPUT:=thing.exe
 
@@ -45,3 +45,6 @@ debug:
 	echo ${LIBSRCS}
 	mkdir -p bin
 	mkdir -p bin/lib
+
+cc:
+	${CC} --version

@@ -1,5 +1,6 @@
 #include "Collections/Enumerable.h"
 #include "Defines.h"
+#include <stdlib.h>
 
 #pragma region Lazy evaluation
 
@@ -443,8 +444,11 @@ static IEnumerator GetSkipWhileEnumerator(IEnumerable This)
 IEnumerable Enumerable_TakeWhile(IEnumerable source, PredicateFunc* predicate)
 {
     PredicateEnumerable allocinit(PredicateEnumerable, result) {
-        ._parent = (struct IEnumerable_s) {
-            .GetEnumerator = GetTakeWhileEnumerator
+        ._parent = (struct CompoundEnumerable_s) {
+            ._parent = (struct IEnumerable_s) {
+                .GetEnumerator = GetTakeWhileEnumerator
+            },
+            ._baseEnumerable = source
         },
         .Predicate = predicate
     };
@@ -455,8 +459,11 @@ IEnumerable Enumerable_TakeWhile(IEnumerable source, PredicateFunc* predicate)
 IEnumerable Enumerable_SkipWhile(IEnumerable source, PredicateFunc* predicate)
 {
     PredicateEnumerable allocinit(PredicateEnumerable, result) {
-        ._parent = (struct IEnumerable_s) {
-            .GetEnumerator = GetSkipWhileEnumerator
+        ._parent = (struct CompoundEnumerable_s) {
+            ._parent = (struct IEnumerable_s) {
+                .GetEnumerator = GetSkipWhileEnumerator
+            },
+            ._baseEnumerable = source
         },
         .Predicate = predicate
     };
@@ -671,6 +678,19 @@ IEnumerable Enumerable_Concat(IEnumerable first, IEnumerable second)
 #pragma endregion
 
 #pragma region Eager evaluation
+/*
+// Needs redesign
+
+typedef struct OrderedEnumerable_s {
+    struct IOrderedEnumerable_s _parent;
+    IEnumerable _baseEnumerable;
+    Comparer* _comparer;
+} *OrderedEnumerable;
+
+static IOrderedEnumerable CreateOrderedEnumerable(struct IOrderedEnumerable_s* This, Comparer* comparer, bool descending)
+{
+    
+}
 
 typedef struct OrderedEnumerator_s {
     struct IEnumerator_s _parent;
@@ -679,47 +699,54 @@ typedef struct OrderedEnumerator_s {
     int _totalCount;
 } *OrderedEnumerator;
 
-bool OrderByMoveNext(IEnumerator This)
+static bool OrderByMoveNext(IEnumerator This)
 {
     OrderedEnumerator ordered = (OrderedEnumerator)This;
-    
+
     if (ordered->_currentIndex < ordered->_totalCount) {
-        ordered->_currentIndex += 1;
-        // TODO: smth about setting this just don't work. maybe its an array issue lmao
         This->Current = ordered->_array[ordered->_currentIndex];
-        fprintf(stderr, "Final value of ts ahh: %d\n", This->Current);
+        ordered->_currentIndex += 1;
         return true;
     }
 
     return false;
 }
 
-void OrderByReset(IEnumerator This)
+static void OrderByReset(IEnumerator This)
 {
     ((OrderedEnumerator)This)->_currentIndex = 0;
 }
 
-void OrderByDispose(IEnumerator This)
+static void OrderByDispose(IEnumerator This)
 {
     free(((OrderedEnumerator)This)->_array);
     free(This);
 }
 
-IEnumerator GetOrderByEnumerator(IEnumerable This)
+static IEnumerator GetOrderByEnumerator(IEnumerable This)
 {
-    int capacity = 16;
+    int capacity = 32;
     int currentIndex = 0;
     object* array = alloc_array(object, capacity);
-    foreach_as(object, item, ((IOrderedEnumerable)This)->_baseEnumerable, {
+    foreach_as(object, item, ((OrderedEnumerable)This)->_baseEnumerable, {
         if (currentIndex >= capacity) {
-            array = realloc(array, capacity *= 2);
+            array = realloc(array, capacity * 2);
+            capacity *= 2;
         }
         array[currentIndex] = item;
         currentIndex += 1;
     });
-    
-    qsort(array, currentIndex, sizeof(object), ((IOrderedEnumerable)This)->_comparer);
-    
+
+    for (int i = 0; i < currentIndex - 1; ++i) {
+        for (int j = i + 1; j < currentIndex; ++j) {
+            if (((OrderedEnumerable)This)->_comparer(array[i], array[j]) > 0) {
+                object tmp = array[i];
+                array[i] = array[j];
+                array[j] = tmp;
+            }
+        }
+    }
+
     OrderedEnumerator allocinit(OrderedEnumerator, result) {
         ._parent = (struct IEnumerator_s) {
             .MoveNext = OrderByMoveNext,
@@ -727,24 +754,80 @@ IEnumerator GetOrderByEnumerator(IEnumerable This)
             .Dispose = OrderByDispose,
             .Current = NULL
         },
-        ._currentIndex = -1,
-        ._array = array
+        ._currentIndex = 0,
+        ._array = array,
+        ._totalCount = currentIndex
     };
     return (IEnumerator)result;
 }
 
 IOrderedEnumerable Enumerable_OrderBy(IEnumerable source, Comparer* comparer)
 {
-    IOrderedEnumerable allocinit(IOrderedEnumerable, result) {
-        ._parent = (struct IEnumerable_s) {
-            .GetEnumerator = GetOrderByEnumerator
+    OrderedEnumerable allocinit(OrderedEnumerable, result) {
+        ._parent = (struct IOrderedEnumerable_s) {
+            ._parent = (struct IEnumerable_s) {
+                .GetEnumerator = GetOrderByEnumerator
+            },
+            .CreateOrderedEnumerable = CreateOrderedEnumerable
         },
         ._comparer = comparer,
         ._baseEnumerable = source
     };
-    return result;
+    return (IOrderedEnumerable)result;
 }
 
+typedef struct ReorderedEnumerable_s {
+    struct IOrderedEnumerable_s _parent;
+    IOrderedEnumerable _baseEnumerable;
+    Comparer* _newComparer;
+} *ReorderedEnumerable;
+
+IEnumerator GetThenByEnumerator(IEnumerable This)
+{
+    OrderedEnumerator e = (OrderedEnumerator)((OrderedEnumerable)This)->_baseEnumerable->GetEnumerator(This);
+    int count = e->_totalCount;
+
+    object* array = alloc_array(object, count);
+    MemCopy(array, e->_array, sizeof(object) * count);
+    for (int i = 0; i < count - 1; ++i) {
+        for (int j = i + 1; j < count && ((OrderedEnumerable)&((ReorderedEnumerable)This)->_parent)->_comparer(array[i], array[j]) == 0; ++j) {
+            if (((ReorderedEnumerable)This)->_newComparer(array[i], array[j]) > 0) {
+                object tmp = array[i];
+                array[i] = array[j];
+                array[j] = tmp;
+            }
+        }
+    }
+
+    OrderedEnumerator allocinit(OrderedEnumerator, result) {
+        ._parent = (struct IEnumerator_s) {
+            .MoveNext = OrderByMoveNext,
+            .Reset = OrderByReset,
+            .Dispose = OrderByDispose,
+            .Current = NULL
+        },
+        ._currentIndex = 0,
+        ._array = array,
+        ._totalCount = count
+    };
+    return (IEnumerator)result;
+}
+
+IOrderedEnumerable Enumerable_ThenBy(IOrderedEnumerable source, Comparer* comparer)
+{
+    ReorderedEnumerable allocinit(ReorderedEnumerable, result) {
+        ._parent = (struct IOrderedEnumerable_s) {
+            ._parent = (struct IEnumerable_s) {
+                .GetEnumerator = GetThenByEnumerator
+            },
+            ._comparer = source->_comparer,
+            ._baseEnumerable = (IEnumerable)source
+        },
+        ._newComparer = comparer
+    };
+    return (IOrderedEnumerable)result;
+}
+//*/
 #pragma endregion
 
 #pragma region Non-Tunnels

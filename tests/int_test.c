@@ -1,15 +1,13 @@
 #include "Collections/Generic/EnumerableT.h"
 #include "Collections/Generic/ListT.h"
 #include "Tests.h"
+#include "Defines.h"
 
 ENUMERABLE_DEFINE(int)
 LIST_DEFINE(int)
 ENUMERABLE_DEFINE_SELECT(int, int)
 ENUMERABLE_DEFINE_SELECTMANY(int, int)
 ENUMERABLE_DEFINE_AGGREGATE(int, int)
-
-#include "Collections/Generic/EnumerableImplement.h"
-#include "Collections/Generic/ListImplement.h"
 
 static void ShowValues(IEnumerable_int source)
 {

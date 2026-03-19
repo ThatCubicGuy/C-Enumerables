@@ -1,8 +1,6 @@
 #ifndef COLLECTIONS_GENERIC_ENUMERABLE
 #define COLLECTIONS_GENERIC_ENUMERABLE
-
-#include "Defines.h"
-
+#include <stdbool.h>
 #pragma region Define
 
 /**

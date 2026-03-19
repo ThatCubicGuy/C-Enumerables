@@ -1,8 +1,6 @@
 #ifndef COLLECTIONS_GENERIC_LIST
 #define COLLECTIONS_GENERIC_LIST
 
-#include "Collections/Generic/EnumerableT.h"
-
 #pragma region Define
 
 #define LIST_DEFINE(T)                                              \
@@ -71,7 +69,13 @@ void List_##T##_EnsureCapacity(List_##T source, int capacity);      \
  * if that amount is less than 90% of current capacity.             \
  * @param source List to trim the excess of.                        \
  */                                                                 \
-void List_##T##_TrimExcess(List_##T source);
+void List_##T##_TrimExcess(List_##T source);                        \
+/**                                                                 \
+ * @brief Sorts the elements of a list according to a comparer.     \
+ * @param source List that contains elements to sort.               \
+ * @param comparer Comparer to order the elements by.               \
+ */                                                                 \
+void List_##T##_Sort(List_##T source, int (*comparer)(T, T));
 
 #pragma endregion
 

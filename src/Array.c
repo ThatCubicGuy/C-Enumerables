@@ -115,6 +115,7 @@ void Array_Resize(Array source, int newMaxLength)
 void Array_Set(Array source, int index, object itemRef)
 {
     MemCopy(source->Values + index * source->_memberSize, itemRef, source->_memberSize);
+    if (source->Length <= index) source->Length = index + 1;
 }
 
 void Array_Sort(Array source, Comparer* comparer)

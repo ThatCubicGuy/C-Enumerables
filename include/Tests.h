@@ -15,4 +15,6 @@ void test_index(void);
 
 void test_ordering(void);
 
+void test_stacks(void);
+
 #endif
