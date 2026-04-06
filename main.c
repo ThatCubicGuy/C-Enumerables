@@ -17,6 +17,10 @@ int main(void)
     test_index();
     printf("--------------STACK--------------\n");
     test_stacks();
+    printf("--------------QUEUE--------------\n");
+    test_queues();
+    printf("--------DOUBLY LINKED LIST-------\n");
+    test_doubly_linked_list();
     printf("\n----------TESTS CLEARED----------\n");
     return 0;
 }

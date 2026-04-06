@@ -8,6 +8,8 @@
 
 // Calls the primary constructor of TYPE.
 #define new(TYPE) TYPE##__ctor
+// Returns the default (zero initialized) value for the given type.
+#define default(TYPE) ((TYPE){0})
 // Allocates a single instance of REF_TYPE and returns its memory location.
 #define alloc(REF_TYPE) ((REF_TYPE)malloc(sizeof(struct REF_TYPE##_s)))
 // Allocates an instance of VALUE_TYPE on the heap and returns a pointer to its location.
@@ -22,10 +24,10 @@
 #define allocinit(REF_TYPE, var) var = alloc(REF_TYPE); init(REF_TYPE, var)
 // Returns the type that this type directly inherits from.
 #define base(REF_TYPE) (&(REF_TYPE)->_parent)
-// Returns the default (zero initialized) value for the given type.
-#define default(TYPE) ((TYPE){0})
 // Casts var to a void pointer for easy assignment to any reference type.
 #define any(var) ((void*)var)
+// Default implementation of object equality.
+#define equals(LEFT, RIGHT) ValueEquator(sizeof(typeof(LEFT)), &(LEFT), &(RIGHT))
 // Defines the empty constructor for a value type (that is, initializing all of its values with zero.)
 #define IMPLEMENT_EMPTY_VALUE_CTOR(VALUE_TYPE) VALUE_TYPE VALUE_TYPE##__ctor(void) { return default(VALUE_TYPE); }
 

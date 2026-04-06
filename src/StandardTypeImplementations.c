@@ -1,5 +1,6 @@
 #include "Collections/Generic/EnumerableImplement.h"
 #include "Collections/Generic/LinkedListImplement.h"
+#include "Collections/Generic/DoublyLinkedListImplement.h"
 #include "Collections/Generic/ListImplement.h"
 #include "Collections/Array.h"
 #include "Tuple.h"
@@ -30,6 +31,10 @@ LIST_DEFINE(int)
 #ifndef INT_LINKED_LIST_DEFINED
 #define INT_LINKED_LIST_DEFINED
 LINKED_LIST_DEFINE(int)
+#endif
+#ifndef INT_DOUBLY_LINKED_LIST_DEFINED
+#define INT_DOUBLY_LINKED_LIST_DEFINED
+DOUBLY_LINKED_LIST_DEFINE(int)
 #endif
 #ifndef INT_INT_AGGREGATE_DEFINED
 #define INT_INT_AGGREGATE_DEFINED
@@ -73,6 +78,12 @@ LIST_IMPLEMENT(int)
 #ifndef INT_LINKED_LIST_IMPLEMENTED
 #define INT_LINKED_LIST_IMPLEMENTED
 LINKED_LIST_IMPLEMENT(int)
+#endif
+#endif
+#ifdef INT_DOUBLY_LINKED_LIST_DEFINED
+#ifndef INT_DOUBLY_LINKED_LIST_IMPLEMENTED
+#define INT_DOUBLY_LINKED_LIST_IMPLEMENTED
+DOUBLY_LINKED_LIST_IMPLEMENT(int)
 #endif
 #endif
 

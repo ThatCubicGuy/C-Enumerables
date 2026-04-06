@@ -172,7 +172,7 @@ void LinkedList_##T##_Reverse(LinkedList_##T source)                            
 }                                                                                   \
 void LinkedList_##T##_Sort(LinkedList_##T source, int (*comparer)(T, T))            \
 {                                                                                   \
-    for (LinkedNode_##T i = source->_start; i; i = i->Next) {                       \
+    for (LinkedNode_##T i = source->_start; i->Next; i = i->Next) {                 \
         for (LinkedNode_##T j = i; j; j = j->Next) {                                \
             if (comparer(i->Value, j->Value) < 0) {                                 \
                 T tmp = i->Value;                                                   \

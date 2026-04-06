@@ -1,5 +1,5 @@
 # Compiler settings
-CC:=clang
+CC:=gcc
 CFLAGS:=-Wextra -Iinclude
 OUTPUT:=thing.exe
 
@@ -14,8 +14,10 @@ test: buildtest runtest
 
 pack: lib
 	ar rcs libcollections.a $(wildcard bin/lib/*.o)
+	tar -zcf CubeEnumerables.tar.gz CubeEnumerables.h CubeEnumerablesGenericImplementations.h include/* libcollections.a
+	rm libcollections.a
 
-buildtest: lib
+buildtest: bin/lib lib
 	${CC} ${CFLAGS} main.c ${TESTSRCS} ${LIBOBJS} -o bin/test_${OUTPUT}
 
 runtest:
@@ -23,7 +25,7 @@ runtest:
 
 buildnrun: build run
 
-build: lib
+build: bin/lib lib
 	${CC} ${CFLAGS} ${LIBOBJS} -o bin/${OUTPUT}
 
 run:
@@ -35,7 +37,7 @@ ${LIBOBJS}: bin/lib/%.o: src/%.c
 	${CC} ${CFLAGS} -c $^ -o $@
 
 clean:
-	rm -f bin/*
+	rm -rf bin/*
 
 cleanlib:
 	rm -f bin/lib/*
@@ -44,7 +46,9 @@ debug:
 	echo ${LIBOBJS}
 	echo ${LIBSRCS}
 	mkdir -p bin
-	mkdir -p bin/lib
+
+bin/lib:
+	mkdir bin/lib
 
 cc:
 	${CC} --version

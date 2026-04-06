@@ -4,15 +4,15 @@
 #pragma region Define
 
 /**
- * @brief Enumerates an IEnumerable<T> and sets var to
- * the current enumeration value before executing code.
+ * @brief Enumerates an IEnumerable<T> and sets VAR to
+ * the current enumeration value before executing CODE.
  */
-#define foreach(T, var, source, code) do {                  \
-    IEnumerable_##T __src = (IEnumerable_##T)source;        \
+#define foreach(T, VAR, SOURCE, CODE...) do {               \
+    IEnumerable_##T __src = (IEnumerable_##T)(SOURCE);      \
     IEnumerator_##T __e = (__src)->GetEnumerator(__src);    \
     while (__e->MoveNext(__e)) {                            \
-        T var = __e->Current;                               \
-        code;                                               \
+        T VAR = __e->Current;                               \
+        CODE;                                               \
     }                                                       \
     __e->Dispose(__e);                                      \
 } while(0)

@@ -17,4 +17,8 @@ void test_ordering(void);
 
 void test_stacks(void);
 
+void test_queues(void);
+
+void test_doubly_linked_list(void);
+
 #endif
