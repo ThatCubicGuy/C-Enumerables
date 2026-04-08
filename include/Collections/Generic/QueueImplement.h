@@ -64,7 +64,7 @@ void Queue_##T##_Destroy(Queue_##T* source)                         \
 }                                                                   \
 void Queue_##T##_EnsureCapacity(Queue_##T source, int capacity)     \
 {                                                                   \
-    if (source->Capacity < (capacity - capacity / 10)) {            \
+    if (source->Capacity < capacity) {                              \
         source->_values = realloc(source->_values,                  \
             sizeof(T) * capacity);                                  \
         source->Capacity = capacity;                                \

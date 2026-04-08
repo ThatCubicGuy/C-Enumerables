@@ -72,16 +72,12 @@ void Array_Clear(Array source)
     source->Length = 0;
 }
 
-void Array_CopyTo(Array source, Array dest)
+void Array_CopyTo(Array source, void* dest)
 {
-    Array_Clear(dest);
-    dest->_memberSize = source->_memberSize;
-    Array_Resize(dest, dest->MaxLength);
-    if (dest->MaxLength < source->Length) Array_Resize(dest, source->Length);
-    for (dest->Length = 0; dest->Length < source->Length; ++dest->Length) {
-        for (int j = 0; j < dest->_memberSize; ++j) {
-            ((byte*)dest->Values + dest->Length * dest->_memberSize)[j] =
-                ((byte*)source->Values + dest->Length * source->_memberSize)[j];
+    for (int i = 0; i < source->Length; ++i) {
+        for (int j = 0; j < source->_memberSize; ++j) {
+            ((byte*)dest + i * source->_memberSize)[j] =
+                ((byte*)source + i * source->_memberSize)[j];
         }
     }
 }
@@ -106,16 +102,16 @@ object Array_Get(Array source, int index)
     return source->Values + index * source->_memberSize;
 }
 
-void Array_Resize(Array source, int newMaxLength)
-{
-    if (newMaxLength <= 0) return;
-    source->Values = realloc(source->Values, newMaxLength * source->_memberSize);
-}
-
 void Array_Set(Array source, int index, object itemRef)
 {
     MemCopy(source->Values + index * source->_memberSize, itemRef, source->_memberSize);
     if (source->Length <= index) source->Length = index + 1;
+}
+
+void Array_Resize(Array source, int newMaxLength)
+{
+    if (newMaxLength <= 0) return;
+    source->Values = realloc(source->Values, newMaxLength * source->_memberSize);
 }
 
 void Array_Sort(Array source, Comparer* comparer)

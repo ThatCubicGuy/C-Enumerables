@@ -1,10 +1,11 @@
 # Compiler settings
 CC:=gcc
-CFLAGS:=-Wextra -Iinclude
+CFLAGS:=-Wextra -Iinclude -std=gnu23
 OUTPUT:=thing.exe
 
 # Library files
 LIBSRCS:=$(wildcard src/*.c)
+LIBHDRS:=$(wildcard include/*.h) $(wildcard include/*/*.h) $(wildcard include/*/*/*.h)
 LIBOBJS:=${LIBSRCS:src/%.c=bin/lib/%.o}
 
 # Tests
@@ -43,8 +44,9 @@ cleanlib:
 	rm -f bin/lib/*
 
 debug:
-	echo ${LIBOBJS}
-	echo ${LIBSRCS}
+	echo -e "Library \033[31mobjects\033[30m: ${LIBOBJS}"
+	echo -e "Library \033[32msources\033[30m: ${LIBSRCS}"
+	echo -e "Library \033[35mheaders\033[30m: ${LIBHDRS}"
 	mkdir -p bin
 
 bin/lib:

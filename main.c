@@ -19,8 +19,12 @@ int main(void)
     test_stacks();
     printf("--------------QUEUE--------------\n");
     test_queues();
-    printf("--------DOUBLY LINKED LIST-------\n");
+    printf("-------DOUBLY LINKED LISTS-------\n");
     test_doubly_linked_list();
+    printf("--------------HEAPS--------------\n");
+    test_heaps();
+    printf("---------PRIORITY QUEUES---------\n");
+    test_priority_queue();
     printf("\n----------TESTS CLEARED----------\n");
     return 0;
 }

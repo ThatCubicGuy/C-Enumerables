@@ -25,7 +25,11 @@ Array Array__ctor(int memberSize, int maxLength);
 
 void Array_Clear(Array source);
 
-void Array_CopyTo(Array source, Array dest);
+/**
+ * @brief Copies the elements of an Array to a
+ * one-dimensional built-in array.
+ */
+void Array_CopyTo(Array source, void* dest);
 
 void Array_Destroy(Array* source);
 
@@ -38,8 +42,6 @@ void Array_Fill(Array source, object itemRef);
  */
 object Array_Get(Array source, int index);
 
-void Array_Resize(Array source, int newMaxLength);
-
 /**
  * @brief Sets the value at the index to the value at the given reference.
  * @param source Array to set the item in.
@@ -47,6 +49,8 @@ void Array_Resize(Array source, int newMaxLength);
  * @param valueRef Reference to the value which should be set.
  */
 void Array_Set(Array source, int index, object valueRef);
+
+void Array_Resize(Array source, int newMaxLength);
 
 void Array_Sort(Array source, Comparer* comparer);
 

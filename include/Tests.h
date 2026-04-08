@@ -21,4 +21,8 @@ void test_queues(void);
 
 void test_doubly_linked_list(void);
 
+void test_heaps(void);
+
+void test_priority_queue(void);
+
 #endif
