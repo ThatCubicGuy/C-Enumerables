@@ -38,9 +38,10 @@ typedef struct IEnumerator_s {
     void (*Dispose)(struct IEnumerator_s* This);
     object Current;
 } *IEnumerator;
-
+// don't even ask...
+#define EMPTY()
 typedef const struct IEnumerable_s {
-    IEnumerator (*GetEnumerator)(const struct IEnumerable_s* This);
+    IEnumerator EMPTY() (*GetEnumerator)(const struct IEnumerable_s* This);
 } *IEnumerable;
 
 typedef bool PredicateFunc(object);

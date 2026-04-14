@@ -4,9 +4,9 @@
 #include "Collections/Generic/HeapT.h"
 
 #define HEAP_IMPLEMENT(T)                                               \
-Heap_##T new(Heap_##T)(int capacity, int type, int (*comparer)(T, T))   \
+Heap(T) new(Heap(T))(int capacity, int type, int (*comparer)(T, T))     \
 {                                                                       \
-    auto allocinit(Heap_##T, result) {                                  \
+    auto allocinit(Heap(T), result) {                                   \
         .Count = 0,                                                     \
         .Capacity = capacity,                                           \
         .Comparer = comparer,                                           \
@@ -15,7 +15,7 @@ Heap_##T new(Heap_##T)(int capacity, int type, int (*comparer)(T, T))   \
     };                                                                  \
     return result;                                                      \
 }                                                                       \
-void Heap_##T##_Push(Heap_##T source, T item)                           \
+void Heap_##T##_Push(Heap(T) source, T item)                            \
 {                                                                       \
     if (source->Count == source->Capacity) {                            \
         Heap_##T##_EnsureCapacity(source, source->Capacity * 2);        \
@@ -31,7 +31,7 @@ void Heap_##T##_Push(Heap_##T source, T item)                           \
         source->_values[i] = tmp;                                       \
     }                                                                   \
 }                                                                       \
-T Heap_##T##_Pop(Heap_##T source)                                       \
+T Heap_##T##_Pop(Heap(T) source)                                        \
 {                                                                       \
     T result = source->_values[0];                                      \
     source->Count -= 1;                                                 \
@@ -54,27 +54,27 @@ T Heap_##T##_Pop(Heap_##T source)                                       \
     }                                                                   \
     return result;                                                      \
 }                                                                       \
-T Heap_##T##_Peek(Heap_##T source)                                      \
+T Heap_##T##_Peek(Heap(T) source)                                       \
 {                                                                       \
     return source->_values[0];                                          \
 }                                                                       \
-void Heap_##T##_Clear(Heap_##T source)                                  \
+void Heap_##T##_Clear(Heap(T) source)                                   \
 {                                                                       \
     source->Count = 0;                                                  \
 }                                                                       \
-bool Heap_##T##_TryPop(Heap_##T source, T* out)                         \
+bool Heap_##T##_TryPop(Heap(T) source, T* out)                          \
 {                                                                       \
     if (source->Count == 0) return false;                               \
     if (out) *out = Heap_##T##_Pop(source);                             \
     return true;                                                        \
 }                                                                       \
-bool Heap_##T##_TryPeek(Heap_##T source, T* out)                        \
+bool Heap_##T##_TryPeek(Heap(T) source, T* out)                         \
 {                                                                       \
     if (source->Count == 0) return false;                               \
     if (out) *out = Heap_##T##_Peek(source);                            \
     return true;                                                        \
 }                                                                       \
-void Heap_##T##_TrimExcess(Heap_##T source)                             \
+void Heap_##T##_TrimExcess(Heap(T) source)                              \
 {                                                                       \
     if (source->Count < source->Capacity - source->Capacity / 10) {     \
         source->_values = realloc(source->_values,                      \
@@ -82,7 +82,7 @@ void Heap_##T##_TrimExcess(Heap_##T source)                             \
         source->Capacity = source->Count;                               \
     }                                                                   \
 }                                                                       \
-void Heap_##T##_EnsureCapacity(Heap_##T source, int capacity)           \
+void Heap_##T##_EnsureCapacity(Heap(T) source, int capacity)            \
 {                                                                       \
     if (source->Capacity < capacity) {                                  \
         source->_values = realloc(source->_values,                      \

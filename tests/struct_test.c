@@ -31,7 +31,7 @@ void showData(Employee item)
     printf("%s, age %d\n", item.Name, item.Age);
 }
 
-void ShowAllData(IEnumerable_Employee source)
+void ShowAllData(IEnumerable(Employee) source)
 {
     foreach_deref(Employee, employee, source, {
         showData(employee);
@@ -63,9 +63,9 @@ int selectAge(Employee item)
     return item.Age;
 }
 
-IEnumerable_Employee selectCoworkers(Employee item)
+IEnumerable(Employee) selectCoworkers(Employee item)
 {
-    return (IEnumerable_Employee)item.Coworkers;
+    return (IEnumerable(Employee))item.Coworkers;
 }
 
 void test_with_structs(void) {
@@ -82,7 +82,7 @@ void test_with_structs(void) {
         .Name = "Obama",
         .Age = 420
     };
-    List_Employee workers = new(List_Employee)(4);
+    List(Employee) workers = new(List(Employee))(4);
     joe.Coworkers = Enumerable_Employee_ToList(Enumerable_Employee_Append(Enumerable_Employee_Append(Enumerable_Employee_Append(base(workers), bidome), barack), obama));
     bidome.Coworkers = Enumerable_Employee_ToList(Enumerable_Employee_Append(Enumerable_Employee_Append(Enumerable_Employee_Append(base(workers), joe), barack), obama));
     barack.Coworkers = Enumerable_Employee_ToList(Enumerable_Employee_Append(Enumerable_Employee_Append(Enumerable_Employee_Append(base(workers), joe), bidome), obama));
@@ -91,12 +91,12 @@ void test_with_structs(void) {
     List_Employee_Add(workers, bidome);
     List_Employee_Add(workers, barack);
     List_Employee_Add(workers, obama);
-    List_Employee revWorkers = new(List_Employee)(4);
+    List(Employee) revWorkers = new(List(Employee))(4);
     List_Employee_Add(revWorkers, obama);
     List_Employee_Add(revWorkers, barack);
     List_Employee_Add(revWorkers, bidome);
     List_Employee_Add(revWorkers, joe);
-    IEnumerable_Employee concat = Enumerable_Employee_Concat(base(workers), base(revWorkers));
+    IEnumerable(Employee) concat = Enumerable_Employee_Concat(base(workers), base(revWorkers));
     foreach(Employee, employee, concat, showData(employee));
     List_Employee_Remove(workers, obama);
     if (Enumerable_Employee_Contains(base(workers), obama)) {

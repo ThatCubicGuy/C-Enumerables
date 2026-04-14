@@ -5,11 +5,11 @@
 
 #define STACK_IMPLEMENT(T)                                                          \
 typedef struct StackEnumerator_##T##_s {                                            \
-    struct IEnumerator_##T##_s _parent;                                             \
-    Stack_##T _source;                                                              \
+    struct _IEnumerator_##T##_s _parent;                                            \
+    Stack(T) _source;                                                               \
     int _currentIndex;                                                              \
 } *StackEnumerator_##T;                                                             \
-static bool StackMoveNext_##T(IEnumerator_##T This)                                 \
+static bool StackMoveNext_##T(IEnumerator(T) This)                                  \
 {                                                                                   \
     StackEnumerator_##T e = (StackEnumerator_##T)This;                              \
     if (e->_currentIndex < 0) return false;                                         \
@@ -18,33 +18,33 @@ static bool StackMoveNext_##T(IEnumerator_##T This)                             
     e->_currentIndex -= 1;                                                          \
     return true;                                                                    \
 }                                                                                   \
-static void StackReset_##T(IEnumerator_##T This)                                    \
+static void StackReset_##T(IEnumerator(T) This)                                     \
 {                                                                                   \
     StackEnumerator_##T e = ((StackEnumerator_##T)This);                            \
     e->_currentIndex = e->_source->_start;                                          \
     This->Current = default(T);                                                     \
 }                                                                                   \
-static void StackDispose_##T(IEnumerator_##T This)                                  \
+static void StackDispose_##T(IEnumerator(T) This)                                   \
 {                                                                                   \
     free(This);                                                                     \
 }                                                                                   \
-static IEnumerator_##T StackGetEnumerator_##T(const IEnumerable_##T This)           \
+static IEnumerator(T) StackGetEnumerator_##T(const IEnumerable(T) This)             \
 {                                                                                   \
     StackEnumerator_##T allocinit(StackEnumerator_##T, result) {                    \
-        ._parent = (struct IEnumerator_##T##_s) {                                   \
+        ._parent = (struct _IEnumerator_##T##_s) {                                  \
             .MoveNext = StackMoveNext_##T,                                          \
             .Reset = StackReset_##T,                                                \
             .Dispose = StackDispose_##T                                             \
         },                                                                          \
-        ._currentIndex = ((Stack_##T)This)->_start,                                 \
-        ._source = (Stack_##T)This                                                  \
+        ._currentIndex = ((Stack(T))This)->_start,                                  \
+        ._source = (Stack(T))This                                                   \
     };                                                                              \
     return base(result);                                                            \
 }                                                                                   \
-Stack_##T Stack_##T##__ctor(int capacity)                           \
+Stack(T) new(Stack(T))(int capacity)                                \
 {                                                                   \
-    Stack_##T allocinit(Stack_##T, result) {                        \
-        ._parent = (struct IEnumerable_##T##_s) {                   \
+    Stack(T) allocinit(Stack(T), result) {                          \
+        ._parent = (struct _IEnumerable_##T##_s) {                  \
             .GetEnumerator = StackGetEnumerator_##T                 \
         },                                                          \
         .Count = 0,                                                 \
@@ -54,13 +54,13 @@ Stack_##T Stack_##T##__ctor(int capacity)                           \
     };                                                              \
     return result;                                                  \
 }                                                                   \
-void Stack_##T##_Destroy(Stack_##T* source)                         \
+void Stack_##T##_Destroy(Stack(T)* source)                          \
 {                                                                   \
     free((*source)->_values);                                       \
     free(*source);                                                  \
     *source = NULL;                                                 \
 }                                                                   \
-void Stack_##T##_EnsureCapacity(Stack_##T source, int capacity)     \
+void Stack_##T##_EnsureCapacity(Stack(T) source, int capacity)      \
 {                                                                   \
     if (source->Capacity < capacity) {                              \
         source->_values = realloc(source->_values,                  \
@@ -68,12 +68,12 @@ void Stack_##T##_EnsureCapacity(Stack_##T source, int capacity)     \
         source->Capacity = capacity;                                \
     }                                                               \
 }                                                                   \
-void Stack_##T##_Clear(Stack_##T source)                            \
+void Stack_##T##_Clear(Stack(T) source)                             \
 {                                                                   \
     source->_start = -1;                                            \
     source->Count = 0;                                              \
 }                                                                   \
-void Stack_##T##_Push(Stack_##T source, T item)                     \
+void Stack_##T##_Push(Stack(T) source, T item)                      \
 {                                                                   \
     if (source->Count == source->Capacity) {                        \
         Stack_##T##_EnsureCapacity(source, source->Capacity * 2);   \
@@ -82,25 +82,25 @@ void Stack_##T##_Push(Stack_##T source, T item)                     \
     source->_start += 1;                                            \
     source->_values[source->_start] = item;                         \
 }                                                                   \
-T Stack_##T##_Peek(Stack_##T source)                                \
+T Stack_##T##_Peek(Stack(T) source)                                 \
 {                                                                   \
     return source->_values[source->_start];                         \
 }                                                                   \
-T Stack_##T##_Pop(Stack_##T source)                                 \
+T Stack_##T##_Pop(Stack(T) source)                                  \
 {                                                                   \
     T result = source->_values[source->_start];                     \
     source->_start -= 1;                                            \
     source->Count -= 1;                                             \
     return result;                                                  \
 }                                                                   \
-bool Stack_##T##_TryPeek(Stack_##T source, T* out)                  \
+bool Stack_##T##_TryPeek(Stack(T) source, T* out)                   \
 {                                                                   \
     if (source->Count) {                                            \
         *out = Stack_##T##_Peek(source);                            \
         return true;                                                \
     } else return false;                                            \
 }                                                                   \
-bool Stack_##T##_TryPop(Stack_##T source, T* out)                   \
+bool Stack_##T##_TryPop(Stack(T) source, T* out)                    \
 {                                                                   \
     if (source->Count) {                                            \
         *out = Stack_##T##_Pop(source);                             \

@@ -44,9 +44,9 @@ cleanlib:
 	rm -f bin/lib/*
 
 debug:
-	echo -e "Library \033[31mobjects\033[30m: ${LIBOBJS}"
-	echo -e "Library \033[32msources\033[30m: ${LIBSRCS}"
-	echo -e "Library \033[35mheaders\033[30m: ${LIBHDRS}"
+	@echo -e "Library \033[31mobjects\033[0m: \033[31m$(foreach file,${LIBOBJS},\n${file})\033[0m"
+	@echo -e "Library \033[32msources\033[0m: \033[32m$(foreach file,${LIBSRCS},\n${file})\033[0m"
+	@echo -e "Library \033[35mheaders\033[0m: \033[35m$(foreach file,${LIBHDRS},\n${file})\033[0m"
 	mkdir -p bin
 
 bin/lib:

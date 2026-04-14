@@ -13,7 +13,7 @@ STACK_DEFINE(int)
 void test_stacks(void)
 {
     int result;
-    Stack_int stack = new(Stack_int)(2);
+    Stack(int) stack = new(Stack(int))(2);
     Stack_int_Push(stack, 4);
     Stack_int_Push(stack, 5);
     Stack_int_Push(stack, 1);

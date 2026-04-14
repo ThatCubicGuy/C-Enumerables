@@ -12,7 +12,7 @@ LIST_DEFINE(double)
 
 void test_index(void)
 {
-    List_double list = new(List_double)(16);
+    List(double) list = new(List(double))(16);
     List_double_Add(list, 27.5);
     List_double_Add(list, 0.15);
     List_double_Add(list, 2.0/19);

@@ -57,10 +57,10 @@ static int sumLengths(int current, string item)
 {
     return current + string_Length(item);
 }
-string string_Join(string separator, IEnumerable_string values)
+string string_Join(string separator, IEnumerable(string) values)
 {
     if (values == NULL) return NULL;
-    List_string list = Enumerable_string_ToList(values);
+    List(string) list = Enumerable_string_ToList(values);
     if (list->Count == 0) {
         List_string_Destroy(&list);
         return string_Empty;

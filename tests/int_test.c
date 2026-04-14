@@ -9,7 +9,7 @@ ENUMERABLE_DEFINE_SELECT(int, int)
 ENUMERABLE_DEFINE_SELECTMANY(int, int)
 ENUMERABLE_DEFINE_AGGREGATE(int, int)
 
-static void ShowValues(IEnumerable_int source)
+static void ShowValues(IEnumerable(int) source)
 {
     foreach(int, var, source,{
         fprintf(stderr, "Success! Value: %d\n", var);
@@ -31,9 +31,9 @@ bool filter(int item)
     return item % 2 == 0;
 }
 
-IEnumerable_int selectMany(int item)
+IEnumerable(int) selectMany(int item)
 {
-    List_int L = new(List_int)(3);
+    List(int) L = new(List(int))(3);
     List_int_Add(L, item);
     List_int_Add(L, item);
     List_int_Add(L, item);
@@ -48,7 +48,7 @@ int aggregate(int accumulate, int item)
 void test_with_numbers(void)
 {
     int items[] = { 17, 4, 1, 5 };
-    List_int int_list = new(List_int)(7);
+    List(int) int_list = new(List(int))(7);
     printf("Item count: %d\nList capacity: %d\n", int_list->Count, int_list->Capacity);
     printf("Array items: ");
     for (int i = 0; i < 4; ++i)
@@ -59,7 +59,7 @@ void test_with_numbers(void)
     printf("\nItem count: %d\nList capacity: %d\n", int_list->Count, int_list->Capacity);
     List_int_TrimExcess(int_list);
     printf("Item count: %d\nList capacity: %d\n", int_list->Count, int_list->Capacity);
-    IEnumerable_int enumerable = base(int_list);
+    IEnumerable(int) enumerable = base(int_list);
     ShowValues(enumerable);
     printf("Selector function that adds 3:\n");
     enumerable = Enumerable_int_Select_int(enumerable, selector);

@@ -62,9 +62,9 @@ static int comp(CarValue a, CarValue b)
 
 void test_priority_queue(void)
 {
-    auto pq = new(PriorityQueue_CarValue_Car)(16, comp);
-    auto q = new(Queue_Car)(16);
-    auto h = new(Heap_CarValue)(16, 4, comp);
+    auto pq = new(PriorityQueue(CarValue,Car))(16, comp);
+    auto q = new(Queue(Car))(16);
+    auto h = new(Heap(CarValue))(16, 4, comp);
     Car cars[] = CARS;
     CarValue values[] = CAR_VALUES;
     for (int i = 0; i < CNT; ++i) {

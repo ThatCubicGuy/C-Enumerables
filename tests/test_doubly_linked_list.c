@@ -16,7 +16,7 @@ DOUBLY_LINKED_LIST_DEFINE(int)
 
 void test_doubly_linked_list(void)
 {
-    DoublyLinkedList_int list = new(DoublyLinkedList_int)();
+    DoublyLinkedList(int) list = new(DoublyLinkedList(int))();
     DoublyLinkedList_int_Add(list, 15);
     DoublyLinkedList_int_Add(list, 5);
     DoublyLinkedList_int_Add(list, 1);

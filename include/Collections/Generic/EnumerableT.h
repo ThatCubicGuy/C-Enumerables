@@ -8,8 +8,8 @@
  * the current enumeration value before executing CODE.
  */
 #define foreach(T, VAR, SOURCE, CODE...) do {               \
-    IEnumerable_##T __src = (IEnumerable_##T)(SOURCE);      \
-    IEnumerator_##T __e = (__src)->GetEnumerator(__src);    \
+    IEnumerable(T) __src = (IEnumerable(T))(SOURCE);        \
+    IEnumerator(T) __e = (__src)->GetEnumerator(__src);     \
     while (__e->MoveNext(__e)) {                            \
         T VAR = __e->Current;                               \
         CODE;                                               \
@@ -17,16 +17,19 @@
     __e->Dispose(__e);                                      \
 } while(0)
 
+#define IEnumerator(T) _IEnumerator_##T
+#define IEnumerable(T) _IEnumerable_##T
+
 #define ENUMERABLE_DEFINE(T)                                                                            \
-typedef struct IEnumerator_##T##_s {                                                                    \
-    bool (*MoveNext)(struct IEnumerator_##T##_s* This);                                                 \
-    void (*Reset)(struct IEnumerator_##T##_s* This);                                                    \
-    void (*Dispose)(struct IEnumerator_##T##_s* This);                                                  \
+typedef struct _IEnumerator_##T##_s {                                                                   \
+    bool (*MoveNext)(struct _IEnumerator_##T##_s* This);                                                \
+    void (*Reset)(struct _IEnumerator_##T##_s* This);                                                   \
+    void (*Dispose)(struct _IEnumerator_##T##_s* This);                                                 \
     T Current;                                                                                          \
-} *IEnumerator_##T;                                                                                     \
-typedef const struct IEnumerable_##T##_s {                                                              \
-    IEnumerator_##T (*GetEnumerator)(const struct IEnumerable_##T##_s* This);                           \
-} *IEnumerable_##T;                                                                                     \
+} *IEnumerator(T);                                                                                      \
+typedef const struct _IEnumerable_##T##_s {                                                             \
+    IEnumerator(T) (*GetEnumerator)(const struct _IEnumerable_##T##_s* This);                           \
+} *IEnumerable(T);                                                                                      \
 /**                                                                                                     \
  * @brief Filters a sequence based on a predicate.                                                      \
  * @param source Enumerable to filter.                                                                  \
@@ -34,7 +37,7 @@ typedef const struct IEnumerable_##T##_s {                                      
  * @return A new enumerable.                                                                            \
  * @pure                                                                                                \
  */                                                                                                     \
-IEnumerable_##T Enumerable_##T##_Where(IEnumerable_##T source, bool (*filter)(T));                      \
+IEnumerable(T) Enumerable_##T##_Where(IEnumerable(T) source, bool (*filter)(T));                        \
 /**                                                                                                     \
  * @brief Determines if any element of a sequence satisfies a condition.                                \
  * @param source The enumerable to check.                                                               \
@@ -42,7 +45,7 @@ IEnumerable_##T Enumerable_##T##_Where(IEnumerable_##T source, bool (*filter)(T)
  * @return True if any element satisfies the condition, false otherwise.                                \
  * @pure                                                                                                \
  */                                                                                                     \
-bool Enumerable_##T##_Any(IEnumerable_##T source, bool (*predicate)(T));                                \
+bool Enumerable_##T##_Any(IEnumerable(T) source, bool (*predicate)(T));                                 \
 /**                                                                                                     \
  * @brief Determines if all elements of a sequence satisfy a condition.                                 \
  * @param source The enumerable to check.                                                               \
@@ -50,7 +53,7 @@ bool Enumerable_##T##_Any(IEnumerable_##T source, bool (*predicate)(T));        
  * @return True if all elements satisfy the condition, false otherwise.                                 \
  * @pure                                                                                                \
  */                                                                                                     \
-bool Enumerable_##T##_All(IEnumerable_##T source, bool (*predicate)(T));                                \
+bool Enumerable_##T##_All(IEnumerable(T) source, bool (*predicate)(T));                                 \
 /**                                                                                                     \
  * @brief Returns the first count items from a sequence.                                                \
  * @param source Enumerable to take items from.                                                         \
@@ -58,7 +61,7 @@ bool Enumerable_##T##_All(IEnumerable_##T source, bool (*predicate)(T));        
  * @return A new enumerable.                                                                            \
  * @pure                                                                                                \
  */                                                                                                     \
-IEnumerable_##T Enumerable_##T##_Take(IEnumerable_##T source, int count);                               \
+IEnumerable(T) Enumerable_##T##_Take(IEnumerable(T) source, int count);                                 \
 /**                                                                                                     \
  * @brief Skips the first count items from a sequence before returning the rest.                        \
  * @param source Enumerable to skip items from.                                                         \
@@ -66,7 +69,7 @@ IEnumerable_##T Enumerable_##T##_Take(IEnumerable_##T source, int count);       
  * @return A new enumerable.                                                                            \
  * @pure                                                                                                \
  */                                                                                                     \
-IEnumerable_##T Enumerable_##T##_Skip(IEnumerable_##T source, int count);                               \
+IEnumerable(T) Enumerable_##T##_Skip(IEnumerable(T) source, int count);                                 \
 /**                                                                                                     \
  * @brief Returns the element at the given zero-based index of the sequence.                            \
  * @param source Enumerable to extract the element from.                                                \
@@ -74,7 +77,7 @@ IEnumerable_##T Enumerable_##T##_Skip(IEnumerable_##T source, int count);       
  * @return The element at the specified index.                                                          \
  * @pure                                                                                                \
  */                                                                                                     \
-T Enumerable_##T##_ElementAt(IEnumerable_##T source, int index);                                        \
+T Enumerable_##T##_ElementAt(IEnumerable(T) source, int index);                                         \
 /**                                                                                                     \
  * @brief Searches for the given element in a sequence                                                  \
  * and returns the zero-based index of this element.                                                    \
@@ -83,7 +86,7 @@ T Enumerable_##T##_ElementAt(IEnumerable_##T source, int index);                
  * @return The zero-based index of this item in the sequence.                                           \
  * @pure                                                                                                \
  */                                                                                                     \
-int Enumerable_##T##_IndexOf(IEnumerable_##T source, T item);                                           \
+int Enumerable_##T##_IndexOf(IEnumerable(T) source, T item);                                            \
 /**                                                                                                     \
  * @brief Returns the first element of the sequence that satisfies the condition.                       \
  * @param source Enumerable to search in.                                                               \
@@ -91,7 +94,7 @@ int Enumerable_##T##_IndexOf(IEnumerable_##T source, T item);                   
  * @return The first element that satisfies the predicate.                                              \
  * @pure                                                                                                \
  */                                                                                                     \
-T Enumerable_##T##_FirstOrDefault(IEnumerable_##T source, bool (*predicate)(T));                        \
+T Enumerable_##T##_FirstOrDefault(IEnumerable(T) source, bool (*predicate)(T));                         \
 /**                                                                                                     \
  * @brief Appends an element to the end of a sequence.                                                  \
  * @param source Enumerable to append the item to.                                                      \
@@ -99,7 +102,7 @@ T Enumerable_##T##_FirstOrDefault(IEnumerable_##T source, bool (*predicate)(T));
  * @return A new enumerable.                                                                            \
  * @pure                                                                                                \
  */                                                                                                     \
-IEnumerable_##T Enumerable_##T##_Append(IEnumerable_##T source, T item);                                \
+IEnumerable(T) Enumerable_##T##_Append(IEnumerable(T) source, T item);                                  \
 /**                                                                                                     \
  * @brief Prepends an element to the start of a sequence.                                               \
  * @param source Enumerable to prepend the item to.                                                     \
@@ -107,7 +110,7 @@ IEnumerable_##T Enumerable_##T##_Append(IEnumerable_##T source, T item);        
  * @return A new enumerable.                                                                            \
  * @pure                                                                                                \
  */                                                                                                     \
-IEnumerable_##T Enumerable_##T##_Prepend(IEnumerable_##T source, T item);                               \
+IEnumerable(T) Enumerable_##T##_Prepend(IEnumerable(T) source, T item);                                 \
 /**                                                                                                     \
  * @brief Concatenates two sequences.                                                                   \
  * @param first The first sequence to concatenate.                                                      \
@@ -115,21 +118,21 @@ IEnumerable_##T Enumerable_##T##_Prepend(IEnumerable_##T source, T item);       
  * @return A new enumerable.                                                                            \
  * @pure                                                                                                \
  */                                                                                                     \
-IEnumerable_##T Enumerable_##T##_Concat(IEnumerable_##T first, IEnumerable_##T second);                 \
+IEnumerable(T) Enumerable_##T##_Concat(IEnumerable(T) first, IEnumerable(T) second);                    \
 /**                                                                                                     \
  * @brief Determines whether a sequence contains a specified element.                                   \
  * @param source Enumerable to search in.                                                               \
  * @param item Item to search for.                                                                      \
  * @pure                                                                                                \
  */                                                                                                     \
-bool Enumerable_##T##_Contains(IEnumerable_##T source, T item);                                         \
+bool Enumerable_##T##_Contains(IEnumerable(T) source, T item);                                          \
 /**                                                                                                     \
  * @brief Returns a number that represents the amount of elements in the specified enumerable.          \
  * @param source Enumerable whose length to count.                                                      \
  * @return A number representing the amount of items in source.                                         \
  * @pure                                                                                                \
  */                                                                                                     \
-int Enumerable_##T##_Count(IEnumerable_##T source);                                                     \
+int Enumerable_##T##_Count(IEnumerable(T) source);                                                      \
 /**                                                                                                     \
  * @brief Determines whether two sequences are equal by comparing each element individually.            \
  * @param first First enumerable to compare.                                                            \
@@ -137,7 +140,7 @@ int Enumerable_##T##_Count(IEnumerable_##T source);                             
  * @return True if every element from first is equal to second, false otherwise.                        \
  * @pure                                                                                                \
  */                                                                                                     \
-bool Enumerable_##T##_SequenceEqual(IEnumerable_##T first, IEnumerable_##T second);                     \
+bool Enumerable_##T##_SequenceEqual(IEnumerable(T) first, IEnumerable(T) second);
 
 #pragma region Converters
 
@@ -148,7 +151,7 @@ bool Enumerable_##T##_SequenceEqual(IEnumerable_##T first, IEnumerable_##T secon
  * @param source Enumerable to project.                                     \
  * @return A new enumerable.                                                \
  */                                                                         \
-IEnumerable_int_##T Enumerable_##T##_Index(IEnumerable_##T source);
+IEnumerable(int_##T) Enumerable_##T##_Index(IEnumerable(T) source);
 
 #define ENUMERABLE_DEFINE_SELECT(TSource, TResult)                          \
 /**                                                                         \
@@ -158,7 +161,7 @@ IEnumerable_int_##T Enumerable_##T##_Index(IEnumerable_##T source);
  * @return A new enumerable.                                                \
  * @pure                                                                    \
  */                                                                         \
-IEnumerable_##TResult Enumerable_##TSource##_Select_##TResult(IEnumerable_##TSource source, TResult (*selector)(TSource)); \
+IEnumerable(TResult) Enumerable_##TSource##_Select_##TResult(IEnumerable(TSource) source, TResult (*selector)(TSource)); \
 /**                                                                         \
  * @brief Projects each element of a sequence into a new form by            \
  * incorporating the element's index.                                       \
@@ -166,7 +169,7 @@ IEnumerable_##TResult Enumerable_##TSource##_Select_##TResult(IEnumerable_##TSou
  * @param selector Function to apply to each element and its index.         \
  * @return A new enumerable.                                                \
  */                                                                         \
-IEnumerable_##TResult Enumerable_##TSource##_SelectIndex_##TResult(IEnumerable_##TSource source, TResult (*selector)(TSource, int));
+IEnumerable(TResult) Enumerable_##TSource##_SelectIndex_##TResult(IEnumerable(TSource) source, TResult (*selector)(TSource, int));
 
 #define ENUMERABLE_DEFINE_SELECTMANY(TSource, TResult)                      \
 /**                                                                         \
@@ -177,7 +180,7 @@ IEnumerable_##TResult Enumerable_##TSource##_SelectIndex_##TResult(IEnumerable_#
  * @return A new enumerable.                                                \
  * @pure                                                                    \
  */                                                                         \
-IEnumerable_##TResult Enumerable_##TSource##_SelectMany_##TResult(IEnumerable_##TSource source, IEnumerable_##TResult (*selector)(TSource));
+IEnumerable(TResult) Enumerable_##TSource##_SelectMany_##TResult(IEnumerable(TSource) source, IEnumerable(TResult) (*selector)(TSource));
 
 #define ENUMERABLE_DEFINE_AGGREGATE(TSource, TAggregate)                    \
 /**                                                                         \
@@ -187,7 +190,7 @@ IEnumerable_##TResult Enumerable_##TSource##_SelectMany_##TResult(IEnumerable_##
  * @return The final accumulation value.                                    \
  * @pure                                                                    \
  */                                                                         \
-TAggregate Enumerable_##TSource##_Aggregate_##TAggregate(IEnumerable_##TSource source, TAggregate seed, TAggregate (*aggregate)(TAggregate, TSource));
+TAggregate Enumerable_##TSource##_Aggregate_##TAggregate(IEnumerable(TSource) source, TAggregate seed, TAggregate (*aggregate)(TAggregate, TSource));
 
 #pragma endregion
 #pragma endregion

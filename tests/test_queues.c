@@ -13,7 +13,7 @@ QUEUE_DEFINE(int)
 void test_queues(void)
 {
     int result;
-    Queue_int queue = new(Queue_int)(2);
+    Queue(int) queue = new(Queue(int))(2);
     Queue_int_Enqueue(queue, 4);
     Queue_int_Enqueue(queue, 5);
     Queue_int_Enqueue(queue, 1);

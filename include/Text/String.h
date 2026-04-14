@@ -44,6 +44,6 @@ string string_Concat(string first, string second);
  * using the specified separator.
  * @pure
  */
-string string_Join(string separator, IEnumerable_string values);
+string string_Join(string separator, IEnumerable(string) values);
 
 #endif

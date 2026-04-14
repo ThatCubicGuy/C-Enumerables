@@ -26,7 +26,7 @@ static int descending(int left, int right)
 
 void test_heaps(void)
 {
-    auto heap = new(Heap_int)(16, 2, descending);
+    auto heap = new(Heap(int))(16, 2, descending);
     Heap_int_Push(heap, 7);
     Heap_int_Push(heap, 4);
     Heap_int_Push(heap, 9);
@@ -48,7 +48,7 @@ void test_heaps(void)
     while (Heap_int_TryPop(heap, &result)) {
         printf("Item: %d\n", result);
     }
-    auto quat = new(Heap_int)(100, 4, ascending);
+    auto quat = new(Heap(int))(100, 4, ascending);
     int src[20] = { 4, 2, 0, 12, 654, 33, 66, 23, 15, 99, 85, 40, 17, 192, 193, 49, 48, 37, 2147483647, 73 };
     int cnt = 20;
     for (int i = 0; i < cnt; ++i) Heap_int_Push(quat, src[i]);

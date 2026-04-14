@@ -1,7 +1,7 @@
 #ifndef COLLECTIONS_ARRAY
 #define COLLECTIONS_ARRAY
 #include "Defines.h"
-#include "Enumerable.h"
+#include "Collections/Enumerable.h"
 
 #pragma region Defines
 
@@ -21,7 +21,7 @@ typedef struct Array_s {
     void* Values;
 } *Array;
 
-Array Array__ctor(int memberSize, int maxLength);
+Array new(Array)(int memberSize, int maxLength);
 
 void Array_Clear(Array source);
 
@@ -59,9 +59,9 @@ void Array_Sort(Array source, Comparer* comparer);
 #ifdef COLLECTIONS_GENERIC_ENUMERABLE
 #ifndef ENUMERABLE_TO_ARRAY_DEFINED
 #define ENUMERABLE_TO_ARRAY_DEFINED
-#define DEF_ENUMERABLE_TO_ARRAY(T) Array Enumerable_##T##_ToArray(IEnumerable_##T source);
+#define DEF_ENUMERABLE_TO_ARRAY(T) Array Enumerable_##T##_ToArray(IEnumerable(T) source);
 #define IMPL_ENUMERABLE_TO_ARRAY(T)                                 \
-Array Enumerable_##T##_ToArray(IEnumerable_##T source)              \
+Array Enumerable_##T##_ToArray(IEnumerable(T) source)               \
 {                                                                   \
     /* Assume initial capacity to avoid useless enumeration */      \
     int maxLength = 16;                                             \

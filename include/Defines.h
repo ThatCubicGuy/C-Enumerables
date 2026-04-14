@@ -6,11 +6,12 @@
 #include <stdbool.h>
 
 // Calls the primary constructor of TYPE.
-#define new(TYPE) TYPE##__ctor
+#define NEW_I(TYPE) TYPE##__ctor
+#define new(TYPE) NEW_I(TYPE)
 // Returns the default (zero initialized) value for the given type.
 #define default(TYPE) ((TYPE){0})
 // Allocates a single instance of REF_TYPE and returns its memory location.
-#define alloc(REF_TYPE) ((REF_TYPE)malloc(sizeof(struct REF_TYPE##_s)))
+#define alloc(REF_TYPE) ((REF_TYPE)malloc(sizeof(*(REF_TYPE){0})))
 // Allocates an instance of VALUE_TYPE on the heap and returns a pointer to its location.
 #define box(VALUE_TYPE) ((VALUE_TYPE*)malloc(sizeof(VALUE_TYPE)))
 // Allocates an array of CAPACITY elements of type ARRAY_TYPE and returns its location.
