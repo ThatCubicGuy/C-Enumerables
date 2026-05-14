@@ -1,7 +1,6 @@
 #ifndef COLLECTIONS_GENERIC_HASH_SET_IMPLEMENTATIONS
 #define COLLECTIONS_GENERIC_HASH_SET_IMPLEMENTATIONS
 
-#define MAX_HASH_SET_ARRAY_LENGTH 64
 #define HASH_SET_IMPLEMENT(T)                                                                   \
 struct HashSetEntry_##T##_s {                                                                   \
     HashSetEntry_##T Next;                                                                      \
@@ -153,6 +152,7 @@ HashSet(T) new(HashSet(T))(IEqualityComparer(T) comparer)                       
 }                                                                                               \
 void HashSet_##T##_Destroy(HashSet(T)* set)                                                     \
 {                                                                                               \
+    HashSet_##T##_Clear(*set);                                                                  \
     free(*set);                                                                                 \
     *set = NULL;                                                                                \
 }                                                                                               \
