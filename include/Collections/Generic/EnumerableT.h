@@ -27,8 +27,8 @@ typedef struct _IEnumerator_##T##_s {                                           
     void (*Dispose)(struct _IEnumerator_##T##_s* This);                                                 \
     T Current;                                                                                          \
 } *IEnumerator(T);                                                                                      \
-typedef const struct _IEnumerable_##T##_s {                                                             \
-    IEnumerator(T) (*GetEnumerator)(const struct _IEnumerable_##T##_s* This);                           \
+typedef struct _IEnumerable_##T##_s {                                                                   \
+    IEnumerator(T) (*GetEnumerator)(struct _IEnumerable_##T##_s* This);                                 \
 } *IEnumerable(T);                                                                                      \
 /**                                                                                                     \
  * @brief Filters a sequence based on a predicate.                                                      \

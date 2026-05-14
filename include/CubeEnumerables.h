@@ -11,6 +11,8 @@
 #include "Collections/Generic/DoublyLinkedListT.h"
 #include "Collections/Generic/QueueT.h"
 #include "Collections/Generic/StackT.h"
+#include "Collections/Generic/HeapT.h"
+#include "Collections/Generic/PriorityQueueT.h"
 
 #include "Collections/Enumerable.h"
 #include "Collections/Array.h"

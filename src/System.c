@@ -35,3 +35,12 @@ void MemCopyToNull(void* dest, const void* source)
     }
     ((byte*)dest)[i] = 0;
 }
+
+size_t ReferenceHashCode(object obj)
+{
+    return (((size_t)obj & 0xFF) * 1 +
+            ((size_t)obj & 0xFF00) * 3821 +
+            ((size_t)obj & 0xFF0000) * 52147 +
+            ((size_t)obj & 0xFF000000) * 300463)
+        * 1047997;
+}

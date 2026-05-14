@@ -7,5 +7,7 @@
 #include "Collections/Generic/DoublyLinkedListImplement.h"
 #include "Collections/Generic/QueueImplement.h"
 #include "Collections/Generic/StackImplement.h"
+#include "Collections/Generic/HeapImplement.h"
+#include "Collections/Generic/PriorityQueueImplement.h"
 
 #endif

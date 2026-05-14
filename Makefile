@@ -26,7 +26,7 @@ runtest:
 
 buildnrun: build run
 
-build: bin/lib lib
+build: lib | bin/lib
 	${CC} ${CFLAGS} ${LIBOBJS} -o bin/${OUTPUT}
 
 run:

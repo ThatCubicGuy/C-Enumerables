@@ -1,6 +1,7 @@
 #ifndef CUBE_STRING
 #define CUBE_STRING
 #include "Defines.h"
+#include "Delegate.h"
 
 #ifndef STRING_ENUMERABLE_DEFINED
 #define STRING_ENUMERABLE_DEFINED
@@ -17,6 +18,17 @@ ENUMERABLE_DEFINE_AGGREGATE(string, string)
  */
 extern const string string_Empty;
 
+extern const struct StringComparer_s {
+    Comparer(string) Ordinal;
+    Comparer(string) OrdinalIgnoreCase;
+} StringComparer;
+
+/**
+ * @brief Generates the hash code for a string.
+ * @returns A hash code that represents the given string.
+ * @pure
+ */
+unsigned long string_HashCode(string source);
 /**
  * @brief Copies a string and returns the result.
  * @return A new string with characters from the other.

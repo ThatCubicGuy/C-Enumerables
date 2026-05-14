@@ -1,5 +1,7 @@
 #include "Collections/Generic/EnumerableT.h"
 #include "Collections/Generic/ListT.h"
+#include "Defines.h"
+#include "Delegate.h"
 #include "Text/String.h"
 
 #ifndef STRING_LIST_DEFINED
@@ -12,6 +14,44 @@ ENUMERABLE_DEFINE_AGGREGATE(string, int)
 #endif
 
 const string string_Empty = "";
+
+static int StringComparerOrdinal(string left, string right)
+{
+    int len = string_Length(left);
+    for (int i = 0; i <= len; ++i) {
+        if (left[i] != right[i]) return left[i] - right[i];
+    }
+    return 0;
+}
+static inline char ToLower(char c)
+{
+    return ('A' <= c && c <= 'Z') ? c + ('a' - 'A') : c;
+}
+static int StringComparerOrdinalIgnoreCase(string left, string right)
+{
+    int len = string_Length(left);
+    for (int i = 0; i <= len; ++i) {
+        if (ToLower(left[i]) != ToLower(right[i])) {
+            return ToLower(left[i]) - ToLower(right[i]);
+        }
+    }
+    return 0;
+}
+
+const struct StringComparer_s StringComparer = {
+    .Ordinal = StringComparerOrdinal,
+    .OrdinalIgnoreCase = StringComparerOrdinalIgnoreCase
+};
+
+unsigned long string_HashCode(string source)
+{
+    unsigned long hashCode = 5381;
+    int c = source[0];
+    while ((c = *(source++))) {
+        hashCode = ((hashCode << 5) + hashCode) + c;
+    }
+    return hashCode;
+}
 
 int string_Length(string source)
 {

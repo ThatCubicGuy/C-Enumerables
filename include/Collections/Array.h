@@ -52,7 +52,7 @@ void Array_Set(Array source, int index, object valueRef);
 
 void Array_Resize(Array source, int newMaxLength);
 
-void Array_Sort(Array source, Comparer* comparer);
+void Array_Sort(Array source, int (*comparer)(object, object));
 
 #pragma region Generics
 

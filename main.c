@@ -25,6 +25,10 @@ int main(void)
     test_heaps();
     printf("---------PRIORITY QUEUES---------\n");
     test_priority_queue();
+    printf("-----------DICTIONARIES----------\n");
+    test_dictionary();
+    printf("-------------HASH SET------------\n");
+    test_hash_set();
     printf("\n----------TESTS CLEARED----------\n");
     return 0;
 }

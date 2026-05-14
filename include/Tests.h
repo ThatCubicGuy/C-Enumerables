@@ -25,4 +25,8 @@ void test_heaps(void);
 
 void test_priority_queue(void);
 
+void test_dictionary(void);
+
+void test_hash_set(void);
+
 #endif

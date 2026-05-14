@@ -114,7 +114,7 @@ void Array_Resize(Array source, int newMaxLength)
     source->Values = realloc(source->Values, newMaxLength * source->_memberSize);
 }
 
-void Array_Sort(Array source, Comparer* comparer)
+void Array_Sort(Array source, int (*comparer)(object, object))
 {
     if (comparer == NULL) comparer = ReferenceComparer;
     qsort(source->Values, source->Length, source->_memberSize, comparer);

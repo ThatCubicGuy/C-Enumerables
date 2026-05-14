@@ -23,7 +23,7 @@ static void CompoundDispose_##T(IEnumerator(T) This)                            
     e->_currentEnumerator->Dispose(e->_currentEnumerator);                                              \
     free(This);                                                                                         \
 }                                                                                                       \
-typedef const struct WhereEnumerable_##T##_s {                                                          \
+typedef struct WhereEnumerable_##T##_s {                                                                \
     struct _IEnumerable_##T##_s _parent;                                                                \
     IEnumerable(T) _baseEnumerable;                                                                     \
     bool (*_filter)(T);                                                                                 \
@@ -64,7 +64,7 @@ IEnumerable(T) Enumerable_##T##_Where(IEnumerable(T) source, bool (*filter)(T)) 
     };                                                                                                  \
     return (IEnumerable(T))result;                                                                      \
 }                                                                                                       \
-typedef const struct LimitedEnumerable_##T##_s {                                                        \
+typedef struct LimitedEnumerable_##T##_s {                                                              \
     struct _IEnumerable_##T##_s _parent;                                                                \
     IEnumerable(T) _baseEnumerable;                                                                     \
     int Count;                                                                                          \
@@ -161,7 +161,7 @@ IEnumerable(T) Enumerable_##T##_Skip(IEnumerable(T) source, int count)          
     };                                                                                                  \
     return (IEnumerable(T))result;                                                                      \
 }                                                                                                       \
-typedef const struct ExtendEnumerable_##T##_s {                                                         \
+typedef struct ExtendEnumerable_##T##_s {                                                               \
     struct _IEnumerable_##T##_s _parent;                                                                \
     IEnumerable(T) _baseEnumerable;                                                                     \
     T _added;                                                                                           \
@@ -259,7 +259,7 @@ IEnumerable(T) Enumerable_##T##_Prepend(IEnumerable(T) source, T item)          
     };                                                                                                  \
     return (IEnumerable(T))result;                                                                      \
 }                                                                                                       \
-typedef const struct ConcatEnumerable_##T##_s {                                                         \
+typedef struct ConcatEnumerable_##T##_s {                                                               \
     struct _IEnumerable_##T##_s _parent;                                                                \
     IEnumerable(T) _firstEnumerable;                                                                    \
     IEnumerable(T) _secondEnumerable;                                                                   \
@@ -420,7 +420,7 @@ bool Enumerable_##T##_SequenceEqual(IEnumerable(T) first, IEnumerable(T) second)
 #pragma region Converters
 
 #define ENUMERABLE_IMPLEMENT_INDEX(T)                                                                   \
-typedef const struct IndexEnumerable_##T##_s {                                                          \
+typedef struct IndexEnumerable_##T##_s {                                                                \
     struct _IEnumerable_int_##T##_s _parent;                                                            \
     IEnumerable(T) _baseEnumerable;                                                                     \
 } *IndexEnumerable_##T;                                                                                 \
@@ -469,7 +469,7 @@ IEnumerable(int_##T) Enumerable_##T##_Index(IEnumerable(T) source)              
 }
 
 #define ENUMERABLE_IMPLEMENT_SELECT(TSource, TResult)                                                   \
-typedef const struct SelectEnumerable_##TSource##_##TResult##_s {                                       \
+typedef struct SelectEnumerable_##TSource##_##TResult##_s {                                             \
     struct _IEnumerable_##TResult##_s _parent;                                                          \
     IEnumerable(TSource) _baseEnumerable;                                                               \
     TResult (*_selector)(TSource);                                                                      \
@@ -528,7 +528,7 @@ IEnumerable(TResult) Enumerable_##TSource##_Select_##TResult(IEnumerable(TSource
     };                                                                                                  \
     return base(result);                                                                                \
 }                                                                                                       \
-typedef const struct SelectIndexEnumerable_##TSource##_##TResult##_s {                                  \
+typedef struct SelectIndexEnumerable_##TSource##_##TResult##_s {                                        \
     struct _IEnumerable_##TResult##_s _parent;                                                          \
     IEnumerable(TSource) _baseEnumerable;                                                               \
     TResult (*_selector)(TSource, int);                                                                 \
@@ -595,7 +595,7 @@ IEnumerable(TResult) Enumerable_##TSource##_SelectIndex_##TResult(IEnumerable(TS
 }
 
 #define ENUMERABLE_IMPLEMENT_SELECTMANY(TSource, TResult)                                               \
-typedef const struct SelectManyEnumerable_##TSource##_##TResult##_s {                                   \
+typedef struct SelectManyEnumerable_##TSource##_##TResult##_s {                                         \
     struct _IEnumerable_##TResult##_s _parent;                                                          \
     IEnumerable(TSource) _baseEnumerable;                                                               \
     IEnumerable(TResult) (*_selector)(TSource);                                                         \

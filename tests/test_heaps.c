@@ -1,7 +1,6 @@
 #include "Tests.h"
 #include "Defines.h"
 #include "Collections/Generic/HeapT.h"
-#include "Collections/Generic/HeapImplement.h"
 #include "Collections/Generic/EnumerableT.h"
 
 ENUMERABLE_DEFINE(int)
@@ -59,4 +58,5 @@ void test_heaps(void)
     }
 }
 
+#include "Collections/Generic/HeapImplement.h"
 HEAP_IMPLEMENT(int)

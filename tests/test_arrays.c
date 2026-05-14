@@ -28,12 +28,11 @@ CarClass CarClass__ctor(void)
 
 CartRecord CartRecord__ctor(string manufacturer, int maxSpeed, float acceleration)
 {
-    CartRecord allocinit(CartRecord, result) {
-        .MaxSpeed = maxSpeed,
-        .Acceleration = acceleration
-    };
-    init_ro(string, result->Manufacturer) new(string)(manufacturer);
-    return result;
+  CartRecord result = ((CartRecord)malloc(sizeof(*(CartRecord)0)));
+  *(struct CartRecord_s*)result = (typeof(*(CartRecord)0)){.MaxSpeed = maxSpeed,
+                                       .Acceleration = acceleration};
+  init_ro(string, result->Manufacturer) new(string)(manufacturer);
+  return result;
 }
 
 void showItem(CarClass car)

@@ -166,7 +166,7 @@ IEnumerable Enumerable_Concat(IEnumerable first, IEnumerable second);
 /// @brief Performs an action on each element of a collection.
 /// @param source Enumerable to execute the action on.
 /// @param action Action to execute on each item.
-void Enumerable_ForEach(IEnumerable source, Action* action);
+void Enumerable_ForEach(IEnumerable source, void (*action)(object));
 
 /// @brief Determines whether a sequence contains a specified element.
 /// @param source Enumerable to search in.
@@ -186,19 +186,19 @@ bool Enumerable_SequenceEqual(IEnumerable first, IEnumerable second);
 
 typedef const struct IOrderedEnumerable_s {
     struct IEnumerable_s _parent;
-    struct IOrderedEnumerable_s* (*CreateOrderedEnumerable)(struct IOrderedEnumerable_s* This, Comparer* comparer, bool descending);
+    struct IOrderedEnumerable_s* (*CreateOrderedEnumerable)(struct IOrderedEnumerable_s* This, int (*comparer)(object, object), bool descending);
 } *IOrderedEnumerable;
 
 /// @brief Orders a collection using the provided comparer.
 /// @param source Enumerable to order.
 /// @param comparer Comparer to use to determine order.
 /// @return A new ordered enumerable.
-IOrderedEnumerable Enumerable_OrderBy(IEnumerable source, Comparer* comparer);
+IOrderedEnumerable Enumerable_OrderBy(IEnumerable source, int (*comparer)(object, object));
 
 /// @brief Performs a subsequent ordering of a collection.
 /// @param source Enumerable to continue ordering.
 /// @param comparer Comparer to use to determine order.
 /// @return A subsequently ordered enumerable.
-IOrderedEnumerable Enumerable_ThenBy(IOrderedEnumerable source, Comparer* comparer);
+IOrderedEnumerable Enumerable_ThenBy(IOrderedEnumerable source, int (*comparer)(object, object));
 
 #endif
