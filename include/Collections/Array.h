@@ -1,16 +1,14 @@
 #ifndef COLLECTIONS_ARRAY
 #define COLLECTIONS_ARRAY
-#include "Defines.h"
-#include "Collections/Enumerable.h"
-
+#include "Enumerable.h"
 #pragma region Defines
 
 /**
  * @brief Managed array with variable amount of items
  * stored contiguously in memory.
  */
-typedef struct Array_s {
-    struct IEnumerable_s _parent;
+typedef TAG(Array) {
+    IMPL(IEnumerable);
     // Amount of items contained in the array.
     int Length;
     // Maximum amount of items that this array can hold without resizing.
@@ -59,34 +57,32 @@ void Array_Sort(Array source, int (*comparer)(object, object));
 #ifdef COLLECTIONS_GENERIC_ENUMERABLE
 #ifndef ENUMERABLE_TO_ARRAY_DEFINED
 #define ENUMERABLE_TO_ARRAY_DEFINED
-#define DEF_ENUMERABLE_TO_ARRAY(T) Array Enumerable_##T##_ToArray(IEnumerable(T) source);
-#define IMPL_ENUMERABLE_TO_ARRAY(T)                                 \
+#define ENUMERABLE_TO_ARRAY_DEFINE(T) Array Enumerable_##T##_ToArray(IEnumerable(T) source);
+#define ENUMERABLE_TO_ARRAY_IMPLEMENT(T)                            \
 Array Enumerable_##T##_ToArray(IEnumerable(T) source)               \
 {                                                                   \
     /* Assume initial capacity to avoid useless enumeration */      \
     int maxLength = 16;                                             \
-    Array allocinit(Array, result) {                                \
-        ._parent = (struct IEnumerable_s) {                         \
-            .GetEnumerator = ArrayGetEnumerator                     \
-        },                                                          \
+    auto result = meminit(Array) {                                  \
+        .GetEnumerator = ArrayGetEnumerator,                        \
         .Length = 0,                                                \
         .MaxLength = maxLength,                                     \
-        .Values = alloc_array(T, maxLength)                         \
+        .Values = arralloc(T, maxLength)                            \
     };                                                              \
-    foreach(T, item, source, {                                      \
+    foreach (T item in source) {                                    \
         if (result->Length >= result->MaxLength) {                  \
             Array_Resize(result, result->MaxLength * 2);            \
         }                                                           \
         ((T*)result->Values)[result->Length] = item;                \
         result->Length += 1;                                        \
-    });                                                             \
+    }                                                               \
     Array_Resize(result, result->Length);                           \
     return result;                                                  \
 }
 #endif
 #else
-#define DEF_ENUMERABLE_TO_ARRAY(T)
-#define IMPL_ENUMERABLE_TO_ARRAY(T)
+#define ENUMERABLE_TO_ARRAY_DEFINE(T)
+#define ENUMERABLE_TO_ARRAY_IMPLEMENT(T)
 #endif
 #define ARRAY_DEFINE(T)                                     \
 Array Array_##T##__ctor(int maxLength);                     \
@@ -95,7 +91,7 @@ void Array_##T##_Set(Array source, int index, T value);     \
 int Array_##T##_IndexOf(Array source, T item);              \
 void Array_##T##_Fill(Array source, T item);                \
 void Array_##T##_Initialize(Array source);                  \
-DEF_ENUMERABLE_TO_ARRAY(T)
+ENUMERABLE_TO_ARRAY_DEFINE(T)
 
 #define new_array(T) Array_##T##__ctor
 
@@ -111,14 +107,12 @@ IEnumerator ArrayGetEnumerator(IEnumerable This);
 Array Array_##T##__ctor(int maxLength)                                          \
 {                                                                               \
     if (maxLength < 0) return NULL;                                             \
-    if (maxLength == 0) return alloc(Array);                                    \
-    Array allocinit(Array, result) {                                            \
-        ._parent = (struct IEnumerable_s) {                                     \
-            .GetEnumerator = ArrayGetEnumerator                                 \
-        },                                                                      \
+    if (maxLength == 0) return memalloc(Array);                                 \
+    auto result = meminit(Array) {                                              \
+        .GetEnumerator = ArrayGetEnumerator,                                    \
         .Length = 0,                                                            \
         .MaxLength = maxLength,                                                 \
-        .Values = alloc_array(T, maxLength),                                    \
+        .Values = arralloc(T, maxLength),                                       \
         ._memberSize = sizeof(T)                                                \
     };                                                                          \
     return result;                                                              \
@@ -134,7 +128,7 @@ void Array_##T##_Set(Array source, int index, T value)                          
 int Array_##T##_IndexOf(Array source, T item)                                   \
 {                                                                               \
     for (int i = 0; i < source->Length; ++i) {                                  \
-        if (ValueEquator(sizeof(T), &((T*)source->Values)[i], &item)) {         \
+        if (equals(((T*)source->Values)[i], item)) {                            \
             return i;                                                           \
         }                                                                       \
     }                                                                           \
@@ -153,7 +147,7 @@ void Array_##T##_Initialize(Array source)                                       
     }                                                                           \
     source->Length = source->MaxLength;                                         \
 }                                                                               \
-IMPL_ENUMERABLE_TO_ARRAY(T)
+ENUMERABLE_TO_ARRAY_IMPLEMENT(T)
 
 #pragma endregion
 

@@ -1,7 +1,7 @@
 #ifndef COLLECTIONS_ENUMERABLE
 #define COLLECTIONS_ENUMERABLE
 
-#include "Defines.h"
+#include "Keywords.h"
 
 /**
  * @brief Enumerates an IEnumerable and sets var to
@@ -32,16 +32,16 @@
     __e->Dispose(__e);                                  \
 } while(0)
 
-typedef struct IEnumerator_s {
-    bool (*MoveNext)(struct IEnumerator_s* This);
-    void (*Reset)(struct IEnumerator_s* This);
-    void (*Dispose)(struct IEnumerator_s* This);
+typedef TAG(IEnumerator) {
+    bool (*MoveNext)(TAG(IEnumerator)* This);
+    void (*Reset)(TAG(IEnumerator)* This);
+    void (*Dispose)(TAG(IEnumerator)* This);
     object Current;
 } *IEnumerator;
 // don't even ask...
 #define EMPTY()
-typedef const struct IEnumerable_s {
-    IEnumerator EMPTY() (*GetEnumerator)(const struct IEnumerable_s* This);
+typedef const TAG(IEnumerable) {
+    IEnumerator EMPTY() (*GetEnumerator)(const TAG(IEnumerable)* This);
 } *IEnumerable;
 
 typedef bool PredicateFunc(object);
@@ -184,10 +184,12 @@ int Enumerable_Count(IEnumerable source);
 /// @return True if every element from first is equal to second, false otherwise.
 bool Enumerable_SequenceEqual(IEnumerable first, IEnumerable second);
 
-typedef const struct IOrderedEnumerable_s {
-    struct IEnumerable_s _parent;
-    struct IOrderedEnumerable_s* (*CreateOrderedEnumerable)(struct IOrderedEnumerable_s* This, int (*comparer)(object, object), bool descending);
-} *IOrderedEnumerable;
+#include "Delegate.h"
+
+typedef TAG(IOrderedEnumerable) {
+    IMPL(IEnumerable);
+    const TAG(IOrderedEnumerable)* (*CreateOrderedEnumerable)(TAG(IOrderedEnumerable)* const This, Func(int, object, object), bool descending);
+} const *IOrderedEnumerable;
 
 /// @brief Orders a collection using the provided comparer.
 /// @param source Enumerable to order.

@@ -1,11 +1,10 @@
 #include "HashTable.h"
-#include "Keywords.h"
-#include "System/String.h"
+#include "String.h"
 
-typedef struct HashNode_s *HashNode;
+typedef TAG(HashNode) *HashNode;
 
-typedef struct _KeyNotFoundException {
-    struct _Exception;
+typedef TAG(KeyNotFoundException) {
+    TAG(Exception);
     HashTable Table;
     string Key;
 } *KeyNotFoundException;
@@ -20,14 +19,14 @@ static KeyNotFoundException KeyNotFoundException__ctor(HashTable table, string k
     return result;
 }
 
-struct HashNode_s {
+TAG(HashNode) {
     int Hash;
     string Key;
     object Value;
     HashNode Next;
 };
 
-struct HashTable_s {
+TAG(HashTable) {
     int Capacity;
     HashFunc *HashCode;
     HashNode *Items;
@@ -54,7 +53,7 @@ void HashTable_Put(HashTable source, string key, object value)
     int index = node->Hash % source->Capacity;
     var bucket = &source->Items[index];
     while (*bucket && ((*bucket)->Hash != node->Hash
-        || string_Compare((*bucket)->Key, key)))
+        || StringComparer.Ordinal.Compare((*bucket)->Key, key)))
     {
         bucket = &(*bucket)->Next;
     }
@@ -65,7 +64,7 @@ object HashTable_Get(HashTable source, string key)
 {
     var hash = source->HashCode(key);
     var bucket = source->Items[hash];
-    while (bucket && string_Compare(bucket->Key, key)) bucket = bucket->Next;
+    while (bucket && StringComparer.Ordinal.Compare(bucket->Key, key)) bucket = bucket->Next;
     if (bucket == NULL) throw(new(KeyNotFoundException)(source, key));
     return bucket->Value;
 }

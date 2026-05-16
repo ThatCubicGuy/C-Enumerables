@@ -1,13 +1,13 @@
 #ifndef COLLECTIONS_GENERIC_LIST
 #define COLLECTIONS_GENERIC_LIST
-
-#define List(T) _List_##T
+#include "Keywords.h"
+#define List(T) CAT(List_,T)
 
 #pragma region Define
 
 #define LIST_DEFINE(T)                                              \
-typedef struct List_##T##_s {                                       \
-    struct _IEnumerable_##T##_s _parent;                            \
+typedef TAG(List(T)) {                                              \
+    IMPL(IEnumerable(T));                                           \
     int Capacity;                                                   \
     int Count;                                                      \
     T* Values;                                                      \
@@ -77,7 +77,7 @@ void List_##T##_TrimExcess(List(T) source);                         \
  * @param source List that contains elements to sort.               \
  * @param comparer Comparer to order the elements by.               \
  */                                                                 \
-void List_##T##_Sort(List(T) source, int (*comparer)(T, T)) ;
+void List_##T##_Sort(List(T) source, int (*comparer)(T, T));
 
 #pragma endregion
 

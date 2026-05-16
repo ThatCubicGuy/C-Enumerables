@@ -1,18 +1,14 @@
 #ifndef COLLECTIONS_GENERIC_DOUBLY_LINKED_LIST
 #define COLLECTIONS_GENERIC_DOUBLY_LINKED_LIST
-
-#define DoublyLinkedList(T) _DoublyLinkedList_##T
+#include "Keywords.h"
+#define DoublyLinkedList(T) CAT(DoublyLinkedList_,T)
 
 #define DOUBLY_LINKED_LIST_DEFINE(T)                                        \
 /* @brief A node inside a linked list. */                                   \
-typedef struct DoublyLinkedNode_##T##_s {                                   \
-    struct DoublyLinkedNode_##T##_s *Next;                                  \
-    struct DoublyLinkedNode_##T##_s *Prev;                                  \
-    T Value;                                                                \
-} *DoublyLinkedNode_##T;                                                    \
+typedef TAG(DoublyLinkedNode_##T) *DoublyLinkedNode_##T;                    \
 /* @brief A list of items stored by reference. */                           \
-typedef struct _DoublyLinkedList_##T##_s {                                  \
-    struct _IEnumerable_##T##_s _parent;                                    \
+typedef TAG(DoublyLinkedList(T)) {                                          \
+    IMPL(IEnumerable(T));                                                   \
     DoublyLinkedNode_##T _start;                                            \
     int Count;                                                              \
 } *DoublyLinkedList(T);                                                     \

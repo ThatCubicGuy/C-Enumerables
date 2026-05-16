@@ -1,11 +1,9 @@
 #ifndef COLLECTIONS_GENERIC_STACK_IMPLEMENTATIONS
 #define COLLECTIONS_GENERIC_STACK_IMPLEMENTATIONS
-
-#include "Collections/Generic/StackT.h"
-
+#include "StackT.h"
 #define STACK_IMPLEMENT(T)                                                          \
-typedef struct StackEnumerator_##T##_s {                                            \
-    struct _IEnumerator_##T##_s _parent;                                            \
+typedef TAG(StackEnumerator_##T) {                                                  \
+    IMPL(IEnumerator(T));                                                           \
     Stack(T) _source;                                                               \
     int _currentIndex;                                                              \
 } *StackEnumerator_##T;                                                             \
@@ -26,45 +24,40 @@ static void StackReset_##T(IEnumerator(T) This)                                 
 }                                                                                   \
 static void StackDispose_##T(IEnumerator(T) This)                                   \
 {                                                                                   \
-    free(This);                                                                     \
+    memfree(This);                                                                  \
 }                                                                                   \
 static IEnumerator(T) StackGetEnumerator_##T(const IEnumerable(T) This)             \
 {                                                                                   \
-    StackEnumerator_##T allocinit(StackEnumerator_##T, result) {                    \
-        ._parent = (struct _IEnumerator_##T##_s) {                                  \
-            .MoveNext = StackMoveNext_##T,                                          \
-            .Reset = StackReset_##T,                                                \
-            .Dispose = StackDispose_##T                                             \
-        },                                                                          \
+    auto result = meminit(StackEnumerator_##T) {                                    \
+        .MoveNext = StackMoveNext_##T,                                              \
+        .Reset = StackReset_##T,                                                    \
+        .Dispose = StackDispose_##T,                                                \
         ._currentIndex = ((Stack(T))This)->_start,                                  \
         ._source = (Stack(T))This                                                   \
     };                                                                              \
-    return base(result);                                                            \
+    return (IEnumerator(T))result;                                                  \
 }                                                                                   \
 Stack(T) new(Stack(T))(int capacity)                                \
 {                                                                   \
-    Stack(T) allocinit(Stack(T), result) {                          \
-        ._parent = (struct _IEnumerable_##T##_s) {                  \
-            .GetEnumerator = StackGetEnumerator_##T                 \
-        },                                                          \
+    auto result = meminit(Stack(T)) {                               \
+        .GetEnumerator = StackGetEnumerator_##T,                    \
         .Count = 0,                                                 \
         .Capacity = capacity,                                       \
         ._start = -1,                                               \
-        ._values = alloc_array(T, capacity)                         \
+        ._values = arralloc(T, capacity)                            \
     };                                                              \
     return result;                                                  \
 }                                                                   \
 void Stack_##T##_Destroy(Stack(T)* source)                          \
 {                                                                   \
-    free((*source)->_values);                                       \
-    free(*source);                                                  \
+    memfree((*source)->_values);                                    \
+    memfree(*source);                                               \
     *source = NULL;                                                 \
 }                                                                   \
 void Stack_##T##_EnsureCapacity(Stack(T) source, int capacity)      \
 {                                                                   \
     if (source->Capacity < capacity) {                              \
-        source->_values = realloc(source->_values,                  \
-            sizeof(T) * capacity);                                  \
+        source->_values = memresize(source->_values, capacity);     \
         source->Capacity = capacity;                                \
     }                                                               \
 }                                                                   \

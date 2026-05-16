@@ -1,7 +1,7 @@
 #ifndef LIB_CUBE_ENUMERABLES
 #define LIB_CUBE_ENUMERABLES
 
-#include "Defines.h"
+#include "Keywords.h"
 
 #include "Tuple.h"
 
@@ -13,6 +13,8 @@
 #include "Collections/Generic/StackT.h"
 #include "Collections/Generic/HeapT.h"
 #include "Collections/Generic/PriorityQueueT.h"
+#include "Collections/Generic/DictionaryT.h"
+#include "Collections/Generic/HashSetT.h"
 
 #include "Collections/Enumerable.h"
 #include "Collections/Array.h"

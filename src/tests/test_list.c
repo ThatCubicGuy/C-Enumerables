@@ -1,19 +1,18 @@
 #include "Collections/Generic/EnumerableT.h"
 #include "Collections/Generic/ListT.h"
 #include "Tests.h"
-#include "Defines.h"
+#include <stdio.h>
 
 ENUMERABLE_DEFINE(int)
 LIST_DEFINE(int)
 ENUMERABLE_DEFINE_SELECT(int, int)
-ENUMERABLE_DEFINE_SELECTMANY(int, int)
 ENUMERABLE_DEFINE_AGGREGATE(int, int)
-
+#undef var
 static void ShowValues(IEnumerable(int) source)
 {
-    foreach(int, var, source,{
+    foreach (int var in source) {
         fprintf(stderr, "Success! Value: %d\n", var);
-    });
+    }
 }
 
 int selector(int item)
@@ -37,7 +36,7 @@ IEnumerable(int) selectMany(int item)
     List_int_Add(L, item);
     List_int_Add(L, item);
     List_int_Add(L, item);
-    return base(L);
+    return (IEnumerable(int))L;
 }
 
 int aggregate(int accumulate, int item)
@@ -59,7 +58,7 @@ void test_with_numbers(void)
     printf("\nItem count: %d\nList capacity: %d\n", int_list->Count, int_list->Capacity);
     List_int_TrimExcess(int_list);
     printf("Item count: %d\nList capacity: %d\n", int_list->Count, int_list->Capacity);
-    IEnumerable(int) enumerable = base(int_list);
+    IEnumerable(int) enumerable = (IEnumerable(int))int_list;
     ShowValues(enumerable);
     printf("Selector function that adds 3:\n");
     enumerable = Enumerable_int_Select_int(enumerable, selector);
@@ -80,7 +79,7 @@ void test_with_numbers(void)
     enumerable = Enumerable_int_Skip(enumerable, 2);
     ShowValues(enumerable);
     printf("Original list enumeration:\n");
-    enumerable = base(int_list);
+    enumerable = (IEnumerable(int))int_list;
     ShowValues(enumerable);
     printf("First even number in the list: %d\n", Enumerable_int_FirstOrDefault(enumerable, filter));
     printf("Index of first even number in the list: %d\n", Enumerable_int_IndexOf(enumerable, Enumerable_int_FirstOrDefault(enumerable, filter)));

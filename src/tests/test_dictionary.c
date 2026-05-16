@@ -1,8 +1,9 @@
 #include "Collections/Generic/DictionaryT.h"
 #include "Collections/Generic/EnumerableT.h"
 #include "Tests.h"
-#include "Defines.h"
-#include "Text/String.h"
+#include "String.h"
+#include "Keywords.h"
+#include <stdio.h>
 
 typedef struct car {
     string brand;
@@ -21,19 +22,20 @@ void Get(Dictionary(string, Car) source, string key)
         printf("Key %s does not exist!\n", key);
     }
 }
+
 void print(Dictionary(string, Car) source)
 {
-    for (int i = 0, j; i < source->Capacity; ++i) {
+    for (int i = 0, j; i < MAX_DICTIONARY_ARRAY_LENGTH; ++i) {
         j = 0;
-        for (typeof(void*) old = (void*)1, p = source->_items[i]; old; (old = p) && (p = *(void**)p), ++j) {
+        for (typeof(void*) old = (void*)1, p = source->_items[i]; old; (void)((old = p) && (p = *(void**)p)), ++j) {
             printf("Item \033[3%dm#%d.%d\033[0m: %p\n", j + 1, i, j, p);
         }
     }
 }
-#include "Keywords.h"
+
 void test_dictionary(void)
 {
-    auto dict = new(Dictionary(string, Car))(32, string_HashCode, StringComparer.Ordinal);
+    auto dict = new(Dictionary(string, Car))(StringComparer.Ordinal.EqualityComparer);
     printf("Dictionary count before: %d\n", dict->Count);
     Dictionary_string_Car_Add(dict, "Placeholder", (Car){"Toyota Corolla",2023,1500});
     Dictionary_string_Car_Add(dict, "My Fav", (Car){"Toyota AE86",1986,99});
@@ -48,7 +50,7 @@ void test_dictionary(void)
     printf("Dictionary count before: %d\n", dict->Count);
     Dictionary_string_Car_Add(dict, "My Third Fav", (Car){"Nissan Silvia",2002,3000});
     printf("Dictionary count after: %d\n", dict->Count);
-    foreach(var item in Dictionary_string_Car_GetValues(dict)) {
+    foreach (var item in Dictionary_string_Car_GetValues(dict)) {
         printf("Item: %s (%d), $%d\n", item.brand, item.year, item.price);
     }
     print(dict);

@@ -1,31 +1,18 @@
 #ifndef COLLECTIONS_GENERIC_HASH_SET
 #define COLLECTIONS_GENERIC_HASH_SET
-
-#define HashSet(T) _HashSet_##T
+#include "Keywords.h"
+#define HashSet(T) CAT(HashSet_,T)
 
 #pragma region Define
 
-#define IEqualityComparer(T) _IEqualityComparer_##T
-#define EQUALITY_COMPARER_DEFINE(T)         \
-typedef struct tag_IEqualityComparer_##T {  \
-    bool (*Equals)(T, T);                   \
-    size_t (*GetHashCode)(T);               \
-} *IEqualityComparer(T);
-
-#define IComparer(T) _IComparer_##T
-#define COMPARER_DEFINE(T)          \
-typedef struct tag_IComparer_##T {  \
-    int (*Compare)(T, T);           \
-} *IComparer(T);
-
 #define MAX_HASH_SET_ARRAY_LENGTH 64
 #define HASH_SET_DEFINE(T)                                          \
-typedef struct HashSetEntry_##T##_s *HashSetEntry_##T;              \
-typedef struct HashSet_##T##_s {                                    \
-    struct _IEnumerable_##T##_s _parent;                            \
+typedef TAG(HashSetEntry_##T) *HashSetEntry_##T;                    \
+typedef TAG(HashSet(T)) {                                           \
+    IMPL(IEnumerable(T));                                           \
     int Count;                                                      \
     IEqualityComparer(T) Comparer;                                  \
-    HashSetEntry_##T Values[MAX_HASH_SET_ARRAY_LENGTH];             \
+    HashSetEntry_##T _items[MAX_HASH_SET_ARRAY_LENGTH];             \
 } *HashSet(T);                                                      \
 /**                                                                 \
  * @brief Creates a new HashSet with the given capacity.            \
@@ -43,7 +30,7 @@ void HashSet_##T##_Destroy(HashSet(T)* source);                     \
  * @param source Enumerable to take items from.                     \
  * @return A new hash set.                                          \
  */                                                                 \
-HashSet(T) Enumerable_##T##_ToHashSet(IEnumerable(T) source);       \
+HashSet(T) Enumerable_##T##_ToHashSet(IEnumerable(T) source, IEqualityComparer(T) comparer);\
 /**                                                                 \
  * @brief Add an element to the HashSet<T>.                         \
  * @param list HashSet to add an element to.                        \

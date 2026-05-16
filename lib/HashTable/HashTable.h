@@ -1,7 +1,8 @@
 #ifndef HASHTABLE
 #define HASHTABLE
+#include "Keywords.h"
 
-typedef struct HashTable_s *HashTable;
+typedef TAG(HashTable) *HashTable;
 typedef int HashFunc(object);
 
 HashTable HashTable__ctor(int capacity, HashFunc *hashCode);

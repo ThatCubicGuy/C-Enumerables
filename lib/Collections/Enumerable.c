@@ -1,18 +1,18 @@
 #include "Collections/Enumerable.h"
-#include "Defines.h"
 #include <stdlib.h>
+#include "Keywords.h"
 
 #pragma region Lazy evaluation
 
 #pragma region Helpers
 
-typedef const struct CompoundEnumerable_s {
-    struct IEnumerable_s _parent;
+typedef const TAG(CompoundEnumerable) {
+    IMPL(IEnumerable);
     IEnumerable _baseEnumerable;
 } *CompoundEnumerable;
 
-typedef struct CompoundEnumerator_s {
-    struct IEnumerator_s _parent;
+typedef TAG(CompoundEnumerator) {
+    IMPL(IEnumerator);
     IEnumerator _currentEnumerator;
     IEnumerable _baseEnumerable;
 } *CompoundEnumerator;
@@ -35,8 +35,8 @@ static void CompoundDispose(IEnumerator This)
 
 #pragma region Where
 
-typedef const struct WhereEnumerable_s {
-    struct CompoundEnumerable_s _parent;
+typedef const TAG(WhereEnumerable) {
+    IMPL(CompoundEnumerable);
     PredicateFunc* _filter;
 } *WhereEnumerable;
 
@@ -55,13 +55,11 @@ static IEnumerator GetWhereEnumerator(IEnumerable This)
 {
     WhereEnumerable where = (WhereEnumerable)This;
 
-    CompoundEnumerator allocinit(CompoundEnumerator, result) {
-        ._parent = (struct IEnumerator_s) {
-            .MoveNext = WhereMoveNext,
-            .Reset = CompoundReset,
-            .Dispose = CompoundDispose
-        },
-        ._currentEnumerator = base(where)->_baseEnumerable->GetEnumerator(base(where)->_baseEnumerable),
+    auto result = meminit(CompoundEnumerator) {
+        .MoveNext = WhereMoveNext,
+        .Reset = CompoundReset,
+        .Dispose = CompoundDispose,
+        ._currentEnumerator = where->_baseEnumerable->GetEnumerator(where->_baseEnumerable),
         ._baseEnumerable = (IEnumerable)(where)
     };
 
@@ -74,13 +72,9 @@ static IEnumerator GetWhereEnumerator(IEnumerable This)
 /// @return A new enumerable.
 IEnumerable Enumerable_Where(IEnumerable source, PredicateFunc* filter)
 {
-    WhereEnumerable allocinit(WhereEnumerable, result) {
-        ._parent = (struct CompoundEnumerable_s) {
-            ._parent = (struct IEnumerable_s) {
-                .GetEnumerator = GetWhereEnumerator
-            },
-            ._baseEnumerable = source
-        },
+    WhereEnumerable result = meminit(WhereEnumerable) {
+        .GetEnumerator = GetWhereEnumerator,
+        ._baseEnumerable = source,
         ._filter = filter
     };
     return (IEnumerable)result;
@@ -90,8 +84,8 @@ IEnumerable Enumerable_Where(IEnumerable source, PredicateFunc* filter)
 
 #pragma region Select
 
-typedef const struct SelectEnumerable_s {
-    struct CompoundEnumerable_s _parent;
+typedef const TAG(SelectEnumerable) {
+    IMPL(CompoundEnumerable);
     SelectorFunc* _selector;
 } *SelectEnumerable;
 
@@ -110,13 +104,11 @@ static IEnumerator GetSelectEnumerator(IEnumerable This)
 {
     SelectEnumerable select = (SelectEnumerable)This;
 
-    CompoundEnumerator allocinit(CompoundEnumerator, result) {
-        ._parent = (struct IEnumerator_s) {
-            .MoveNext = SelectMoveNext,
-            .Reset = CompoundReset,
-            .Dispose = CompoundDispose
-        },
-        ._currentEnumerator = base(select)->_baseEnumerable->GetEnumerator(base(select)->_baseEnumerable),
+    auto result = meminit(CompoundEnumerator) {
+        .MoveNext = SelectMoveNext,
+        .Reset = CompoundReset,
+        .Dispose = CompoundDispose,
+        ._currentEnumerator = select->_baseEnumerable->GetEnumerator(select->_baseEnumerable),
         ._baseEnumerable = (IEnumerable)(select)
     };
 
@@ -129,13 +121,9 @@ static IEnumerator GetSelectEnumerator(IEnumerable This)
 /// @return A new enumerable.
 IEnumerable Enumerable_Select(IEnumerable source, SelectorFunc* selector)
 {
-    SelectEnumerable allocinit(SelectEnumerable, result) {
-        ._parent = (struct CompoundEnumerable_s) {
-            ._parent = (struct IEnumerable_s) {
-                .GetEnumerator = GetSelectEnumerator
-            },
-            ._baseEnumerable = source
-        },
+    auto result = meminit(SelectEnumerable) {
+        .GetEnumerator = GetSelectEnumerator,
+        ._baseEnumerable = source,
         ._selector = selector,
     };
     return (IEnumerable)result;
@@ -145,13 +133,13 @@ IEnumerable Enumerable_Select(IEnumerable source, SelectorFunc* selector)
 
 #pragma region SelectMany
 
-typedef const struct SelectManyEnumerable_s {
-    struct CompoundEnumerable_s _parent;
+typedef const TAG(SelectManyEnumerable) {
+    IMPL(CompoundEnumerable);
     SelectManyFunc* _selector;
 } *SelectManyEnumerable;
 
-typedef struct SelectManyEnumerator_s {
-    struct IEnumerator_s _parent;
+typedef TAG(SelectManyEnumerator) {
+    IMPL(IEnumerator);
     IEnumerable _baseEnumerable;
     IEnumerator _innerEnumerator;
     IEnumerator _outerEnumerator;
@@ -193,13 +181,11 @@ static IEnumerator GetSelectManyEnumerator(IEnumerable This)
 {
     SelectManyEnumerable selectMany = (SelectManyEnumerable)This;
 
-    SelectManyEnumerator allocinit(SelectManyEnumerator, result) {
-        ._parent = (struct IEnumerator_s) {
-            .MoveNext = SelectManyMoveNext,
-            .Reset = SelectManyReset,
-            .Dispose = SelectManyDispose
-        },
-        ._outerEnumerator = base(selectMany)->_baseEnumerable->GetEnumerator(base(selectMany)->_baseEnumerable),
+    auto result = meminit(SelectManyEnumerator) {
+        .MoveNext = SelectManyMoveNext,
+        .Reset = SelectManyReset,
+        .Dispose = SelectManyDispose,
+        ._outerEnumerator = selectMany->_baseEnumerable->GetEnumerator(selectMany->_baseEnumerable),
         ._baseEnumerable = (IEnumerable)(selectMany)
     };
 
@@ -212,13 +198,9 @@ static IEnumerator GetSelectManyEnumerator(IEnumerable This)
 /// @return A new enumerable.
 IEnumerable Enumerable_SelectMany(IEnumerable source, SelectManyFunc* selector)
 {
-    SelectManyEnumerable allocinit(SelectManyEnumerable, result) {
-        ._parent = (struct CompoundEnumerable_s) {
-            ._parent = (struct IEnumerable_s) {
-                .GetEnumerator = GetSelectManyEnumerator,
-            },
-            ._baseEnumerable = source,
-        },
+    auto result = meminit(SelectManyEnumerable) {
+        .GetEnumerator = GetSelectManyEnumerator,
+        ._baseEnumerable = source,
         ._selector = selector
     };
     return (IEnumerable)result;
@@ -228,13 +210,13 @@ IEnumerable Enumerable_SelectMany(IEnumerable source, SelectManyFunc* selector)
 
 #pragma region Take / Skip
 
-typedef const struct LimitedEnumerable_s {
-    struct CompoundEnumerable_s _parent;
+typedef const TAG(LimitedEnumerable) {
+    IMPL(CompoundEnumerable);
     int Count;
 } *LimitedEnumerable;
 
-typedef struct LimitedEnumerator_s {
-    struct CompoundEnumerator_s _parent;
+typedef TAG(LimitedEnumerator) {
+    IMPL(CompoundEnumerator);
     int Count;
 } *LimitedEnumerator;
 
@@ -260,16 +242,12 @@ static IEnumerator GetTakeEnumerator(IEnumerable This)
 {
     LimitedEnumerable limited = (LimitedEnumerable)This;
 
-    LimitedEnumerator allocinit(LimitedEnumerator, result) {
-        ._parent = (struct CompoundEnumerator_s) {
-            ._parent = (struct IEnumerator_s) {
-                .MoveNext = TakeMoveNext,
-                .Reset = LimitedReset,
-                .Dispose = CompoundDispose,
-            },
-            ._currentEnumerator = base(limited)->_baseEnumerable->GetEnumerator(base(limited)->_baseEnumerable),
-            ._baseEnumerable = (IEnumerable)limited,
-        },
+    auto result = meminit(LimitedEnumerator) {
+        .MoveNext = TakeMoveNext,
+        .Reset = LimitedReset,
+        .Dispose = CompoundDispose,
+        ._currentEnumerator = limited->_baseEnumerable->GetEnumerator(limited->_baseEnumerable),
+        ._baseEnumerable = (IEnumerable)limited,
         .Count = limited->Count
     };
 
@@ -294,16 +272,12 @@ static IEnumerator GetSkipEnumerator(IEnumerable This)
 {
     LimitedEnumerable limited = (LimitedEnumerable)This;
 
-    LimitedEnumerator allocinit(LimitedEnumerator, result) {
-        ._parent = (struct CompoundEnumerator_s) {
-            ._parent = (struct IEnumerator_s) {
-                .MoveNext = SkipMoveNext,
-                .Reset = LimitedReset,
-                .Dispose = CompoundDispose,
-            },
-            ._currentEnumerator = base(limited)->_baseEnumerable->GetEnumerator(base(limited)->_baseEnumerable),
-            ._baseEnumerable = (IEnumerable)limited,
-        },
+    auto result = meminit(LimitedEnumerator) {
+        .MoveNext = SkipMoveNext,
+        .Reset = LimitedReset,
+        .Dispose = CompoundDispose,
+        ._currentEnumerator = limited->_baseEnumerable->GetEnumerator(limited->_baseEnumerable),
+        ._baseEnumerable = (IEnumerable)limited,
         .Count = limited->Count
     };
 
@@ -316,13 +290,9 @@ static IEnumerator GetSkipEnumerator(IEnumerable This)
 /// @return A new enumerable.
 IEnumerable Enumerable_Take(IEnumerable source, int count)
 {
-    LimitedEnumerable allocinit(LimitedEnumerable, result) {
-        ._parent = (struct CompoundEnumerable_s) {
-            ._parent = (struct IEnumerable_s) {
-                .GetEnumerator = GetTakeEnumerator
-            },
-            ._baseEnumerable = source,
-        },
+    auto result = meminit(LimitedEnumerable) {
+        .GetEnumerator = GetTakeEnumerator,
+        ._baseEnumerable = source,
         .Count = count
     };
 
@@ -335,13 +305,9 @@ IEnumerable Enumerable_Take(IEnumerable source, int count)
 /// @return A new enumerable.
 IEnumerable Enumerable_Skip(IEnumerable source, int count)
 {
-    LimitedEnumerable allocinit(LimitedEnumerable, result) {
-        ._parent = (struct CompoundEnumerable_s) {
-            ._parent = (struct IEnumerable_s) {
-                .GetEnumerator = GetSkipEnumerator
-            },
-            ._baseEnumerable = source,
-        },
+    auto result = meminit(LimitedEnumerable) {
+        .GetEnumerator = GetSkipEnumerator,
+        ._baseEnumerable = source,
         .Count = count
     };
 
@@ -352,13 +318,13 @@ IEnumerable Enumerable_Skip(IEnumerable source, int count)
 
 #pragma region TakeWhile / SkipWhile
 
-typedef const struct PredicateEnumerable_s {
-    struct CompoundEnumerable_s _parent;
+typedef const TAG(PredicateEnumerable) {
+    IMPL(CompoundEnumerable);
     PredicateFunc* Predicate;
 } *PredicateEnumerable;
 
-typedef struct PredicateEnumerator_s {
-    struct CompoundEnumerator_s _parent;
+typedef TAG(PredicateEnumerator) {
+    IMPL(CompoundEnumerator);
     bool _hasFinishedEnumeration;
 } *PredicateEnumerator;
 
@@ -387,16 +353,12 @@ static IEnumerator GetTakeWhileEnumerator(IEnumerable This)
 {
     PredicateEnumerable limited = (PredicateEnumerable)This;
 
-    PredicateEnumerator allocinit(PredicateEnumerator, result) {
-        ._parent = (struct CompoundEnumerator_s) {
-            ._parent = (struct IEnumerator_s) {
-                .MoveNext = TakeWhileMoveNext,
-                .Reset = PredicateReset,
-                .Dispose = CompoundDispose,
-            },
-            ._currentEnumerator = base(limited)->_baseEnumerable->GetEnumerator(base(limited)->_baseEnumerable),
-            ._baseEnumerable = (IEnumerable)limited,
-        }
+    auto result = meminit(PredicateEnumerator) {
+        .MoveNext = TakeWhileMoveNext,
+        .Reset = PredicateReset,
+        .Dispose = CompoundDispose,
+        ._currentEnumerator = limited->_baseEnumerable->GetEnumerator(limited->_baseEnumerable),
+        ._baseEnumerable = (IEnumerable)limited,
     };
 
     return (IEnumerator)result;
@@ -426,16 +388,12 @@ static IEnumerator GetSkipWhileEnumerator(IEnumerable This)
 {
     PredicateEnumerable limited = (PredicateEnumerable)This;
 
-    PredicateEnumerator allocinit(PredicateEnumerator, result) {
-        ._parent = (struct CompoundEnumerator_s) {
-            ._parent = (struct IEnumerator_s) {
-                .MoveNext = SkipWhileMoveNext,
-                .Reset = PredicateReset,
-                .Dispose = CompoundDispose,
-            },
-            ._currentEnumerator = base(limited)->_baseEnumerable->GetEnumerator(base(limited)->_baseEnumerable),
-            ._baseEnumerable = (IEnumerable)limited,
-        }
+    auto result = meminit(PredicateEnumerator) {
+        .MoveNext = SkipWhileMoveNext,
+        .Reset = PredicateReset,
+        .Dispose = CompoundDispose,
+        ._currentEnumerator = limited->_baseEnumerable->GetEnumerator(limited->_baseEnumerable),
+        ._baseEnumerable = (IEnumerable)limited,
     };
 
     return (IEnumerator)result;
@@ -443,13 +401,9 @@ static IEnumerator GetSkipWhileEnumerator(IEnumerable This)
 
 IEnumerable Enumerable_TakeWhile(IEnumerable source, PredicateFunc* predicate)
 {
-    PredicateEnumerable allocinit(PredicateEnumerable, result) {
-        ._parent = (struct CompoundEnumerable_s) {
-            ._parent = (struct IEnumerable_s) {
-                .GetEnumerator = GetTakeWhileEnumerator
-            },
-            ._baseEnumerable = source
-        },
+    auto result = meminit(PredicateEnumerable) {
+        .GetEnumerator = GetTakeWhileEnumerator,
+        ._baseEnumerable = source,
         .Predicate = predicate
     };
 
@@ -458,13 +412,9 @@ IEnumerable Enumerable_TakeWhile(IEnumerable source, PredicateFunc* predicate)
 
 IEnumerable Enumerable_SkipWhile(IEnumerable source, PredicateFunc* predicate)
 {
-    PredicateEnumerable allocinit(PredicateEnumerable, result) {
-        ._parent = (struct CompoundEnumerable_s) {
-            ._parent = (struct IEnumerable_s) {
-                .GetEnumerator = GetSkipWhileEnumerator
-            },
-            ._baseEnumerable = source
-        },
+    auto result = meminit(PredicateEnumerable) {
+        .GetEnumerator = GetSkipWhileEnumerator,
+        ._baseEnumerable = source,
         .Predicate = predicate
     };
 
@@ -475,13 +425,13 @@ IEnumerable Enumerable_SkipWhile(IEnumerable source, PredicateFunc* predicate)
 
 #pragma region Append / Prepend
 
-typedef const struct ExtendEnumerable_s {
-    struct CompoundEnumerable_s _parent;
+typedef const TAG(ExtendEnumerable) {
+    IMPL(CompoundEnumerable);
     object _added;
 } *ExtendEnumerable;
 
-typedef struct ExtendEnumerator_s {
-    struct CompoundEnumerator_s _parent;
+typedef TAG(ExtendEnumerator) {
+    IMPL(CompoundEnumerator);
     bool _hasEnumeratedExtra;
 } *ExtendEnumerator;
 
@@ -510,16 +460,12 @@ static IEnumerator GetAppendEnumerator(IEnumerable This)
 {
     ExtendEnumerable extend = (ExtendEnumerable)This;
 
-    ExtendEnumerator allocinit(ExtendEnumerator, result) {
-        ._parent = (struct CompoundEnumerator_s) {
-            ._parent = (struct IEnumerator_s) {
-                .MoveNext = AppendMoveNext,
-                .Reset = ExtendReset,
-                .Dispose = CompoundDispose
-            },
-            ._currentEnumerator = base(extend)->_baseEnumerable->GetEnumerator(base(extend)->_baseEnumerable),
-            ._baseEnumerable = (IEnumerable)extend
-        },
+    auto result = meminit(ExtendEnumerator) {
+        .MoveNext = AppendMoveNext,
+        .Reset = ExtendReset,
+        .Dispose = CompoundDispose,
+        ._currentEnumerator = extend->_baseEnumerable->GetEnumerator(extend->_baseEnumerable),
+        ._baseEnumerable = (IEnumerable)extend,
         ._hasEnumeratedExtra = false
     };
 
@@ -545,16 +491,12 @@ static IEnumerator GetPrependEnumerator(IEnumerable This)
 {
     ExtendEnumerable extend = (ExtendEnumerable)This;
 
-    ExtendEnumerator allocinit(ExtendEnumerator, result) {
-        ._parent = (struct CompoundEnumerator_s) {
-            ._parent = (struct IEnumerator_s) {
-                .MoveNext = PrependMoveNext,
-                .Reset = ExtendReset,
-                .Dispose = CompoundDispose
-            },
-            ._currentEnumerator = base(extend)->_baseEnumerable->GetEnumerator(base(extend)->_baseEnumerable),
-            ._baseEnumerable = (IEnumerable)extend
-        },
+    auto result = meminit(ExtendEnumerator) {
+        .MoveNext = PrependMoveNext,
+        .Reset = ExtendReset,
+        .Dispose = CompoundDispose,
+        ._currentEnumerator = extend->_baseEnumerable->GetEnumerator(extend->_baseEnumerable),
+        ._baseEnumerable = (IEnumerable)extend,
         ._hasEnumeratedExtra = false
     };
 
@@ -567,13 +509,9 @@ static IEnumerator GetPrependEnumerator(IEnumerable This)
 /// @return A new enumerable.
 IEnumerable Enumerable_Append(IEnumerable source, object item)
 {
-    ExtendEnumerable allocinit(ExtendEnumerable, result) {
-        ._parent = (struct CompoundEnumerable_s) {
-            ._parent = (struct IEnumerable_s) {
-                .GetEnumerator = GetAppendEnumerator
-            },
-            ._baseEnumerable = source,
-        },
+    auto result = meminit(ExtendEnumerable) {
+        .GetEnumerator = GetAppendEnumerator,
+        ._baseEnumerable = source,
         ._added = item
     };
 
@@ -586,13 +524,9 @@ IEnumerable Enumerable_Append(IEnumerable source, object item)
 /// @return A new enumerable.
 IEnumerable Enumerable_Prepend(IEnumerable source, object item)
 {
-    ExtendEnumerable allocinit(ExtendEnumerable, result) {
-        ._parent = (struct CompoundEnumerable_s) {
-            ._parent = (struct IEnumerable_s) {
-                .GetEnumerator = GetPrependEnumerator
-            },
-            ._baseEnumerable = source,
-        },
+    auto result = meminit(ExtendEnumerable) {
+        .GetEnumerator = GetPrependEnumerator,
+        ._baseEnumerable = source,
         ._added = item
     };
 
@@ -603,14 +537,14 @@ IEnumerable Enumerable_Prepend(IEnumerable source, object item)
 
 #pragma region Concat
 
-typedef const struct ConcatEnumerable_s {
-    struct IEnumerable_s _parent;
+typedef const TAG(ConcatEnumerable) {
+    IMPL(IEnumerable);
     IEnumerable _firstEnumerable;
     IEnumerable _secondEnumerable;
 } *ConcatEnumerable;
 
-typedef struct ConcatEnumerator_s {
-    struct CompoundEnumerator_s _parent;
+typedef TAG(ConcatEnumerator) {
+    IMPL(CompoundEnumerator);
     bool _startedSecondEnumeration;
 } *ConcatEnumerator;
 
@@ -640,16 +574,12 @@ static IEnumerator GetConcatEnumerator(IEnumerable This)
 {
     ConcatEnumerable concat = (ConcatEnumerable)This;
 
-    ConcatEnumerator allocinit(ConcatEnumerator, result) {
-        ._parent = (struct CompoundEnumerator_s) {
-            ._parent = (struct IEnumerator_s) {
-                .MoveNext = ConcatMoveNext,
-                .Reset = ConcatReset,
-                .Dispose = CompoundDispose
-            },
-            ._currentEnumerator = concat->_firstEnumerable->GetEnumerator(concat->_firstEnumerable),
-            ._baseEnumerable = (IEnumerable)concat
-        },
+    auto result = meminit(ConcatEnumerator) {
+        .MoveNext = ConcatMoveNext,
+        .Reset = ConcatReset,
+        .Dispose = CompoundDispose,
+        ._currentEnumerator = concat->_firstEnumerable->GetEnumerator(concat->_firstEnumerable),
+        ._baseEnumerable = (IEnumerable)concat,
         ._startedSecondEnumeration = false
     };
 
@@ -662,10 +592,8 @@ static IEnumerator GetConcatEnumerator(IEnumerable This)
 /// @return A new enumerable.
 IEnumerable Enumerable_Concat(IEnumerable first, IEnumerable second)
 {
-    ConcatEnumerable allocinit(ConcatEnumerable, result) {
-        ._parent = (struct IEnumerable_s) {
-            .GetEnumerator = GetConcatEnumerator
-        },
+    auto result = meminit(ConcatEnumerable) {
+        .GetEnumerator = GetConcatEnumerator,
         ._firstEnumerable = first,
         ._secondEnumerable = second
     };
@@ -678,22 +606,23 @@ IEnumerable Enumerable_Concat(IEnumerable first, IEnumerable second)
 #pragma endregion
 
 #pragma region Eager evaluation
-/*
+//*
 // Needs redesign
-
-typedef struct OrderedEnumerable_s {
-    struct IOrderedEnumerable_s _parent;
+#include "Delegate.h"
+typedef TAG(OrderedEnumerable) {
+    IMPL(IOrderedEnumerable);
     IEnumerable _baseEnumerable;
-    Comparer* _comparer;
+    Func(int, object, object) _comparer;
 } *OrderedEnumerable;
 
-static IOrderedEnumerable CreateOrderedEnumerable(struct IOrderedEnumerable_s* This, Comparer* comparer, bool descending)
+static IOrderedEnumerable CreateOrderedEnumerable(TAG(IOrderedEnumerable)* This, Func(int, object, object) comparer, bool descending)
 {
-    
+    throw new(Exception)("Not implemented!");
+    return NULL;
 }
 
-typedef struct OrderedEnumerator_s {
-    struct IEnumerator_s _parent;
+typedef TAG(OrderedEnumerator) {
+    IMPL(IEnumerator);
     int _currentIndex;
     object* _array;
     int _totalCount;
@@ -727,7 +656,7 @@ static IEnumerator GetOrderByEnumerator(IEnumerable This)
 {
     int capacity = 32;
     int currentIndex = 0;
-    object* array = alloc_array(object, capacity);
+    object* array = arralloc(object, capacity);
     foreach_as(object, item, ((OrderedEnumerable)This)->_baseEnumerable, {
         if (currentIndex >= capacity) {
             array = realloc(array, capacity * 2);
@@ -747,13 +676,11 @@ static IEnumerator GetOrderByEnumerator(IEnumerable This)
         }
     }
 
-    OrderedEnumerator allocinit(OrderedEnumerator, result) {
-        ._parent = (struct IEnumerator_s) {
-            .MoveNext = OrderByMoveNext,
-            .Reset = OrderByReset,
-            .Dispose = OrderByDispose,
-            .Current = NULL
-        },
+    auto result = meminit(OrderedEnumerator) {
+        .MoveNext = OrderByMoveNext,
+        .Reset = OrderByReset,
+        .Dispose = OrderByDispose,
+        .Current = NULL,
         ._currentIndex = 0,
         ._array = array,
         ._totalCount = currentIndex
@@ -761,25 +688,21 @@ static IEnumerator GetOrderByEnumerator(IEnumerable This)
     return (IEnumerator)result;
 }
 
-IOrderedEnumerable Enumerable_OrderBy(IEnumerable source, Comparer* comparer)
+IOrderedEnumerable Enumerable_OrderBy(IEnumerable source, Func(int, object, object) comparer)
 {
-    OrderedEnumerable allocinit(OrderedEnumerable, result) {
-        ._parent = (struct IOrderedEnumerable_s) {
-            ._parent = (struct IEnumerable_s) {
-                .GetEnumerator = GetOrderByEnumerator
-            },
-            .CreateOrderedEnumerable = CreateOrderedEnumerable
-        },
+    auto result = meminit(OrderedEnumerable) {
+        .GetEnumerator = GetOrderByEnumerator,
+        .CreateOrderedEnumerable = CreateOrderedEnumerable,
         ._comparer = comparer,
         ._baseEnumerable = source
     };
     return (IOrderedEnumerable)result;
 }
 
-typedef struct ReorderedEnumerable_s {
-    struct IOrderedEnumerable_s _parent;
+typedef TAG(ReorderedEnumerable) {
+    IMPL(IOrderedEnumerable);
     IOrderedEnumerable _baseEnumerable;
-    Comparer* _newComparer;
+    Func(int, object, object) _newComparer;
 } *ReorderedEnumerable;
 
 IEnumerator GetThenByEnumerator(IEnumerable This)
@@ -787,10 +710,10 @@ IEnumerator GetThenByEnumerator(IEnumerable This)
     OrderedEnumerator e = (OrderedEnumerator)((OrderedEnumerable)This)->_baseEnumerable->GetEnumerator(This);
     int count = e->_totalCount;
 
-    object* array = alloc_array(object, count);
-    MemCopy(array, e->_array, sizeof(object) * count);
+    object* array = arralloc(object, count);
+    memcopy(array, e->_array, sizeof(object) * count);
     for (int i = 0; i < count - 1; ++i) {
-        for (int j = i + 1; j < count && ((OrderedEnumerable)&((ReorderedEnumerable)This)->_parent)->_comparer(array[i], array[j]) == 0; ++j) {
+        for (int j = i + 1; j < count && ((OrderedEnumerable)((ReorderedEnumerable)This))->_comparer(array[i], array[j]) == 0; ++j) {
             if (((ReorderedEnumerable)This)->_newComparer(array[i], array[j]) > 0) {
                 object tmp = array[i];
                 array[i] = array[j];
@@ -799,13 +722,11 @@ IEnumerator GetThenByEnumerator(IEnumerable This)
         }
     }
 
-    OrderedEnumerator allocinit(OrderedEnumerator, result) {
-        ._parent = (struct IEnumerator_s) {
-            .MoveNext = OrderByMoveNext,
-            .Reset = OrderByReset,
-            .Dispose = OrderByDispose,
-            .Current = NULL
-        },
+    auto result = meminit(OrderedEnumerator) {
+        .MoveNext = OrderByMoveNext,
+        .Reset = OrderByReset,
+        .Dispose = OrderByDispose,
+        .Current = NULL,
         ._currentIndex = 0,
         ._array = array,
         ._totalCount = count
@@ -813,19 +734,16 @@ IEnumerator GetThenByEnumerator(IEnumerable This)
     return (IEnumerator)result;
 }
 
-IOrderedEnumerable Enumerable_ThenBy(IOrderedEnumerable source, Comparer* comparer)
+IOrderedEnumerable Enumerable_ThenBy(IOrderedEnumerable source, Func(int, object, object) comparer)
 {
-    ReorderedEnumerable allocinit(ReorderedEnumerable, result) {
-        ._parent = (struct IOrderedEnumerable_s) {
-            ._parent = (struct IEnumerable_s) {
-                .GetEnumerator = GetThenByEnumerator
-            },
-            ._comparer = source->_comparer,
-            ._baseEnumerable = (IEnumerable)source
-        },
-        ._newComparer = comparer
-    };
-    return (IOrderedEnumerable)result;
+    throw new(Exception)("Application is not implemented.");
+    // auto result = meminit(ReorderedEnumerable) {
+    //     .GetEnumerator = GetThenByEnumerator,
+    //     ._comparer = source->_comparer,
+    //     ._baseEnumerable = (IEnumerable)source,
+    //     ._newComparer = comparer
+    // };
+    // return (IOrderedEnumerable)result;
 }
 //*/
 #pragma endregion
@@ -937,11 +855,11 @@ object Enumerable_FirstOrDefault(IEnumerable source, PredicateFunc* predicate)
     e->Dispose(e);
     return NULL;
 }
-
+#include "Delegate.h"
 /// @brief Performs an action on each element of a collection.
 /// @param source Enumerable to execute the action on.
 /// @param action Action to execute on each item.
-void Enumerable_ForEach(IEnumerable source, Action* action)
+void Enumerable_ForEach(IEnumerable source, Func(void, object) action)
 {
     IEnumerator e = source->GetEnumerator(source);
     while (e->MoveNext(e)) action(e->Current);
@@ -1005,52 +923,42 @@ bool Enumerable_SequenceEqual(IEnumerable first, IEnumerable second)
 }
 #include "Tuple.h"
 TUPLE_2_DEFINE(int, object)
-typedef const struct IndexEnumerable_s {
-    struct CompoundEnumerable_s _parent;
+typedef const TAG(IndexEnumerable) {
+    IMPL(CompoundEnumerable);
 } *IndexEnumerable;
-typedef struct IndexEnumerator_s {
-    struct CompoundEnumerator_s _parent;
+typedef TAG(IndexEnumerator) {
+    IMPL(CompoundEnumerator);
     int _currentIndex;
 } *IndexEnumerator;
 static bool IndexMoveNext(IEnumerator This)
 {
     IndexEnumerator index = (IndexEnumerator)This;
-    if (!base(index)->_currentEnumerator->MoveNext(base(index)->_currentEnumerator)) return false;
+    if (!index->_currentEnumerator->MoveNext(index->_currentEnumerator)) return false;
     index->_currentIndex += 1;
-    This->Current = box(int_object);
-    *(int_object*)This->Current = new(int_object)(index->_currentIndex, base(index)->_currentEnumerator->Current);
+    This->Current = boxalloc(t(int,object));
+    *(int_object*)This->Current = new(int_object)(index->_currentIndex, index->_currentEnumerator->Current);
     return true;
 }
 static IEnumerator GetIndexEnumerator(IEnumerable This)
 {
     IndexEnumerable index = (IndexEnumerable)This;
-    IndexEnumerator allocinit(IndexEnumerator, result) {
-        ._parent = (struct CompoundEnumerator_s) {
-            ._parent = (struct IEnumerator_s) {
-                .MoveNext = IndexMoveNext,
-                .Reset = CompoundReset,
-                .Dispose = CompoundDispose
-            },
-            ._currentEnumerator = base(index)->_baseEnumerable->GetEnumerator(base(index)->_baseEnumerable),
-            ._baseEnumerable = (IEnumerable)index
-        },
+    auto result = meminit(IndexEnumerator) {
+        .MoveNext = IndexMoveNext,
+        .Reset = CompoundReset,
+        .Dispose = CompoundDispose,
+        ._currentEnumerator = index->_baseEnumerable->GetEnumerator(index->_baseEnumerable),
+        ._baseEnumerable = (IEnumerable)index,
         ._currentIndex = -1
     };
     return (IEnumerator)result;
 }
 IEnumerable Enumerable_Index(IEnumerable source)
 {
-    CompoundEnumerable allocinit(CompoundEnumerable, result) {
-        ._parent = {
-            .GetEnumerator = GetIndexEnumerator
-        },
+    auto result = meminit(CompoundEnumerable) {
+        .GetEnumerator = GetIndexEnumerator,
         ._baseEnumerable = source
     };
     return (IEnumerable)result;
 }
 
-#pragma endregion
-
-#pragma region Generic Implementations
-TUPLE_2_IMPLEMENT(int, object)
 #pragma endregion

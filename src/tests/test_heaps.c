@@ -1,7 +1,7 @@
 #include "Tests.h"
-#include "Defines.h"
 #include "Collections/Generic/HeapT.h"
 #include "Collections/Generic/EnumerableT.h"
+#include <stdio.h>
 
 ENUMERABLE_DEFINE(int)
 HEAP_DEFINE(int)

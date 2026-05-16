@@ -1,14 +1,14 @@
 #ifndef COLLECTIONS_GENERIC_LINKED_LIST
 #define COLLECTIONS_GENERIC_LINKED_LIST
-
-#define LinkedList(T) _LinkedList_##T
+#include "Keywords.h"
+#define LinkedList(T) CAT(LinkedList_,T)
 
 #define LINKED_LIST_DEFINE(T)                                               \
 /* @brief A node inside a linked list. */                                   \
-typedef struct LinkedNode_##T##_s *LinkedNode_##T;                          \
+typedef TAG(LinkedNode_##T) *LinkedNode_##T;                                \
 /* @brief A list of items stored by reference. */                           \
-typedef struct _LinkedList_##T##_s {                                        \
-    struct _IEnumerable_##T##_s _parent;                                    \
+typedef TAG(LinkedList(T)) {                                                \
+    IMPL(IEnumerable(T));                                                   \
     LinkedNode_##T _start;                                                  \
     LinkedNode_##T _end;                                                    \
     int Count;                                                              \

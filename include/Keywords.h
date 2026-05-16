@@ -5,21 +5,31 @@
 #include <stddef.h>
 #include <setjmp.h>
 
-#define public extern
-#define private static
+#include "Macros.h"
+
+#define typeof(x) __typeof__(x)
+
+#pragma region Type Delcarations
 
 typedef const void* object;
 typedef const char* string;
 typedef unsigned char byte;
 
+// Represents the underlying tag of a typedef variable.
+#define TAG(REF_TYPE) struct CAT(tag_,REF_TYPE)
+// Implements an interface inside a type.
+#define IMPL(REF_TYPE) union { TAG(REF_TYPE) CAT(impl_,REF_TYPE); TAG(REF_TYPE); }
+
+#pragma endregion
+
 #pragma region Exceptions
 
-typedef struct _Exception {
+typedef struct tag_Exception {
     string Message;
 } *Exception;
 
-typedef struct _OutOfMemoryException {
-    struct _Exception _parent;
+typedef struct tag_OutOfMemoryException {
+    struct tag_Exception;
     size_t BlockSize;
 } *OutOfMemoryException;
 
@@ -49,25 +59,50 @@ extern int StackTrace_Finally(enum StackTraceOperation op);
 
 #pragma region Memory
 
-void* _memalloc(size_t block_size);
-void* _zeroalloc(size_t block_size);
-void* _memresize(void* old_location, size_t new_size);
-void _memfree(void* location);
+void* memalloc_(size_t block_size);
+void* zeroalloc_(size_t block_size);
+void* memresize_(void* old_location, size_t new_size);
+void memcopy_(void* dest, const void* source, size_t size);
+void memfree_(void* location);
 
-#define memalloc(CLASS) ((CLASS)_memalloc(sizeof(*(CLASS){0})))
-#define arralloc(ARR_TYPE, CAP) ((ARR_TYPE*)_zeroalloc(sizeof(ARR_TYPE) * CAP))
-#define memresize(ARR, NEWLEN) ((typeof(ARR))_memresize(ARR, sizeof(*ARR) * NEWLEN))
-#define box(STRUCT) ((STRUCT*)_memalloc(sizeof(STRUCT)))
-#define memfree(PTR) _memfree(PTR);
+#define memalloc(CLASS) ((CLASS)memalloc_(sizeof(*(CLASS)0)))
+#define arralloc(ARR_TYPE, LEN) ((typeof(ARR_TYPE)*)zeroalloc_(sizeof(ARR_TYPE) * LEN))
+#define memcopy(DEST, SOURCE, SIZE) memcopy_(DEST, SOURCE, SIZE)
+#define memresize(ARR, NEWLEN) ((typeof(ARR))memresize_(ARR, sizeof(*(ARR)) * NEWLEN))
+#define boxalloc(STRUCT) ((typeof(STRUCT)*)memalloc_(sizeof(STRUCT)))
+#define memfree(PTR) memfree_(PTR)
+
+#define init(CLASS) (typeof(*(typeof(CLASS))0))
+
+#define meminit(CLASS) memalloc(CLASS); *(TAG(CLASS)*)memalloc_(0) = init(CLASS)
 
 #pragma endregion
 
-bool object_Equals(size_t, void*, void*);
+#pragma region Base equality
 
-#define equals(LEFT, RIGHT) (sizeof(LEFT) == sizeof(RIGHT) && object_Equals(sizeof(LEFT), &LEFT, &RIGHT))
+#define IEqualityComparer(T) IEqualityComparer_##T
+#define EQUALITY_COMPARER_DEFINE(T) \
+typedef TAG(IEqualityComparer(T)) { \
+    bool (*Equals)(T, T);           \
+    size_t (*GetHashCode)(T);       \
+} const *IEqualityComparer(T);
 
-// extern void* _null_coal_helper;
-// #define coal(PTR, ELSE) (_null_coal_helper = PTR, _null_coal_helper ? (typeof(PTR))_null_coal_helper : (ELSE))
+#define IComparer(T) IComparer_##T
+#define COMPARER_DEFINE(T)  \
+typedef TAG(IComparer(T)) { \
+    int (*Compare)(T, T);   \
+} const *IComparer(T);
+
+bool object_Equals(size_t, object, object);
+bool object_ReferenceEquals(object, object);
+size_t object_GetHashCode(object obj);
+
+EQUALITY_COMPARER_DEFINE(object);
+extern const TAG(IEqualityComparer(object)) ObjectEquator[1];
+
+#define equals(LEFT, RIGHT) (sizeof(typeof(LEFT)) == sizeof(typeof(RIGHT)) && object_Equals(sizeof(typeof(LEFT)), &LEFT, &RIGHT))
+
+#pragma endregion
 
 #define var auto
 
@@ -77,16 +112,13 @@ bool object_Equals(size_t, void*, void*);
 // } Constructors;
 // #define new Constructors.
 
-#define NEW_I(TYPE) TYPE##__ctor
-#define new(TYPE) NEW_I(TYPE)
+#define new(TYPE) CAT(TYPE,__ctor)
 
 #define default(TYPE) ((TYPE){0})
 
 // Solves double macro argument use, but can no longer be used as an expression
 // #define dispose(x) do { var _to_dispose = (x); _to_dispose->Dispose(_to_dispose); } while(0)
 #define dispose(x) (x)->Dispose(x)
-
-#include "Macros.h"
 
 #define JMP_TO_FIN_THEN if(!setjmp(_finally_return_longjmp_buf)) StackTrace_Finally(STACKTRACE_SET), longjmp(_finally_longjmp_buf, 1); else
 #define finally_return(ITEM) do { var _retval = (ITEM); JMP_TO_FIN_THEN return _retval; } while(0)
@@ -105,13 +137,14 @@ bool object_Equals(size_t, void*, void*);
 #define finally while(0); for (int _continue = 1; _continue; \
     (StackTrace_Finally(STACKTRACE_GET) ? longjmp(_finally_return_longjmp_buf, 1) : (_continue = 0)), \
     (StackTrace_UpThrow(STACKTRACE_GET) ? StackTrace_Rethrow() : 0))
-#define throw(EX) ((void)(StackTrace_UpThrow(STACKTRACE_SET), longjmp(StackTrace_Pop((Exception)(EX)), 1)))
+#define throwe(EX) ((void)(StackTrace_UpThrow(STACKTRACE_SET), longjmp(StackTrace_Pop((Exception)(EX)), 1)), NULL)
+#define throw for (Exception UNIQ(ex_) = NULL; (StackTrace_UpThrow(STACKTRACE_SET), !UNIQ(ex_)); longjmp(StackTrace_Pop(UNIQ(ex_)), 1)) UNIQ(ex_) = (Exception)
 
 #define in ,
 #define FOREACH_I(TYPE_VAR, IN)                                                 \
     for(int _once = 1; _once; _once = 0)                                        \
-    for(var _src = IN; _once; _once = 0)                                        \
-    for(var _e = _src->GetEnumerator(_src); _once; _once = 0, _e->Dispose(_e))  \
+    for(typeof(IN) _src = IN; _once; _once = 0)                                 \
+    for(typeof(_src->GetEnumerator((void*)_src)) _e = _src->GetEnumerator((void*)_src); _once; _once = 0, _e->Dispose(_e))  \
         for(int _loop = 1; _loop < 2 && _e->MoveNext(_e); ++_loop)              \
             IF_INFERRED(TYPE_VAR,                                               \
             for(TYPE_VAR = _e->Current; _loop; _loop = 0),                      \

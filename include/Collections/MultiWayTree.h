@@ -1,11 +1,11 @@
 #ifndef COLLECTIONS_MULTI_WAY_TREE
 #define COLLECTIONS_MULTI_WAY_TREE
 
-#include "Defines.h"
+#include "Keywords.h"
 
 #define MULTI_WAY_TREE_DEFINE(T)
-typedef struct _MultiWayNode_s* _MultiWayNode;
-typedef struct _MultiWayTree_s {
+typedef TAG(MultiWayNode)* _MultiWayNode;
+typedef TAG(MultiWayTree) {
     int Count, Capacity;
     _MultiWayNode* Values;
 } *MultiWayTree;

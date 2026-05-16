@@ -2,8 +2,7 @@
 #include "Collections/Generic/ListImplement.h"
 #include "Collections/Generic/EnumerableImplement.h"
 #include "Tests.h"
-#include "Text/String.h"
-
+#include <stdio.h>
 typedef struct employee_s {
     string Name;
     void* Coworkers;
@@ -40,9 +39,9 @@ void ShowAllData(IEnumerable(Employee) source)
 
 void ShowStrings(IEnumerable source)
 {
-    foreach(string, str, source, {
+    foreach (string str in source) {
         printf("%s\n", str);
-    });
+    }
 }
 
 void ShowNumbers(IEnumerable source)
@@ -83,10 +82,10 @@ void test_with_structs(void) {
         .Age = 420
     };
     List(Employee) workers = new(List(Employee))(4);
-    joe.Coworkers = Enumerable_Employee_ToList(Enumerable_Employee_Append(Enumerable_Employee_Append(Enumerable_Employee_Append(base(workers), bidome), barack), obama));
-    bidome.Coworkers = Enumerable_Employee_ToList(Enumerable_Employee_Append(Enumerable_Employee_Append(Enumerable_Employee_Append(base(workers), joe), barack), obama));
-    barack.Coworkers = Enumerable_Employee_ToList(Enumerable_Employee_Append(Enumerable_Employee_Append(Enumerable_Employee_Append(base(workers), joe), bidome), obama));
-    obama.Coworkers = Enumerable_Employee_ToList(Enumerable_Employee_Append(Enumerable_Employee_Append(Enumerable_Employee_Append(base(workers), joe), bidome), barack));
+    joe.Coworkers = Enumerable_Employee_ToList(Enumerable_Employee_Append(Enumerable_Employee_Append(Enumerable_Employee_Append((IEnumerable(Employee))(workers), bidome), barack), obama));
+    bidome.Coworkers = Enumerable_Employee_ToList(Enumerable_Employee_Append(Enumerable_Employee_Append(Enumerable_Employee_Append((IEnumerable(Employee))(workers), joe), barack), obama));
+    barack.Coworkers = Enumerable_Employee_ToList(Enumerable_Employee_Append(Enumerable_Employee_Append(Enumerable_Employee_Append((IEnumerable(Employee))(workers), joe), bidome), obama));
+    obama.Coworkers = Enumerable_Employee_ToList(Enumerable_Employee_Append(Enumerable_Employee_Append(Enumerable_Employee_Append((IEnumerable(Employee))(workers), joe), bidome), barack));
     List_Employee_Add(workers, joe);
     List_Employee_Add(workers, bidome);
     List_Employee_Add(workers, barack);
@@ -96,21 +95,21 @@ void test_with_structs(void) {
     List_Employee_Add(revWorkers, barack);
     List_Employee_Add(revWorkers, bidome);
     List_Employee_Add(revWorkers, joe);
-    IEnumerable(Employee) concat = Enumerable_Employee_Concat(base(workers), base(revWorkers));
-    foreach(Employee, employee, concat, showData(employee));
+    IEnumerable(Employee) concat = Enumerable_Employee_Concat((IEnumerable(Employee))workers, (IEnumerable(Employee))revWorkers);
+    foreach (Employee employee in concat) showData(employee);
     List_Employee_Remove(workers, obama);
-    if (Enumerable_Employee_Contains(base(workers), obama)) {
+    if (Enumerable_Employee_Contains((IEnumerable(Employee))workers, obama)) {
         printf("Yup, he's in there.\n");
     } else printf("WARNING: HE HAS BREACHED CONTAINMENT\n");
-    foreach(Employee, employee, concat, showData(employee));
-    if (Enumerable_Employee_SequenceEqual(base(workers), base(workers))) {
+    foreach (Employee employee in concat) showData(employee);
+    if (Enumerable_Employee_SequenceEqual((IEnumerable(Employee))workers, (IEnumerable(Employee))workers)) {
         printf("Sequence is equal to itself. Who would've guessed!\n");
     } else printf("U h  o h .\n");
     #ifdef STRING_ENUMERABLE_DEFINED
-    foreach(string, name, Enumerable_Employee_Select_string(base(workers), selectNames), {
+    foreach (string name in Enumerable_Employee_Select_string((IEnumerable(Employee))workers, selectNames)) {
         printf("Employee name: %s\n", name);
-    });
-    printf("We have our list of victors: %s\n", string_Join(", ", Enumerable_Employee_Select_string(base(workers), selectNames)));
+    }
+    printf("We have our list of victors: %s\n", string_Join(", ", Enumerable_Employee_Select_string((IEnumerable(Employee))(workers), selectNames)));
     #endif
     List_Employee_Destroy(&workers);
     List_Employee_Destroy(&revWorkers);

@@ -1,2 +1,7 @@
-bin/
+# Binaries
+.bin/
+.obj/
+
+# Cache files
 .vscode/
+.cache/

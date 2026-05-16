@@ -1,17 +1,18 @@
 #include "Collections/Enumerable.h"
 #include "Collections/Array.h"
 #include "Tests.h"
-#include "Text/String.h"
-#include "Defines.h"
+#include "String.h"
+#include "Keywords.h"
+#include <stdio.h>
 
-typedef struct CarClass_s {
+typedef TAG(CarClass) {
     string Manufacturer;
     int Year;
 } *CarClass;
 
 ARRAY_DEFINE(CarClass);
 
-typedef const struct CartRecord_s {
+typedef const TAG(CartRecord) {
     string Manufacturer;
     int MaxSpeed;
     float Acceleration;
@@ -19,7 +20,7 @@ typedef const struct CartRecord_s {
 
 CarClass CarClass__ctor(void)
 {
-    CarClass allocinit(CarClass, result) {
+    var result = meminit(CarClass) {
         .Manufacturer = new(string)("Unknown"),
         .Year = 1970
     };
@@ -28,18 +29,19 @@ CarClass CarClass__ctor(void)
 
 CartRecord CartRecord__ctor(string manufacturer, int maxSpeed, float acceleration)
 {
-  CartRecord result = ((CartRecord)malloc(sizeof(*(CartRecord)0)));
-  *(struct CartRecord_s*)result = (typeof(*(CartRecord)0)){.MaxSpeed = maxSpeed,
-                                       .Acceleration = acceleration};
-  init_ro(string, result->Manufacturer) new(string)(manufacturer);
-  return result;
+    CartRecord result = meminit(CartRecord) {
+        .MaxSpeed = maxSpeed,
+        .Acceleration = acceleration,
+        .Manufacturer = new(string)(manufacturer)
+    };
+    return result;
 }
 
 void showItem(CarClass car)
 {
     printf("%s (%d)\n ", car->Manufacturer, car->Year);
 }
-
+#undef var
 void test_arrays(void)
 {
     CarClass car = new(CarClass)();

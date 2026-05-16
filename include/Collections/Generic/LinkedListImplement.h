@@ -1,16 +1,15 @@
 #ifndef COLLECTIONS_LINKED_LIST_IMPLEMENTATIONS
 #define COLLECTIONS_LINKED_LIST_IMPLEMENTATIONS
-#include "Collections/Generic/LinkedListT.h"
-
+#include "LinkedListT.h"
 #pragma region Implement
 
 #define LINKED_LIST_IMPLEMENT(T)                                                    \
-struct LinkedNode_##T##_s {                                                         \
-    struct LinkedNode_##T##_s *Next;                                                \
+TAG(LinkedNode_##T) {                                                               \
+    TAG(LinkedNode_##T) *Next;                                                      \
     T Value;                                                                        \
 };                                                                                  \
-typedef struct LinkedListEnumerator_##T##_s {                                       \
-    struct _IEnumerator_##T##_s _parent;                                            \
+typedef TAG(LinkedListEnumerator_##T) {                                             \
+    IMPL(IEnumerator(T));                                                           \
     LinkedList(T) _source;                                                          \
     LinkedNode_##T _currentNode;                                                    \
 } *LinkedListEnumerator_##T;                                                        \
@@ -35,33 +34,31 @@ static void LinkedListReset_##T(IEnumerator(T) This)                            
 }                                                                                   \
 static void LinkedListDispose_##T(IEnumerator(T) This)                              \
 {                                                                                   \
-    free(This);                                                                     \
+    memfree(This);                                                                  \
 }                                                                                   \
 static IEnumerator(T) LinkedListGetEnumerator_##T(const IEnumerable(T) This)        \
 {                                                                                   \
-    LinkedListEnumerator_##T allocinit(LinkedListEnumerator_##T, result) {          \
-        ._parent = (struct _IEnumerator_##T##_s) {                                  \
-            .MoveNext = LinkedListMoveNext_##T,                                     \
-            .Reset = LinkedListReset_##T,                                           \
-            .Dispose = LinkedListDispose_##T                                        \
-        },                                                                          \
+    auto result = meminit(LinkedListEnumerator_##T) {                               \
+        .MoveNext = LinkedListMoveNext_##T,                                         \
+        .Reset = LinkedListReset_##T,                                               \
+        .Dispose = LinkedListDispose_##T,                                           \
         ._currentNode = NULL,                                                       \
         ._source = (LinkedList(T))This                                              \
     };                                                                              \
-    return base(result);                                                            \
+    return (IEnumerator(T))result;                                                  \
 }                                                                                   \
 void LinkedList_##T##_Add(LinkedList(T) source, T item)                             \
 {                                                                                   \
     if (source->Count > 0) {                                                        \
         source->Count += 1;                                                         \
-        allocinit(LinkedNode_##T, source->_end->Next) {                             \
+        source->_end->Next = meminit(LinkedNode_##T) {                              \
             .Next = NULL,                                                           \
             .Value = item                                                           \
         };                                                                          \
         source->_end = source->_end->Next;                                          \
         return;                                                                     \
     }                                                                               \
-    allocinit(LinkedNode_##T, source->_start) default(struct LinkedNode_##T##_s);   \
+    source->_start = meminit(LinkedNode_##T) {0};                                   \
     source->_end = source->_start;                                                  \
     source->_start->Value = item;                                                   \
     source->Count = 1;                                                              \
@@ -72,7 +69,7 @@ static void RemoveNodes_##T(LinkedNode_##T startingPoint)                       
     if (startingPoint->Next != NULL) {                                              \
         RemoveNodes_##T(startingPoint->Next);                                       \
     }                                                                               \
-    free(startingPoint);                                                            \
+    memfree(startingPoint);                                                         \
 }                                                                                   \
 void LinkedList_##T##_Clear(LinkedList(T) source)                                   \
 {                                                                                   \
@@ -86,7 +83,7 @@ void LinkedList_##T##_Insert(LinkedList(T) source, T item, int index)           
     if (index > source->Count) return;                                              \
     source->Count += 1;                                                             \
     if (index == 0) {                                                               \
-        LinkedNode_##T allocinit(LinkedNode_##T, newNode) {                         \
+        auto newNode = meminit(LinkedNode_##T) {                                    \
             .Value = item,                                                          \
             .Next = source->_start                                                  \
         };                                                                          \
@@ -94,7 +91,7 @@ void LinkedList_##T##_Insert(LinkedList(T) source, T item, int index)           
         return;                                                                     \
     }                                                                               \
     if (index == source->Count - 1) {                                               \
-        LinkedNode_##T allocinit(LinkedNode_##T, newNode) {                         \
+        auto newNode = meminit(LinkedNode_##T) {                                    \
             .Value = item,                                                          \
             .Next = NULL                                                            \
         };                                                                          \
@@ -107,7 +104,7 @@ void LinkedList_##T##_Insert(LinkedList(T) source, T item, int index)           
         index -= 1;                                                                 \
         current = current->Next;                                                    \
     }                                                                               \
-    LinkedNode_##T allocinit(LinkedNode_##T, newNode) {                             \
+    auto newNode = meminit(LinkedNode_##T) {                                        \
         .Value = item,                                                              \
         .Next = current->Next,                                                      \
     };                                                                              \
@@ -115,10 +112,8 @@ void LinkedList_##T##_Insert(LinkedList(T) source, T item, int index)           
 }                                                                                   \
 LinkedList(T) new(LinkedList(T))()                                                  \
 {                                                                                   \
-    LinkedList(T) allocinit(LinkedList(T), result) {                                \
-        ._parent = (struct _IEnumerable_##T##_s) {                                  \
-            .GetEnumerator = LinkedListGetEnumerator_##T                            \
-        },                                                                          \
+    auto result = meminit(LinkedList(T)) {                                          \
+        .GetEnumerator = LinkedListGetEnumerator_##T,                               \
         .Count = 0,                                                                 \
         ._start = NULL,                                                             \
         ._end = NULL                                                                \
@@ -127,10 +122,8 @@ LinkedList(T) new(LinkedList(T))()                                              
 }                                                                                   \
 LinkedList(T) Enumerable_##T##_ToLinkedList(IEnumerable(T) source)                  \
 {                                                                                   \
-    LinkedList(T) allocinit(LinkedList(T), result) {                                \
-        ._parent = (struct _IEnumerable_##T##_s) {                                  \
-            .GetEnumerator = LinkedListGetEnumerator_##T                            \
-        },                                                                          \
+    auto result = meminit(LinkedList(T)) {                                          \
+        .GetEnumerator = LinkedListGetEnumerator_##T,                               \
         ._start = NULL,                                                             \
         ._end = NULL,                                                               \
         .Count = 0                                                                  \
@@ -140,14 +133,14 @@ LinkedList(T) Enumerable_##T##_ToLinkedList(IEnumerable(T) source)              
         e->Dispose(e);                                                              \
         return result;                                                              \
     }                                                                               \
-    allocinit(LinkedNode_##T, result->_start) {                                     \
+    result->_start = meminit(LinkedNode_##T) {                                      \
         .Value = e->Current,                                                        \
         .Next = NULL                                                                \
     };                                                                              \
     LinkedNode_##T current = result->_start;                                        \
     while (e->MoveNext(e)) {                                                        \
         ++result->Count;                                                            \
-        allocinit(LinkedNode_##T, current->Next) {                                  \
+        current->Next = meminit(LinkedNode_##T) {                                   \
             .Value = e->Current,                                                    \
             .Next = NULL                                                            \
         };                                                                          \
@@ -160,7 +153,7 @@ LinkedList(T) Enumerable_##T##_ToLinkedList(IEnumerable(T) source)              
 void LinkedList_##T##_Destroy(LinkedList(T)* source)                                \
 {                                                                                   \
     LinkedList_##T##_Clear(*source);                                                \
-    free(*source);                                                                  \
+    memfree(*source);                                                               \
     *source = NULL;                                                                 \
 }                                                                                   \
 static void ReverseNodes_##T(LinkedNode_##T previous, LinkedNode_##T current)       \

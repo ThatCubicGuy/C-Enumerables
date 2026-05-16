@@ -1,11 +1,9 @@
 #ifndef COLLECTIONS_GENERIC_QUEUE_IMPLEMENTATIONS
 #define COLLECTIONS_GENERIC_QUEUE_IMPLEMENTATIONS
-
-#include "Collections/Generic/QueueT.h"
-
+#include "QueueT.h"
 #define QUEUE_IMPLEMENT(T)                                                  \
-typedef struct QueueEnumerator_##T##_s {                                    \
-    struct _IEnumerator_##T##_s _parent;                                    \
+typedef TAG(QueueEnumerator_##T) {                                          \
+    IMPL(IEnumerator(T));                                                   \
     Queue(T) _source;                                                       \
     int _currentIndex;                                                      \
 } *QueueEnumerator_##T;                                                     \
@@ -27,46 +25,41 @@ static void QueueReset_##T(IEnumerator(T) This)                             \
 }                                                                           \
 static void QueueDispose_##T(IEnumerator(T) This)                           \
 {                                                                           \
-    free(This);                                                             \
+    memfree(This);                                                          \
 }                                                                           \
 static IEnumerator(T) QueueGetEnumerator_##T(const IEnumerable(T) This)     \
 {                                                                           \
-    QueueEnumerator_##T allocinit(QueueEnumerator_##T, result) {            \
-        ._parent = (struct _IEnumerator_##T##_s) {                          \
-            .MoveNext = QueueMoveNext_##T,                                  \
-            .Reset = QueueReset_##T,                                        \
-            .Dispose = QueueDispose_##T                                     \
-        },                                                                  \
+    auto result = meminit(QueueEnumerator_##T) {                            \
+        .MoveNext = QueueMoveNext_##T,                                      \
+        .Reset = QueueReset_##T,                                            \
+        .Dispose = QueueDispose_##T,                                        \
         ._currentIndex = ((Queue(T))This)->_start,                          \
         ._source = (Queue(T))This                                           \
     };                                                                      \
-    return base(result);                                                    \
+    return (IEnumerator(T))result;                                          \
 }                                                                           \
 Queue(T) new(Queue(T))(int capacity)                                \
 {                                                                   \
-    Queue(T) allocinit(Queue(T), result) {                          \
-        ._parent = (struct _IEnumerable_##T##_s) {                  \
-            .GetEnumerator = QueueGetEnumerator_##T                 \
-        },                                                          \
+    auto result = meminit(Queue(T)) {                               \
+        .GetEnumerator = QueueGetEnumerator_##T,                    \
         .Count = 0,                                                 \
         .Capacity = capacity,                                       \
         ._start = 0,                                                \
         ._end = -1,                                                 \
-        ._values = alloc_array(T, capacity)                         \
+        ._values = arralloc(T, capacity)                            \
     };                                                              \
     return result;                                                  \
 }                                                                   \
 void Queue_##T##_Destroy(Queue(T)* source)                          \
 {                                                                   \
-    free((*source)->_values);                                       \
-    free(*source);                                                  \
+    memfree((*source)->_values);                                    \
+    memfree(*source);                                               \
     *source = NULL;                                                 \
 }                                                                   \
 void Queue_##T##_EnsureCapacity(Queue(T) source, int capacity)      \
 {                                                                   \
     if (source->Capacity < capacity) {                              \
-        source->_values = realloc(source->_values,                  \
-            sizeof(T) * capacity);                                  \
+        source->_values = memresize(source->_values, capacity);     \
         source->Capacity = capacity;                                \
     }                                                               \
 }                                                                   \

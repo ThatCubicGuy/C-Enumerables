@@ -9,5 +9,7 @@
 #include "Collections/Generic/StackImplement.h"
 #include "Collections/Generic/HeapImplement.h"
 #include "Collections/Generic/PriorityQueueImplement.h"
+#include "Collections/Generic/DictionaryImplement.h"
+#include "Collections/Generic/HashSetImplement.h"
 
 #endif

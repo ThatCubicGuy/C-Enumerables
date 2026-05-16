@@ -1,14 +1,14 @@
 #ifndef COLLECTIONS_GENERIC_HEAP
 #define COLLECTIONS_GENERIC_HEAP
-
-#define Heap(T) _Heap_##T
+#include "Keywords.h"
+#define Heap(T) CAT(Heap_,T)
 
 #define HEAP_DEFINE(T)                              \
-typedef struct _Heap_##T##_s {                      \
+typedef TAG(Heap(T)) {                              \
     int Count, Capacity;                            \
     int (*Comparer)(T, T);                          \
     int Type;                                       \
-    T* _values;                                     \
+    T* _items;                                      \
 } *Heap(T);                                         \
 Heap(T) new(Heap(T))(int capacity, int type, int (*comparer)(T, T));\
 void Heap_##T##_Push(Heap(T) source, T item);       \

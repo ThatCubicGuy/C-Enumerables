@@ -1,11 +1,11 @@
 #ifndef COLLECTIONS_GENERIC_STACK
 #define COLLECTIONS_GENERIC_STACK
-
-#define Stack(T) _Stack_##T
+#include "Keywords.h"
+#define Stack(T) CAT(Stack_,T)
 
 #define STACK_DEFINE(T)                             \
-typedef struct _Stack_##T##_s {                     \
-    struct _IEnumerable_##T##_s _parent;            \
+typedef TAG(Stack(T)) {                             \
+    IMPL(IEnumerable(T));                           \
     int _start;                                     \
     T* _values;                                     \
     int Capacity, Count;                            \

@@ -1,10 +1,8 @@
 #ifndef COLLECTIONS_GENERIC_PRIORITYQUEUE_IMPLEMENTATIONS
 #define COLLECTIONS_GENERIC_PRIORITYQUEUE_IMPLEMENTATIONS
-
-#include "Collections/Generic/PriorityQueueT.h"
-
+#include "PriorityQueueT.h"
 #define PRIORITYQUEUE_IMPLEMENT(TPriority, TElement)                            \
-typedef struct KeyValuePair_##TPriority##_##TElement##_s {                      \
+typedef TAG(KeyValuePair_##TPriority##_##TElement) {                            \
     TPriority Key;                                                              \
     TElement Value;                                                             \
 } KVP_##TPriority##_##TElement;                                                 \
@@ -23,11 +21,11 @@ static void heapify_##TPriority##_##TElement(PriorityQueue(TPriority,TElement) s
 }                                                                               \
 PriorityQueue(TPriority,TElement) new(PriorityQueue(TPriority,TElement))(int capacity, int (*comparer)(TPriority, TPriority)) \
 {                                                                               \
-    auto allocinit(PriorityQueue(TPriority,TElement), result) {                 \
+    auto result = meminit(PriorityQueue(TPriority,TElement)) {                  \
         .Count = 0,                                                             \
         .Capacity = capacity,                                                   \
         .Comparer = comparer,                                                   \
-        ._values = alloc_array(KVP_##TPriority##_##TElement, capacity)          \
+        ._values = arralloc(KVP_##TPriority##_##TElement, capacity)             \
     };                                                                          \
     return result;                                                              \
 }                                                                               \
@@ -111,16 +109,14 @@ bool PriorityQueue_##TPriority##_##TElement##_TryPeek(PriorityQueue(TPriority,TE
 void PriorityQueue_##TPriority##_##TElement##_TrimExcess(PriorityQueue(TPriority,TElement) source) \
 {                                                                               \
     if (source->Count < source->Capacity - source->Capacity / 10) {             \
-        source->_values = realloc(source->_values,                              \
-            sizeof(KVP_##TPriority##_##TElement) * source->Count);              \
+        source->_values = memresize(source->_values, source->Count);            \
         source->Capacity = source->Count;                                       \
     }                                                                           \
 }                                                                               \
 void PriorityQueue_##TPriority##_##TElement##_EnsureCapacity(PriorityQueue(TPriority,TElement) source, int capacity) \
 {                                                                               \
     if (source->Capacity < capacity) {                                          \
-        source->_values = realloc(source->_values,                              \
-            sizeof(KVP_##TPriority##_##TElement) * capacity);                   \
+        source->_values = memresize(source->_values, capacity);                 \
         source->Capacity = capacity;                                            \
     }                                                                           \
 }

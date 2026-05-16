@@ -1,12 +1,9 @@
 #ifndef COLLECTIONS_GENERIC_LIST_IMPLEMENTATIONS
 #define COLLECTIONS_GENERIC_LIST_IMPLEMENTATIONS
-#include "Collections/Generic/ListT.h"
-
-#pragma region Implement
-
+#include "ListT.h"
 #define LIST_IMPLEMENT(T)                                                                       \
-typedef struct ListEnumerator_##T##_s {                                                         \
-    struct _IEnumerator_##T##_s _parent;                                                        \
+typedef TAG(ListEnumerator_##T) {                                                               \
+    IMPL(IEnumerator(T));                                                                       \
     int _currentIndex;                                                                          \
     List(T) _list;                                                                              \
 } *ListEnumerator_##T;                                                                          \
@@ -27,33 +24,31 @@ static void ListReset_##T(IEnumerator(T) This)                                  
 }                                                                                               \
 static void ListDispose_##T(IEnumerator(T) This)                                                \
 {                                                                                               \
-    free(This);                                                                                 \
+    memfree(This);                                                                              \
 }                                                                                               \
 static IEnumerator(T) ListGetEnumerator_##T(const IEnumerable(T) This)                          \
 {                                                                                               \
-    ListEnumerator_##T result = alloc(ListEnumerator_##T);                                      \
-    *result = (struct ListEnumerator_##T##_s) {                                                 \
-        ._parent = (struct _IEnumerator_##T##_s) {                                              \
-            .MoveNext = ListMoveNext_##T,                                                       \
-            .Reset = ListReset_##T,                                                             \
-            .Dispose = ListDispose_##T                                                          \
-        },                                                                                      \
+    ListEnumerator_##T result = memalloc(ListEnumerator_##T);                                   \
+    *result = init(ListEnumerator_##T) {                                                        \
+        .MoveNext = ListMoveNext_##T,                                                           \
+        .Reset = ListReset_##T,                                                                 \
+        .Dispose = ListDispose_##T,                                                             \
         ._currentIndex = 0,                                                                     \
         ._list = (List(T))This                                                                  \
     };                                                                                          \
-    return base(result);                                                                        \
+    return (IEnumerator(T))result;                                                              \
 }                                                                                               \
 void List_##T##_EnsureCapacity(List(T) source, int capacity)                                    \
 {                                                                                               \
     if (source->Capacity < capacity) {                                                          \
-        source->Values = realloc(source->Values, sizeof(T) * capacity);                         \
+        source->Values = memresize(source->Values, capacity);                                   \
         source->Capacity = capacity;                                                            \
     }                                                                                           \
 }                                                                                               \
 void List_##T##_TrimExcess(List(T) source)                                                      \
 {                                                                                               \
     if (source->Count < source->Capacity * 0.9) {                                               \
-        source->Values = realloc(source->Values, sizeof(T) * source->Count);                    \
+        source->Values = memresize(source->Values, source->Count);                              \
         source->Capacity = source->Count;                                                       \
     }                                                                                           \
 }                                                                                               \
@@ -67,7 +62,7 @@ void List_##T##_Add(List(T) source, T item)                                     
 void List_##T##_Remove(List(T) source, T item)                                                  \
 {                                                                                               \
     for (int i = 0; i < source->Count; ++i) {                                                   \
-        if (ValueEquator(sizeof(T), &source->Values[i], &item)) {                               \
+        if (equals(source->Values[i], item)) {                                                  \
             source->Count -= 1;                                                                 \
             for (int j = i; j < source->Count; ++j) {                                           \
                 source->Values[j] = source->Values[j + 1];                                      \
@@ -102,37 +97,31 @@ void List_##T##_ForEach(List(T) source, void (*action)(T*))                     
 }                                                                                               \
 List(T) new(List(T))(int capacity)                                                              \
 {                                                                                               \
-    List(T) result = alloc(List(T));                                                            \
-    *result = (struct List_##T##_s) {                                                           \
+    List(T) result = meminit(List(T)) {                                                         \
+        .GetEnumerator = ListGetEnumerator_##T,                                                 \
         .Capacity = capacity,                                                                   \
         .Count = 0,                                                                             \
-        ._parent = (struct _IEnumerable_##T##_s) {                                              \
-            .GetEnumerator = ListGetEnumerator_##T                                              \
-        }                                                                                       \
     };                                                                                          \
     if (capacity > 0) {                                                                         \
-        result->Values = alloc_array(T, capacity);                                              \
+        result->Values = arralloc(T, capacity);                                                 \
     }                                                                                           \
     return result;                                                                              \
 }                                                                                               \
 void List_##T##_Destroy(List(T)* list)                                                          \
 {                                                                                               \
-    free((*list)->Values);                                                                      \
-    free(*list);                                                                                \
+    memfree((*list)->Values);                                                                   \
+    memfree(*list);                                                                             \
     *list = NULL;                                                                               \
 }                                                                                               \
 List(T) Enumerable_##T##_ToList(IEnumerable(T) source)                                          \
 {                                                                                               \
     /* Assume initial capacity */                                                               \
     int capacity = 16;                                                                          \
-    List(T) result = alloc(List(T));                                                            \
-    *result = (struct List_##T##_s) {                                                           \
-        ._parent = (struct _IEnumerable_##T##_s) {                                              \
-            .GetEnumerator = ListGetEnumerator_##T                                              \
-        },                                                                                      \
+    List(T) result = meminit(List(T)) {                                                         \
+        .GetEnumerator = ListGetEnumerator_##T,                                                 \
         .Count = 0,                                                                             \
         .Capacity = capacity,                                                                   \
-        .Values = alloc_array(T, capacity)                                                      \
+        .Values = arralloc(T, capacity)                                                         \
     };                                                                                          \
     for (IEnumerator(T) e = source->GetEnumerator(source); e->MoveNext(e) || (e->Dispose(e), 0); ++result->Count) {   \
         if (result->Count == capacity) {                                                        \
@@ -142,16 +131,19 @@ List(T) Enumerable_##T##_ToList(IEnumerable(T) source)                          
     }                                                                                           \
     List_##T##_TrimExcess(result);                                                              \
     return result;                                                                              \
+}                                                                                               \
+void List_##T##_Sort(List(T) source, int (*comparer)(T, T))                                     \
+{                                                                                               \
+    for (int gap = source->Count / 2; gap > 0; gap /= 2) {                                      \
+        for (int i = gap; i < source->Count; ++i) {                                             \
+            for (int j = i; j >= gap && comparer(                                               \
+                source->Values[j - gap],source->Values[j]) > 0; j -= gap) {                     \
+                T tmp = source->Values[j - gap];                                                \
+                source->Values[j - gap] = source->Values[j];                                    \
+                source->Values[j] = tmp;                                                        \
+            }                                                                                   \
+        }                                                                                       \
+    }                                                                                           \
 }
 
-// void List_##T##_Sort(List_T source, int (*comparer)(T, T))
-// {
-//     int iPivot = source->Count / 2;
-//     for (int i = 0; i < source->Count; ++i) {
-//         if (i == iPivot) i += 1;
-//         if (source->Values[i] < )
-//     }
-// }
-
-#pragma endregion
 #endif

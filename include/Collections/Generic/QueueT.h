@@ -1,11 +1,11 @@
 #ifndef COLLECTIONS_GENERIC_QUEUE
 #define COLLECTIONS_GENERIC_QUEUE
-
-#define Queue(T) _Queue_##T
+#include "Keywords.h"
+#define Queue(T) CAT(Queue_,T)
 
 #define QUEUE_DEFINE(T)                                     \
-typedef struct _Queue_##T##_s {                             \
-    struct _IEnumerable_##T##_s _parent;                    \
+typedef TAG(Queue(T)) {                                     \
+    IMPL(IEnumerable(T));                                   \
     int _start, _end;                                       \
     T* _values;                                             \
     int Capacity, Count;                                    \

@@ -1,8 +1,9 @@
 #include "Tests.h"
-#include "Defines.h"
+#include "Keywords.h"
 #include "Collections/Generic/StackT.h"
 #include "Collections/Generic/StackImplement.h"
 #include "Collections/Generic/EnumerableT.h"
+#include <stdio.h>
 
 ENUMERABLE_DEFINE(int)
 STACK_DEFINE(int)
@@ -20,22 +21,22 @@ void test_stacks(void)
     Stack_int_Push(stack, 2);
     Stack_int_Push(stack, 6);
     Stack_int_Push(stack, 7);
-    foreach (int, item, stack, {
+    foreach (int item in stack) {
         printf("Item: %d\n", item);
-    });
+    }
     TRYPOP(stack, result);
-    foreach (int, item, stack, {
+    foreach (int item in stack) {
         printf("Item: %d\n", item);
-    });
+    }
     TRYPEEK(stack, result);
-    foreach (int, item, stack, {
+    foreach (int item in stack) {
         printf("Item: %d\n", item);
-    });
+    }
     printf("Clear stack...\n");
     Stack_int_Clear(stack);
-    foreach (int, item, stack, {
+    foreach (int item in stack) {
         printf("Item: %d\n", item);
-    });
+    }
     TRYPOP(stack, result);
     TRYPEEK(stack, result);
     printf("Add 57...\n");

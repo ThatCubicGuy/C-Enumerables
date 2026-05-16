@@ -4,8 +4,8 @@
 #include "Defines.h"
 #include "Enumerable.h"
 
-typedef struct PriorityQueue_s {
-    struct IEnumerable_s _parent;
+typedef TAG(PriorityQueue) {
+    IMPL(IEnumerable);
     // Amount of items in the priority queue.
     int Count;
 } PriorityQueue;

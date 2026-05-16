@@ -1,6 +1,7 @@
 #include "Collections/Enumerable.h"
 #include "Collections/LinkedList.h"
 #include "Tests.h"
+#include <stdio.h>
 
 typedef struct list_item_s {
     int Number;
@@ -31,7 +32,7 @@ void test_linked_lists(void)
     LinkedList_Add(list, &b);
     LinkedList_Add(list, &b);
     LinkedList_Add(list, &a);
-    foreach_as(object, item, base(list), showItemNumber(item));
+    foreach_as(object, item, (IEnumerable)(list), showItemNumber(item));
     LinkedList_Clear(list);
     LinkedList_Add(list, &c);
     LinkedList_Add(list, &c);
@@ -40,16 +41,16 @@ void test_linked_lists(void)
     LinkedList_Insert(list, &a, 2);
     LinkedList_Insert(list, &a, 2);
     printf("It's-a %d!\n", ((ListItem*)list->_end->Value)->Number);
-    foreach_as(object, item, base(list), showItemNumber(item));
+    foreach_as(object, item, (IEnumerable)(list), showItemNumber(item));
     printf("Count: %d\n", list->Count);
     LinkedList_Clear(list);
     printf("Count: %d\n", list->Count);
     LinkedList_Add(list, &a);
     LinkedList_Add(list, &b);
     LinkedList_Add(list, &c);
-    foreach_as(object, item, base(list), showItemNumber(item));
+    foreach_as(object, item, (IEnumerable)(list), showItemNumber(item));
     printf("Reverse list:\n");
     LinkedList_Reverse(list);
-    foreach_as(object, item, base(list), showItemNumber(item));
+    foreach_as(object, item, (IEnumerable)(list), showItemNumber(item));
     LinkedList_Destroy(&list);
 }

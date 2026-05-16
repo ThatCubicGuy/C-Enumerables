@@ -1,35 +1,22 @@
 #ifndef COLLECTIONS_GENERIC_ENUMERABLE
 #define COLLECTIONS_GENERIC_ENUMERABLE
-#include <stdbool.h>
+#include "Keywords.h"
 #pragma region Define
 
-/**
- * @brief Enumerates an IEnumerable<T> and sets VAR to
- * the current enumeration value before executing CODE.
- */
-#define foreach(T, VAR, SOURCE, CODE...) do {               \
-    IEnumerable(T) __src = (IEnumerable(T))(SOURCE);        \
-    IEnumerator(T) __e = (__src)->GetEnumerator(__src);     \
-    while (__e->MoveNext(__e)) {                            \
-        T VAR = __e->Current;                               \
-        CODE;                                               \
-    }                                                       \
-    __e->Dispose(__e);                                      \
-} while(0)
-
-#define IEnumerator(T) _IEnumerator_##T
-#define IEnumerable(T) _IEnumerable_##T
+#define IEnumerator(T) CAT(IEnumerator_,T)
+#define IEnumerable(T) CAT(IEnumerable_,T)
 
 #define ENUMERABLE_DEFINE(T)                                                                            \
-typedef struct _IEnumerator_##T##_s {                                                                   \
-    bool (*MoveNext)(struct _IEnumerator_##T##_s* This);                                                \
-    void (*Reset)(struct _IEnumerator_##T##_s* This);                                                   \
-    void (*Dispose)(struct _IEnumerator_##T##_s* This);                                                 \
+typedef TAG(IEnumerator(T)) {                                                                           \
+    bool (*MoveNext)(TAG(IEnumerator(T))* This);                                                        \
+    void (*Reset)(TAG(IEnumerator(T))* This);                                                           \
+    void (*Dispose)(TAG(IEnumerator(T))* This);                                                         \
     T Current;                                                                                          \
 } *IEnumerator(T);                                                                                      \
-typedef struct _IEnumerable_##T##_s {                                                                   \
-    IEnumerator(T) (*GetEnumerator)(struct _IEnumerable_##T##_s* This);                                 \
-} *IEnumerable(T);                                                                                      \
+typedef TAG(IEnumerable(T)) {                                                                           \
+    IEnumerator(T) (*GetEnumerator)(TAG(IEnumerable(T)) const* This);                                   \
+} const *IEnumerable(T);                                                                                \
+extern struct tag_IEnumerable_##T Enumerable_##T##_Empty[1];                                            \
 /**                                                                                                     \
  * @brief Filters a sequence based on a predicate.                                                      \
  * @param source Enumerable to filter.                                                                  \
@@ -151,7 +138,7 @@ bool Enumerable_##T##_SequenceEqual(IEnumerable(T) first, IEnumerable(T) second)
  * @param source Enumerable to project.                                     \
  * @return A new enumerable.                                                \
  */                                                                         \
-IEnumerable(int_##T) Enumerable_##T##_Index(IEnumerable(T) source);
+IEnumerable(t(int,T)) Enumerable_##T##_Index(IEnumerable(T) source);
 
 #define ENUMERABLE_DEFINE_SELECT(TSource, TResult)                          \
 /**                                                                         \
@@ -169,9 +156,7 @@ IEnumerable(TResult) Enumerable_##TSource##_Select_##TResult(IEnumerable(TSource
  * @param selector Function to apply to each element and its index.         \
  * @return A new enumerable.                                                \
  */                                                                         \
-IEnumerable(TResult) Enumerable_##TSource##_SelectIndex_##TResult(IEnumerable(TSource) source, TResult (*selector)(TSource, int));
-
-#define ENUMERABLE_DEFINE_SELECTMANY(TSource, TResult)                      \
+IEnumerable(TResult) Enumerable_##TSource##_SelectIndex_##TResult(IEnumerable(TSource) source, TResult (*selector)(TSource, int)); \
 /**                                                                         \
  * @brief Projects each element of the collection into a new collection,    \
  * then flattens the result into a single collection.                       \

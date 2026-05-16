@@ -1,5 +1,5 @@
-#include "Defines.h"
 #include "Tests.h"
+#include <stdio.h>
 
 int main(void)
 {

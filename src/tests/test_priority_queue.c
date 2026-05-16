@@ -1,12 +1,9 @@
-#include "Collections/Generic/EnumerableT.h"
 #include "Tests.h"
-#include "Defines.h"
+#include "Collections/Generic/EnumerableT.h"
 #include "Collections/Generic/QueueT.h"
-#include "Collections/Generic/QueueImplement.h"
 #include "Collections/Generic/PriorityQueueT.h"
-#include "Collections/Generic/PriorityQueueImplement.h"
 #include "Collections/Generic/HeapT.h"
-#include "Collections/Generic/HeapImplement.h"
+#include <stdio.h>
 
 typedef struct car_s {
     int year;
@@ -35,14 +32,14 @@ QUEUE_DEFINE(Car)
 HEAP_DEFINE(CarValue)
 PRIORITYQUEUE_DEFINE(CarValue, Car)
 
-static int ascending(int x, int y)
+[[maybe_unused]] static int ascending(int x, int y)
 {
     if (x < y) return -1;
     if (x > y) return 1;
     return 0;
 }
 
-static int descending(int x, int y)
+[[maybe_unused]] static int descending(int x, int y)
 {
     if (x > y) return -1;
     if (x < y) return 1;
@@ -89,6 +86,9 @@ void test_priority_queue(void)
     }
 }
 
+#include "Collections/Generic/QueueImplement.h"
+#include "Collections/Generic/PriorityQueueImplement.h"
+#include "Collections/Generic/HeapImplement.h"
 QUEUE_IMPLEMENT(Car)
 HEAP_IMPLEMENT(CarValue)
 PRIORITYQUEUE_IMPLEMENT(CarValue, Car)

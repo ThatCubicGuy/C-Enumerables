@@ -1,7 +1,7 @@
 #include "Collections/Array.h"
 
-typedef struct ArrayEnumerator_s {
-    struct IEnumerator_s _parent;
+typedef TAG(ArrayEnumerator) {
+    IMPL(IEnumerator);
     int _currentIndex;
     Array _array;
 } *ArrayEnumerator;
@@ -25,17 +25,15 @@ static void ArrayReset(IEnumerator This)
 
 static void ArrayDispose(IEnumerator This)
 {
-    free(This);
+    memfree(This);
 }
 
 IEnumerator ArrayGetEnumerator(const IEnumerable This)
 {
-    ArrayEnumerator allocinit(ArrayEnumerator, result) {
-        ._parent = (struct IEnumerator_s) {
-            .MoveNext = ArrayMoveNext,
-            .Reset = ArrayReset,
-            .Dispose = ArrayDispose
-        },
+    auto result =  meminit(ArrayEnumerator) {
+        .MoveNext = ArrayMoveNext,
+        .Reset = ArrayReset,
+        .Dispose = ArrayDispose,
         ._currentIndex = 0,
         ._array = (Array)This
     };
@@ -45,18 +43,16 @@ IEnumerator ArrayGetEnumerator(const IEnumerable This)
 Array Array__ctor(int memberSize, int maxLength)
 {
     if (maxLength < 0) return NULL;
-    Array result = alloc(Array);
+    Array result = memalloc(Array);
     if (maxLength == 0) {
-        *result = default(struct Array_s);
+        *result = default(TAG(Array));
         return result;
     }
-    init(Array, result) {
-        ._parent = (struct IEnumerable_s) {
-            .GetEnumerator = ArrayGetEnumerator
-        },
+    *result = init(Array) {
+        .GetEnumerator = ArrayGetEnumerator,
         .MaxLength = maxLength,
         .Length = 0,
-        .Values = alloc_array(byte, maxLength * memberSize),
+        .Values = arralloc(byte, maxLength * memberSize),
         ._memberSize = memberSize
     };
     return result;
@@ -84,15 +80,16 @@ void Array_CopyTo(Array source, void* dest)
 
 void Array_Destroy(Array* source)
 {
-    free((*source)->Values);
-    free(*source);
+    memfree((*source)->Values);
+    memfree(*source);
     source = NULL;
 }
 
 void Array_Fill(Array source, object itemRef)
 {
+    throw new(Exception)("Bruh moment: Not implemented!");
     for (int i = 0; i < source->MaxLength; ++i) {
-        MemCopy(source->Values + i * source->_memberSize, itemRef, source->_memberSize);
+        memcopy(source->Values + i * source->_memberSize, itemRef, source->_memberSize);
     }
     source->Length = source->MaxLength;
 }
@@ -104,18 +101,27 @@ object Array_Get(Array source, int index)
 
 void Array_Set(Array source, int index, object itemRef)
 {
-    MemCopy(source->Values + index * source->_memberSize, itemRef, source->_memberSize);
+    throw new(Exception)("Bruh moment: Not implemented!");
+    memcopy(source->Values + index * source->_memberSize, itemRef, source->_memberSize);
     if (source->Length <= index) source->Length = index + 1;
 }
 
 void Array_Resize(Array source, int newMaxLength)
 {
     if (newMaxLength <= 0) return;
-    source->Values = realloc(source->Values, newMaxLength * source->_memberSize);
+    source->Values = memresize_(source->Values, newMaxLength * source->_memberSize);
 }
 
 void Array_Sort(Array source, int (*comparer)(object, object))
 {
-    if (comparer == NULL) comparer = ReferenceComparer;
-    qsort(source->Values, source->Length, source->_memberSize, comparer);
+    // if (comparer == NULL) comparer = ReferenceComparer;
+    for (int gap = source->Length / 2; gap > 0; gap /= 2) {
+        for (int i = gap; i < source->Length; ++i) {
+            for (int j = i; j >= gap && comparer(Array_Get(source, j - gap), Array_Get(source, j)) > 0; j -= gap) {
+                object tmp = Array_Get(source, j - gap);
+                Array_Set(source, j - gap, Array_Get(source, j));
+                Array_Set(source, j, tmp);
+            }
+        }
+    }
 }

@@ -1,8 +1,9 @@
 #include "Tests.h"
-#include "Defines.h"
+#include "Keywords.h"
 #include "Collections/Generic/QueueT.h"
 #include "Collections/Generic/QueueImplement.h"
 #include "Collections/Generic/EnumerableT.h"
+#include <stdio.h>
 
 ENUMERABLE_DEFINE(int)
 QUEUE_DEFINE(int)
@@ -20,22 +21,22 @@ void test_queues(void)
     Queue_int_Enqueue(queue, 2);
     Queue_int_Enqueue(queue, 6);
     Queue_int_Enqueue(queue, 7);
-    foreach (int, item, queue, {
+    foreach (int item in queue) {
         printf("Item: %d\n", item);
-    });
+    }
     TRYDEQUEUE(queue, result);
-    foreach (int, item, queue, {
+    foreach (int item in queue) {
         printf("Item: %d\n", item);
-    });
+    }
     TRYPEEK(queue, result);
-    foreach (int, item, queue, {
+    foreach (int item in queue) {
         printf("Item: %d\n", item);
-    });
+    }
     printf("Clear queue...\n");
     Queue_int_Clear(queue);
-    foreach (int, item, queue, {
+    foreach (int item in queue) {
         printf("Item: %d\n", item);
-    });
+    }
     TRYDEQUEUE(queue, result);
     TRYPEEK(queue, result);
     printf("Add 57...\n");

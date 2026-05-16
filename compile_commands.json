@@ -1,170 +1,22 @@
 [
   {
-    "file": "main.c",
+    "file": "src/tests/test_hash_set.c",
     "arguments": [
-      "gcc",
+      "/usr/bin/gcc",
+      "-Wall",
       "-Wextra",
+      "-Wno-microsoft-anon-tag",
+      "-Wno-dangling-else",
       "-Iinclude",
+      "-Ilib",
       "-std=gnu23",
-      "main.c",
+      "-fms-extensions",
+      "-c",
+      "src/tests/test_hash_set.c",
       "-o",
-      "bin/test_thing.exe"
+      ".obj/tests/test_hash_set.o"
     ],
     "directory": "/home/Nova/repos/c-enumerables",
-    "output": "bin/test_thing.exe"
-  },
-  {
-    "file": "tests/int_test.c",
-    "arguments": [
-      "gcc",
-      "-Wextra",
-      "-Iinclude",
-      "-std=gnu23",
-      "tests/int_test.c",
-      "-o",
-      "bin/test_thing.exe"
-    ],
-    "directory": "/home/Nova/repos/c-enumerables",
-    "output": "bin/test_thing.exe"
-  },
-  {
-    "file": "tests/struct_test.c",
-    "arguments": [
-      "gcc",
-      "-Wextra",
-      "-Iinclude",
-      "-std=gnu23",
-      "tests/struct_test.c",
-      "-o",
-      "bin/test_thing.exe"
-    ],
-    "directory": "/home/Nova/repos/c-enumerables",
-    "output": "bin/test_thing.exe"
-  },
-  {
-    "file": "tests/test_arrays.c",
-    "arguments": [
-      "gcc",
-      "-Wextra",
-      "-Iinclude",
-      "-std=gnu23",
-      "tests/test_arrays.c",
-      "-o",
-      "bin/test_thing.exe"
-    ],
-    "directory": "/home/Nova/repos/c-enumerables",
-    "output": "bin/test_thing.exe"
-  },
-  {
-    "file": "tests/test_doubly_linked_list.c",
-    "arguments": [
-      "gcc",
-      "-Wextra",
-      "-Iinclude",
-      "-std=gnu23",
-      "tests/test_doubly_linked_list.c",
-      "-o",
-      "bin/test_thing.exe"
-    ],
-    "directory": "/home/Nova/repos/c-enumerables",
-    "output": "bin/test_thing.exe"
-  },
-  {
-    "file": "tests/test_generic_linked_list.c",
-    "arguments": [
-      "gcc",
-      "-Wextra",
-      "-Iinclude",
-      "-std=gnu23",
-      "tests/test_generic_linked_list.c",
-      "-o",
-      "bin/test_thing.exe"
-    ],
-    "directory": "/home/Nova/repos/c-enumerables",
-    "output": "bin/test_thing.exe"
-  },
-  {
-    "file": "tests/test_heaps.c",
-    "arguments": [
-      "gcc",
-      "-Wextra",
-      "-Iinclude",
-      "-std=gnu23",
-      "tests/test_heaps.c",
-      "-o",
-      "bin/test_thing.exe"
-    ],
-    "directory": "/home/Nova/repos/c-enumerables",
-    "output": "bin/test_thing.exe"
-  },
-  {
-    "file": "tests/test_index.c",
-    "arguments": [
-      "gcc",
-      "-Wextra",
-      "-Iinclude",
-      "-std=gnu23",
-      "tests/test_index.c",
-      "-o",
-      "bin/test_thing.exe"
-    ],
-    "directory": "/home/Nova/repos/c-enumerables",
-    "output": "bin/test_thing.exe"
-  },
-  {
-    "file": "tests/test_linked_list.c",
-    "arguments": [
-      "gcc",
-      "-Wextra",
-      "-Iinclude",
-      "-std=gnu23",
-      "tests/test_linked_list.c",
-      "-o",
-      "bin/test_thing.exe"
-    ],
-    "directory": "/home/Nova/repos/c-enumerables",
-    "output": "bin/test_thing.exe"
-  },
-  {
-    "file": "tests/test_ordering.c",
-    "arguments": [
-      "gcc",
-      "-Wextra",
-      "-Iinclude",
-      "-std=gnu23",
-      "tests/test_ordering.c",
-      "-o",
-      "bin/test_thing.exe"
-    ],
-    "directory": "/home/Nova/repos/c-enumerables",
-    "output": "bin/test_thing.exe"
-  },
-  {
-    "file": "tests/test_queues.c",
-    "arguments": [
-      "gcc",
-      "-Wextra",
-      "-Iinclude",
-      "-std=gnu23",
-      "tests/test_queues.c",
-      "-o",
-      "bin/test_thing.exe"
-    ],
-    "directory": "/home/Nova/repos/c-enumerables",
-    "output": "bin/test_thing.exe"
-  },
-  {
-    "file": "tests/test_stacks.c",
-    "arguments": [
-      "gcc",
-      "-Wextra",
-      "-Iinclude",
-      "-std=gnu23",
-      "tests/test_stacks.c",
-      "-o",
-      "bin/test_thing.exe"
-    ],
-    "directory": "/home/Nova/repos/c-enumerables",
-    "output": "bin/test_thing.exe"
+    "output": ".obj/tests/test_hash_set.o"
   }
 ]

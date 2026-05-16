@@ -1,16 +1,6 @@
 #ifndef CUBE_STRING
 #define CUBE_STRING
-#include "Defines.h"
-#include "Delegate.h"
-
-#ifndef STRING_ENUMERABLE_DEFINED
-#define STRING_ENUMERABLE_DEFINED
-#include "Collections/Generic/EnumerableT.h"
-ENUMERABLE_DEFINE(string)
-ENUMERABLE_DEFINE_SELECT(string, string)
-ENUMERABLE_DEFINE_SELECTMANY(string, string)
-ENUMERABLE_DEFINE_AGGREGATE(string, string)
-#endif
+#include "Keywords.h"
 
 /**
  * @brief Represents the empty string.
@@ -18,17 +8,23 @@ ENUMERABLE_DEFINE_AGGREGATE(string, string)
  */
 extern const string string_Empty;
 
-extern const struct StringComparer_s {
-    Comparer(string) Ordinal;
-    Comparer(string) OrdinalIgnoreCase;
+EQUALITY_COMPARER_DEFINE(string)
+COMPARER_DEFINE(string)
+TAG(StringComparer) {
+    union {
+        TAG(IComparer(string)) Comparer[1];
+        TAG(IComparer(string));
+    };
+    union {
+        TAG(IEqualityComparer(string)) EqualityComparer[1];
+        TAG(IEqualityComparer(string));
+    };
+};
+extern const TAG(StaticStringComparer) {
+    TAG(StringComparer) Ordinal;
+    TAG(StringComparer) OrdinalIgnoreCase;
 } StringComparer;
 
-/**
- * @brief Generates the hash code for a string.
- * @returns A hash code that represents the given string.
- * @pure
- */
-unsigned long string_HashCode(string source);
 /**
  * @brief Copies a string and returns the result.
  * @return A new string with characters from the other.
@@ -52,10 +48,18 @@ int string_Length(string source);
 string string_Concat(string first, string second);
 
 /**
+ * @brief Formats the given parameters into the format string and returns the result.
+ * @return A new string.
+ * @pure
+ */
+string string_Format(string format, ...);
+#ifdef IEnumerable
+ENUMERABLE_DEFINE(string)
+/**
  * @brief Joins the values of a string collection into one string,
  * using the specified separator.
  * @pure
  */
 string string_Join(string separator, IEnumerable(string) values);
-
+#endif
 #endif

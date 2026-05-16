@@ -1,39 +1,34 @@
 #ifndef COLLECTIONS_GENERIC_DICTIONARY_IMPLEMENTATIONS
 #define COLLECTIONS_GENERIC_DICTIONARY_IMPLEMENTATIONS
-
-#include "Collections/Generic/DictionaryT.h"
-#include <stdlib.h>
-
+#include "DictionaryT.h"
 #define DICTIONARY_IMPLEMENT(TKey,TValue)                                                                                   \
-struct struct_DictEntry_##TKey##_##TValue {                                                                                 \
+TAG(DictEntry_##TKey##_##TValue) {                                                                                          \
     DictEntry_##TKey##_##TValue Next;                                                                                       \
     unsigned long Hash;                                                                                                     \
     TKey Key;                                                                                                               \
     TValue Value;                                                                                                           \
 };                                                                                                                          \
-Dictionary(TKey,TValue) new(Dictionary(TKey,TValue))(int capacity, Func(unsigned long, TKey) hashCode, Func(int, TKey,TKey) comparer) \
+Dictionary(TKey,TValue) new(Dictionary(TKey,TValue))(IEqualityComparer(TKey) comparer)                                      \
 {                                                                                                                           \
-    auto allocinit(Dictionary(TKey,TValue), result) {                                                                       \
-        .Compare = comparer,                                                                                                \
-        .HashCode = hashCode,                                                                                               \
-        .Capacity = capacity,                                                                                               \
+    auto result = meminit(Dictionary(TKey,TValue)) {                                                                        \
+        .Comparer = comparer,                                                                                               \
         .Count = 0,                                                                                                         \
-        ._items = alloc_array(DictEntry_##TKey##_##TValue, capacity)                                                        \
+        ._items = arralloc(DictEntry_##TKey##_##TValue, MAX_DICTIONARY_ARRAY_LENGTH)                                        \
     };                                                                                                                      \
     return result;                                                                                                          \
 }                                                                                                                           \
 void Dictionary_##TKey##_##TValue##_Add(Dictionary(TKey,TValue) source, TKey key, TValue value)                             \
 {                                                                                                                           \
-    auto allocinit(DictEntry_##TKey##_##TValue, node) {                                                                     \
-        .Hash = source->HashCode(key),                                                                                      \
+    auto node = meminit(DictEntry_##TKey##_##TValue) {                                                                      \
+        .Hash = source->Comparer->GetHashCode(key),                                                                         \
         .Key = key,                                                                                                         \
         .Value = value,                                                                                                     \
         .Next = NULL                                                                                                        \
     };                                                                                                                      \
-    int index = node->Hash % source->Capacity;                                                                              \
+    int index = node->Hash % MAX_DICTIONARY_ARRAY_LENGTH;                                                                   \
     auto bucket = &source->_items[index];                                                                                   \
     while (*bucket && ((*bucket)->Hash != node->Hash                                                                        \
-        || source->Compare((*bucket)->Key, key)))                                                                           \
+        || !source->Comparer->Equals((*bucket)->Key, key)))                                                                 \
     {                                                                                                                       \
         bucket = &(*bucket)->Next;                                                                                          \
     }                                                                                                                       \
@@ -43,9 +38,9 @@ void Dictionary_##TKey##_##TValue##_Add(Dictionary(TKey,TValue) source, TKey key
 }                                                                                                                           \
 TValue Dictionary_##TKey##_##TValue##_Get(Dictionary(TKey,TValue) source, TKey key)                                         \
 {                                                                                                                           \
-    unsigned long index = source->HashCode(key) % source->Capacity;                                                         \
+    unsigned long index = source->Comparer->GetHashCode(key) % MAX_DICTIONARY_ARRAY_LENGTH;                                 \
     auto bucket = source->_items[index];                                                                                    \
-    while (bucket && source->Compare(bucket->Key, key)) {                                                                   \
+    while (bucket && !source->Comparer->Equals(bucket->Key, key)) {                                                         \
         bucket = bucket->Next;                                                                                              \
     }                                                                                                                       \
     if (!bucket) return default(TValue);                                                                                    \
@@ -53,18 +48,18 @@ TValue Dictionary_##TKey##_##TValue##_Get(Dictionary(TKey,TValue) source, TKey k
 }                                                                                                                           \
 bool Dictionary_##TKey##_##TValue##_Remove(Dictionary(TKey,TValue) source, TKey key)                                        \
 {                                                                                                                           \
-    unsigned long index = source->HashCode(key) % source->Capacity;                                                         \
+    unsigned long index = source->Comparer->GetHashCode(key) % MAX_DICTIONARY_ARRAY_LENGTH;                                 \
     auto bucket = source->_items[index];                                                                                    \
-    if (!source->Compare(bucket->Key, key)) {                                                                               \
+    if (source->Comparer->Equals(bucket->Key, key)) {                                                                       \
         source->_items[index] = bucket->Next;                                                                               \
-        free(bucket);                                                                                                       \
+        memfree(bucket);                                                                                                    \
         return true;                                                                                                        \
     } else {                                                                                                                \
         auto old = bucket;                                                                                                  \
         for (bucket = bucket->Next; bucket; old = bucket, bucket = bucket->Next) {                                          \
-            if (!source->Compare(bucket->Key, key)) {                                                                       \
+            if (source->Comparer->Equals(bucket->Key, key)) {                                                               \
                 old->Next = bucket->Next;                                                                                   \
-                free(bucket);                                                                                               \
+                memfree(bucket);                                                                                            \
                 return true;                                                                                                \
             }                                                                                                               \
         }                                                                                                                   \
@@ -75,7 +70,7 @@ static void RemoveNodes(DictEntry_##TKey##_##TValue start)                      
 {                                                                                                                           \
     if (!start) return;                                                                                                     \
     RemoveNodes(start->Next);                                                                                               \
-    free(start);                                                                                                            \
+    memfree(start);                                                                                                         \
 }                                                                                                                           \
 void Dictionary_##TKey##_##TValue##_Clear(Dictionary(TKey,TValue) source)                                                   \
 {                                                                                                                           \
@@ -85,19 +80,19 @@ void Dictionary_##TKey##_##TValue##_Clear(Dictionary(TKey,TValue) source)       
 }                                                                                                                           \
 bool Dictionary_##TKey##_##TValue##_ContainsKey(Dictionary(TKey,TValue) source, TKey key)                                   \
 {                                                                                                                           \
-    unsigned long index = source->HashCode(key) % source->Capacity;                                                         \
+    unsigned long index = source->Comparer->GetHashCode(key) % MAX_DICTIONARY_ARRAY_LENGTH;                                 \
     auto bucket = source->_items[index];                                                                                    \
     while (bucket) {                                                                                                        \
-        if (!source->Compare(bucket->Key, key)) return true;                                                                \
+        if (source->Comparer->Equals(bucket->Key, key)) return true;                                                        \
         bucket = bucket->Next;                                                                                              \
     }                                                                                                                       \
     return false;                                                                                                           \
 }                                                                                                                           \
 bool Dictionary_##TKey##_##TValue##_ContainsValue(Dictionary(TKey,TValue) source, TValue value)                             \
 {                                                                                                                           \
-    for (int i = 0; i < source->Capacity; ++i) {                                                                            \
+    for (int i = 0; i < MAX_DICTIONARY_ARRAY_LENGTH; ++i) {                                                                 \
         for (auto bucket = source->_items[i]; bucket; bucket = bucket->Next) {                                              \
-            if (ValueEquator(sizeof(TValue), &bucket->Value, &value)) {                                                     \
+            if (equals(bucket->Value, value)) {                                                                             \
                 return true;                                                                                                \
             }                                                                                                               \
         }                                                                                                                   \
@@ -106,9 +101,9 @@ bool Dictionary_##TKey##_##TValue##_ContainsValue(Dictionary(TKey,TValue) source
 }                                                                                                                           \
 bool Dictionary_##TKey##_##TValue##_TryGetValue(Dictionary(TKey,TValue) source, TKey key, TValue* out)                      \
 {                                                                                                                           \
-    unsigned long index = source->HashCode(key) % source->Capacity;                                                         \
+    unsigned long index = source->Comparer->GetHashCode(key) % MAX_DICTIONARY_ARRAY_LENGTH;                                 \
     auto bucket = source->_items[index];                                                                                    \
-    while (bucket && source->Compare(bucket->Key, key)) {                                                                   \
+    while (bucket && !source->Comparer->Equals(bucket->Key, key)) {                                                         \
         bucket = bucket->Next;                                                                                              \
     }                                                                                                                       \
     if (!bucket) {                                                                                                          \
@@ -119,12 +114,12 @@ bool Dictionary_##TKey##_##TValue##_TryGetValue(Dictionary(TKey,TValue) source, 
         return true;                                                                                                        \
     }                                                                                                                       \
 }                                                                                                                           \
-typedef struct {                                                                                                            \
-    refbase(IEnumerable(TValue)) _parent;                                                                                   \
+typedef TAG(DictionaryValuesEnumerable_##TKey##_##TValue) {                                                                 \
+    IMPL(IEnumerable(TValue));                                                                                              \
     Dictionary(TKey,TValue) dict;                                                                                           \
 } *DictionaryValuesEnumerable_##TKey##_##TValue;                                                                            \
-typedef struct {                                                                                                            \
-    refbase(IEnumerator(TValue)) _parent;                                                                                   \
+typedef TAG(DictionaryValuesEnumerator_##TKey##_##TValue) {                                                                 \
+    IMPL(IEnumerator(TValue));                                                                                              \
     int _currentIndex;                                                                                                      \
     DictEntry_##TKey##_##TValue _currentNode;                                                                               \
     DictionaryValuesEnumerable_##TKey##_##TValue source;                                                                    \
@@ -132,11 +127,11 @@ typedef struct {                                                                
 static bool DictionaryValuesMoveNext_##TKey##_##TValue(IEnumerator(TValue) This)                                            \
 {                                                                                                                           \
     auto e = (DictionaryValuesEnumerator_##TKey##_##TValue)This;                                                            \
-    while (!e->_currentNode && e->_currentIndex < e->source->dict->Capacity) {                                              \
+    while (!e->_currentNode && e->_currentIndex < MAX_DICTIONARY_ARRAY_LENGTH) {                                            \
         e->_currentIndex += 1;                                                                                              \
         e->_currentNode = e->source->dict->_items[e->_currentIndex];                                                        \
     }                                                                                                                       \
-    if (e->_currentIndex == e->source->dict->Capacity) return false;                                                        \
+    if (e->_currentIndex == MAX_DICTIONARY_ARRAY_LENGTH) return false;                                                      \
     This->Current = e->_currentNode->Value;                                                                                 \
     e->_currentNode = e->_currentNode->Next;                                                                                \
     return true;                                                                                                            \
@@ -150,18 +145,16 @@ static void DictionaryValuesReset_##TKey##_##TValue(IEnumerator(TValue) This)   
 }                                                                                                                           \
 static void DictionaryValuesDispose_##TKey##_##TValue(IEnumerator(TValue) This)                                             \
 {                                                                                                                           \
-    free(This);                                                                                                             \
+    memfree(This);                                                                                                          \
 }                                                                                                                           \
 static IEnumerator(TValue) DictionaryValuesGetEnumerator_##TKey##_##TValue(IEnumerable(TValue) This)                        \
 {                                                                                                                           \
     auto e = (DictionaryValuesEnumerable_##TKey##_##TValue)This;                                                            \
-    auto allocinit(DictionaryValuesEnumerator_##TKey##_##TValue, result) {                                                  \
-        ._parent = {                                                                                                        \
-            .MoveNext = DictionaryValuesMoveNext_##TKey##_##TValue,                                                         \
-            .Reset = DictionaryValuesReset_##TKey##_##TValue,                                                               \
-            .Dispose = DictionaryValuesDispose_##TKey##_##TValue,                                                           \
-            .Current = default(TValue)                                                                                      \
-        },                                                                                                                  \
+    auto result = meminit(DictionaryValuesEnumerator_##TKey##_##TValue) {                                                   \
+        .MoveNext = DictionaryValuesMoveNext_##TKey##_##TValue,                                                             \
+        .Reset = DictionaryValuesReset_##TKey##_##TValue,                                                                   \
+        .Dispose = DictionaryValuesDispose_##TKey##_##TValue,                                                               \
+        .Current = default(TValue),                                                                                         \
         ._currentIndex = -1,                                                                                                \
         ._currentNode = NULL,                                                                                               \
         .source = e                                                                                                         \
@@ -170,10 +163,8 @@ static IEnumerator(TValue) DictionaryValuesGetEnumerator_##TKey##_##TValue(IEnum
 }                                                                                                                           \
 IEnumerable(TValue) Dictionary_##TKey##_##TValue##_GetValues(Dictionary(TKey,TValue) source)                                \
 {                                                                                                                           \
-    auto allocinit(DictionaryValuesEnumerable_##TKey##_##TValue, result) {                                                  \
-        ._parent = {                                                                                                        \
-            .GetEnumerator = DictionaryValuesGetEnumerator_##TKey##_##TValue                                                \
-        },                                                                                                                  \
+    auto result = meminit(DictionaryValuesEnumerable_##TKey##_##TValue) {                                                   \
+        .GetEnumerator = DictionaryValuesGetEnumerator_##TKey##_##TValue,                                                   \
         .dict = source                                                                                                      \
     };                                                                                                                      \
     return (IEnumerable(TValue))result;                                                                                     \

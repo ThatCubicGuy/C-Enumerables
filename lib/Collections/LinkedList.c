@@ -1,10 +1,10 @@
 #include "Collections/LinkedList.h"
-#include "Defines.h"
+#include "Keywords.h"
 
 #pragma region Enumerator
 
-typedef struct LinkedListEnumerator_s {
-    struct IEnumerator_s _parent;
+typedef TAG(LinkedListEnumerator) {
+    IMPL(IEnumerator);
     LinkedList _source;
     LinkedNode _currentNode;
 } *LinkedListEnumerator;
@@ -32,21 +32,19 @@ static void LinkedListReset(IEnumerator This)
 
 static void LinkedListDispose(IEnumerator This)
 {
-    free(This);
+    memfree(This);
 }
 
 static IEnumerator LinkedListGetEnumerator(const IEnumerable This)
 {
-    LinkedListEnumerator allocinit(LinkedListEnumerator, result) {
-        ._parent = (struct IEnumerator_s) {
-            .MoveNext = LinkedListMoveNext,
-            .Reset = LinkedListReset,
-            .Dispose = LinkedListDispose
-        },
+    auto result = meminit(LinkedListEnumerator) {
+        .MoveNext = LinkedListMoveNext,
+        .Reset = LinkedListReset,
+        .Dispose = LinkedListDispose,
         ._currentNode = NULL,
         ._source = (LinkedList)This
     };
-    return base(result);
+    return (IEnumerator)(result);
 }
 
 #pragma endregion
@@ -60,7 +58,7 @@ void LinkedList_Add(LinkedList source, object item)
 {
     if (source->Count > 0) {
         source->Count += 1;
-        allocinit(LinkedNode, source->_end->Next) {
+        source->_end->Next = meminit(LinkedNode) {
             .Next = NULL,
             .Value = item
         };
@@ -68,7 +66,7 @@ void LinkedList_Add(LinkedList source, object item)
         return;
     }
 
-    allocinit(LinkedNode, source->_start) default(struct LinkedNode_s);
+    source->_start = meminit(LinkedNode) default(TAG(LinkedNode));
     source->_end = source->_start;
     source->_start->Value = item;
     source->Count = 1;
@@ -80,7 +78,7 @@ static void RemoveNodes(LinkedNode startingPoint)
     if (startingPoint->Next != NULL) {
         RemoveNodes(startingPoint->Next);
     }
-    free(startingPoint);
+    memfree(startingPoint);
 }
 
 /// @brief Removes all elements from the linked list.
@@ -102,7 +100,7 @@ void LinkedList_Insert(LinkedList source, object item, int index)
     if (index > source->Count) return;
     source->Count += 1;
     if (index == 0) {
-        LinkedNode allocinit(LinkedNode, newNode) {
+        auto newNode = meminit(LinkedNode) {
             .Value = item,
             .Next = source->_start
         };
@@ -111,7 +109,7 @@ void LinkedList_Insert(LinkedList source, object item, int index)
     }
 
     if (index == source->Count - 1) {
-        LinkedNode allocinit(LinkedNode, newNode) {
+        LinkedNode newNode = meminit(LinkedNode) {
             .Value = item,
             .Next = NULL,
         };
@@ -125,7 +123,7 @@ void LinkedList_Insert(LinkedList source, object item, int index)
         index -= 1;
         current = current->Next;
     }
-    LinkedNode allocinit(LinkedNode, newNode) {
+    LinkedNode newNode = meminit(LinkedNode) {
         .Value = item,
         .Next = current->Next,
     };
@@ -136,10 +134,8 @@ void LinkedList_Insert(LinkedList source, object item, int index)
 /// @return A new LinkedList with no elements.
 LinkedList LinkedList__ctor()
 {
-    LinkedList allocinit(LinkedList, result) {
-        ._parent = (struct IEnumerable_s) {
-            .GetEnumerator = LinkedListGetEnumerator
-        },
+    LinkedList result = meminit(LinkedList) {
+        .GetEnumerator = LinkedListGetEnumerator,
         .Count = 0,
         ._start = NULL,
         ._end = NULL
@@ -152,7 +148,7 @@ LinkedList LinkedList__ctor()
 void LinkedList_Destroy(LinkedList* source)
 {
     LinkedList_Clear(*source);
-    free(*source);
+    memfree(*source);
     *source = NULL;
 }
 
@@ -180,20 +176,18 @@ void LinkedList_Reverse(LinkedList source)
 /// @return A new LinkedList with elements from the array.
 LinkedList CreateLinkedListFromArray(int itemCount, object items[])
 {
-    LinkedList allocinit(LinkedList, result) {
-        ._parent = (struct IEnumerable_s) {
-            .GetEnumerator = LinkedListGetEnumerator
-        },
+    LinkedList result = meminit(LinkedList) {
+        .GetEnumerator = LinkedListGetEnumerator,
         .Count = itemCount,
         ._start = NULL,
         ._end = NULL
     };
     if (itemCount == 0) return result;
-    LinkedNode allocinit(LinkedNode, current) default(struct LinkedNode_s);
+    LinkedNode current = meminit(LinkedNode) default(TAG(LinkedNode));
     result->_start = current;
     current->Value = items[0];
     for (int i = 1; i < itemCount; ++i) {
-        allocinit(LinkedNode, current->Next) default(struct LinkedNode_s);
+        current->Next = meminit(LinkedNode) default(TAG(LinkedNode));
         current = current->Next;
         current->Value = items[i];
     }
@@ -205,7 +199,7 @@ LinkedList CreateLinkedListFromArray(int itemCount, object items[])
 /// @return A new LinkedList with elements from source.
 LinkedList Enumerable_ToLinkedList(IEnumerable source)
 {
-    LinkedList allocinit(LinkedList, result) default(struct LinkedList_s);
+    LinkedList result = meminit(LinkedList) default(TAG(LinkedList));
     foreach_as(object, item, source, LinkedList_Add(result, item));
     return result;
 }
