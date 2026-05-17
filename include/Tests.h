@@ -29,4 +29,6 @@ void test_dictionary(void);
 
 void test_hash_set(void);
 
+void test_hash_set_string(void);
+
 #endif

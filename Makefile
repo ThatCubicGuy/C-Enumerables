@@ -25,17 +25,19 @@ LIBFOLDERS:=$(patsubst ${LIB}/%/,${LIBOBJ}/%,$(wildcard ${LIB}/*/))
 EXES:=${OBJFOLDERS:${OBJ}/%=${BIN}/%.exe} $(patsubst ${SRC}/%.c,${BIN}/%.exe,$(wildcard ${SRC}/*.c))
 LIBS:=${LIBFOLDERS:${LIBOBJ}/%=${BIN}/%.a} $(patsubst ${LIB}/%.c,${BIN}/%.o,$(wildcard ${LIB}/*.c))
 
+# Using directives
+USING:=
+USING+=Collections
+USING+=Collections/Generic
+
 # Compiler setup
 CC:=gcc
 CWARNS:=all extra no-microsoft-anon-tag no-dangling-else #required because of one of my macros :moai:
-CFLAGS:=${CWARNS:%=-W%} -I${HDR} -I${LIB} -std=gnu23 -fms-extensions
+CFLAGS:=${CWARNS:%=-W%} -I${HDR} -I${LIB} ${USING:%=-I${HDR}/%} -std=gnu23 -fms-extensions
 
 # Functions
 ## Get objects relevant to $1 considering root $2 from list $3.
 get_relevant_objs=$(filter $(basename $(patsubst ${BIN}/%,$(2)/%,$(1)))/% $(basename $(patsubst ${BIN}/%,$(2)/%,$(1))).%,$(3))
-
-build: all
-	cp ${BIN}/search_index.exe search_index
 
 all: ${EXES}
 

@@ -1,6 +1,6 @@
 [
   {
-    "file": "src/tests/test_hash_set.c",
+    "file": "src/search_index/google.c",
     "arguments": [
       "/usr/bin/gcc",
       "-Wall",
@@ -9,14 +9,16 @@
       "-Wno-dangling-else",
       "-Iinclude",
       "-Ilib",
+      "-Iinclude/Collections",
+      "-Iinclude/Collections/Generic",
       "-std=gnu23",
       "-fms-extensions",
       "-c",
-      "src/tests/test_hash_set.c",
+      "src/search_index/google.c",
       "-o",
-      ".obj/tests/test_hash_set.o"
+      ".obj/search_index/google.o"
     ],
     "directory": "/home/Nova/repos/c-enumerables",
-    "output": ".obj/tests/test_hash_set.o"
+    "output": ".obj/search_index/google.o"
   }
 ]

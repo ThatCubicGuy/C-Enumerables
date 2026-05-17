@@ -29,6 +29,8 @@ int main(void)
     test_dictionary();
     printf("-------------HASH SET------------\n");
     test_hash_set();
+    printf("------------HASH SET 2------------\n");
+    test_hash_set_string();
     printf("\n----------TESTS CLEARED----------\n");
     return 0;
 }

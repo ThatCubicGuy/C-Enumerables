@@ -28,7 +28,7 @@ static void CompoundDispose(IEnumerator This)
 {
     CompoundEnumerator e = (CompoundEnumerator)This;
     e->_currentEnumerator->Dispose(e->_currentEnumerator);
-    free(This);
+    memfree(This);
 }
 
 #pragma endregion
@@ -174,7 +174,7 @@ static void SelectManyDispose(IEnumerator This)
     SelectManyEnumerator selectMany = (SelectManyEnumerator)This;
     if (selectMany->_innerEnumerator != NULL) selectMany->_innerEnumerator->Dispose(selectMany->_innerEnumerator);
     selectMany->_outerEnumerator->Dispose(selectMany->_outerEnumerator);
-    free(This);
+    memfree(This);
 }
 
 static IEnumerator GetSelectManyEnumerator(IEnumerable This)
@@ -606,7 +606,7 @@ IEnumerable Enumerable_Concat(IEnumerable first, IEnumerable second)
 #pragma endregion
 
 #pragma region Eager evaluation
-//*
+///*
 // Needs redesign
 #include "Delegate.h"
 typedef TAG(OrderedEnumerable) {
@@ -648,8 +648,8 @@ static void OrderByReset(IEnumerator This)
 
 static void OrderByDispose(IEnumerator This)
 {
-    free(((OrderedEnumerator)This)->_array);
-    free(This);
+    memfree(((OrderedEnumerator)This)->_array);
+    memfree(This);
 }
 
 static IEnumerator GetOrderByEnumerator(IEnumerable This)
@@ -659,7 +659,7 @@ static IEnumerator GetOrderByEnumerator(IEnumerable This)
     object* array = arralloc(object, capacity);
     foreach_as(object, item, ((OrderedEnumerable)This)->_baseEnumerable, {
         if (currentIndex >= capacity) {
-            array = realloc(array, capacity * 2);
+            array = memresize(array, capacity * 2);
             capacity *= 2;
         }
         array[currentIndex] = item;
@@ -737,13 +737,13 @@ IEnumerator GetThenByEnumerator(IEnumerable This)
 IOrderedEnumerable Enumerable_ThenBy(IOrderedEnumerable source, Func(int, object, object) comparer)
 {
     throw new(Exception)("Application is not implemented.");
-    // auto result = meminit(ReorderedEnumerable) {
-    //     .GetEnumerator = GetThenByEnumerator,
-    //     ._comparer = source->_comparer,
-    //     ._baseEnumerable = (IEnumerable)source,
-    //     ._newComparer = comparer
-    // };
-    // return (IOrderedEnumerable)result;
+    auto result = meminit(ReorderedEnumerable) {
+        .GetEnumerator = GetThenByEnumerator,
+        // ._comparer = source->_comparer,
+        ._baseEnumerable = source,
+        ._newComparer = comparer
+    };
+    return (IOrderedEnumerable)result;
 }
 //*/
 #pragma endregion

@@ -3,12 +3,7 @@
 
 typedef TAG(HashNode) *HashNode;
 
-typedef TAG(KeyNotFoundException) {
-    TAG(Exception);
-    HashTable Table;
-    string Key;
-} *KeyNotFoundException;
-static KeyNotFoundException KeyNotFoundException__ctor(HashTable table, string key)
+KeyNotFoundException KeyNotFoundException__ctor(HashTable table, string key)
 {
     var result = memalloc(KeyNotFoundException);
     *result = init(KeyNotFoundException) {

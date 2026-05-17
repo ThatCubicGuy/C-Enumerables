@@ -47,9 +47,9 @@ extern OutOfMemoryException OutOfMemoryException__ctor(string message, size_t bl
 
 extern jmp_buf _finally_longjmp_buf;
 extern jmp_buf _finally_return_longjmp_buf;
-extern struct __jmp_buf_tag* StackTrace_Push(void);
-extern struct __jmp_buf_tag* StackTrace_Peek(void);
-extern struct __jmp_buf_tag* StackTrace_Pop(Exception);
+extern jmp_buf* StackTrace_Push(void);
+extern jmp_buf* StackTrace_Peek(void);
+extern jmp_buf* StackTrace_Pop(Exception);
 extern Exception StackTrace_ThrownException(void);
 extern void StackTrace_Rethrow(void);
 extern int StackTrace_UpThrow(enum StackTraceOperation op);
@@ -127,8 +127,8 @@ extern const TAG(IEqualityComparer(object)) ObjectEquator[1];
 // Finally and finally_return are technically local, so we need to protect them against true long jumps
 // by setting them regardless. For makes sure we turn back and pop the stack in the case of
 // no errors being thrown. End the block with a `do` to force completion with catch/finally.
-#define try if(StackTrace_UpThrow(STACKTRACE_UNSET), StackTrace_Finally(STACKTRACE_UNSET), 1) if(!setjmp(_finally_longjmp_buf)) if(!setjmp(StackTrace_Push())) \
-    for (int UNIQ(_once) = 1; UNIQ(_once); (void)(StackTrace_Pop(NULL)), UNIQ(_once) = 0) do
+#define try if(StackTrace_UpThrow(STACKTRACE_UNSET), StackTrace_Finally(STACKTRACE_UNSET), 1) if(!setjmp(_finally_longjmp_buf)) if(!setjmp(*StackTrace_Push())) \
+    for (int UNIQ(_once) = 1; UNIQ(_once); (void)(*StackTrace_Pop(NULL)), UNIQ(_once) = 0) do
 // Close the `do-while` and append an else to the if(!setjmp(StackTrace_Push())), since that's where throw
 // statements will send control with a nonzero status.
 #define catch(TYPE_NAME) while(0); else if(StackTrace_UpThrow(STACKTRACE_UNSET), 1) PREDEFINE(TYPE_NAME = StackTrace_ThrownException())
@@ -137,8 +137,10 @@ extern const TAG(IEqualityComparer(object)) ObjectEquator[1];
 #define finally while(0); for (int _continue = 1; _continue; \
     (StackTrace_Finally(STACKTRACE_GET) ? longjmp(_finally_return_longjmp_buf, 1) : (_continue = 0)), \
     (StackTrace_UpThrow(STACKTRACE_GET) ? StackTrace_Rethrow() : 0))
-#define throwe(EX) ((void)(StackTrace_UpThrow(STACKTRACE_SET), longjmp(StackTrace_Pop((Exception)(EX)), 1)), NULL)
-#define throw for (Exception UNIQ(ex_) = NULL; (StackTrace_UpThrow(STACKTRACE_SET), !UNIQ(ex_)); longjmp(StackTrace_Pop(UNIQ(ex_)), 1)) UNIQ(ex_) = (Exception)
+// Throw an exception to the nearest catch block.
+#define throw for (Exception UNIQ(ex_) = NULL; (StackTrace_UpThrow(STACKTRACE_SET), !UNIQ(ex_)); longjmp(*StackTrace_Pop(UNIQ(ex_)), 1)) UNIQ(ex_) = (Exception)
+// ThrowExpression for use in places where statements are not allowed.
+#define throwe(EX) ((void)(StackTrace_UpThrow(STACKTRACE_SET), longjmp(*StackTrace_Pop((Exception)(EX)), 1)), NULL)
 
 #define in ,
 #define FOREACH_I(TYPE_VAR, IN)                                                 \

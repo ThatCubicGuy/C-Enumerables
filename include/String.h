@@ -20,7 +20,7 @@ TAG(StringComparer) {
         TAG(IEqualityComparer(string));
     };
 };
-extern const TAG(StaticStringComparer) {
+extern const TAG(StringComparerStatic) {
     TAG(StringComparer) Ordinal;
     TAG(StringComparer) OrdinalIgnoreCase;
 } StringComparer;

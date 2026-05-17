@@ -5,10 +5,16 @@
 #include "String.h"
 #include <stdio.h>
 
+ENUMERABLE_DEFINE(string)
 EQUALITY_COMPARER_DEFINE(string)
 HASH_SET_DEFINE(string)
 
-static bool StartsWithSomething(string item)
+bool StringEquals(string left, string right)
+{
+    return StringComparer.Ordinal.Equals(left, right);
+}
+
+bool StartsWithHopper(string item)
 {
     if (!item) return false;
     const string smth = "Something ";
@@ -41,7 +47,7 @@ void test_hash_set(void)
         printf("Item: \"%s\"\n", item);
     }
     printf("Does the set contain \"%s\"? %s\n", "Woah...", HashSet_string_Contains(set, "Woah...") ? "Yes!" : "NO");
-    HashSet_string_RemoveWhere(set, StartsWithSomething);
+    HashSet_string_RemoveWhere(set, StartsWithHopper);
     printf("Remove everything that starts with \"Something\"...\n");
     foreach (string item in set) {
         printf("Item: \"%s\"\n", item);

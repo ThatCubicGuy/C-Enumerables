@@ -48,7 +48,7 @@ static size_t StringComparerOrdinalIgnoreCaseGetHashCode(string obj)
     return hash;
 }
 
-const TAG(StaticStringComparer) StringComparer = {
+const TAG(StringComparerStatic) StringComparer = {
     .Ordinal = (TAG(StringComparer)) {
         .Comparer = {{
             .Compare = StringComparerOrdinalCompare,
