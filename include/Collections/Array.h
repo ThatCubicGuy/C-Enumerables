@@ -1,5 +1,6 @@
 #ifndef COLLECTIONS_ARRAY
 #define COLLECTIONS_ARRAY
+#include "Keywords.h"
 #include "Enumerable.h"
 #pragma region Defines
 

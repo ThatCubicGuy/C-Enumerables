@@ -2,7 +2,7 @@
 #include "Keywords.h"
 #define b(PTR) ((byte*)PTR)
 
-const struct tag_IEqualityComparer_object ObjectEquator[1] = {{
+const TAG(IEqualityComparer(object)) ObjectEquator[1] = {{
     .Equals = object_ReferenceEquals,
     .GetHashCode = object_GetHashCode
 }};
@@ -23,9 +23,15 @@ bool object_ReferenceEquals(object left, object right)
 
 size_t object_GetHashCode(object obj)
 {
-    return (((size_t)obj & 0xFF) * 1 +
-            ((size_t)obj & 0xFF00) * 3821 +
-            ((size_t)obj & 0xFF0000) * 52147 +
-            ((size_t)obj & 0xFF000000) * 300463)
-        * 1047997;
+    size_t hash = ((size_t)obj >> 4);
+
+    hash ^= hash >> 30;
+    hash *= 0xbf58476d1ce4e5b9ul;
+
+    hash ^= hash >> 27;
+    hash *= 0x94d049bb133111ebul;
+
+    hash ^= hash >> 31;
+
+    return hash;
 }

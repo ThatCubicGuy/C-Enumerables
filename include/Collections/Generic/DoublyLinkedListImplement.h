@@ -45,6 +45,7 @@ static IEnumerator(T) DoublyLinkedListGetEnumerator_##T(const IEnumerable(T) Thi
 }                                                                                       \
 void DoublyLinkedList_##T##_Add(DoublyLinkedList(T) source, T item)                     \
 {                                                                                       \
+    ThrowIfNull(source);                                                                \
     source->Count += 1;                                                                 \
     source->_start->Prev->Next = meminit(DoublyLinkedNode_##T) {                        \
         .Next = source->_start,                                                         \
@@ -55,6 +56,7 @@ void DoublyLinkedList_##T##_Add(DoublyLinkedList(T) source, T item)             
 }                                                                                       \
 void DoublyLinkedList_##T##_Remove(DoublyLinkedList(T) source, T item)                  \
 {                                                                                       \
+    ThrowIfNull(source);                                                                \
     DoublyLinkedNode_##T curr = source->_start->Next;                                   \
     while (!equals(curr->Value, item) && curr != source->_start) curr = curr->Next;     \
     if (curr == source->_start) return;                                                 \
@@ -71,12 +73,14 @@ static void RemoveDoublyNodes_##T(DoublyLinkedNode_##T curr, DoublyLinkedNode_##
 }                                                                                       \
 void DoublyLinkedList_##T##_Clear(DoublyLinkedList(T) source)                           \
 {                                                                                       \
+    ThrowIfNull(source);                                                                \
     RemoveDoublyNodes_##T(source->_start->Next, source->_start);                        \
     source->_start->Next = source->_start->Prev = source->_start;                       \
     source->Count = 0;                                                                  \
 }                                                                                       \
 void DoublyLinkedList_##T##_Insert(DoublyLinkedList(T) source, T item, int index)       \
 {                                                                                       \
+    ThrowIfNull(source);                                                                \
     if (index > source->Count) return;                                                  \
     source->Count += 1;                                                                 \
     DoublyLinkedNode_##T current = source->_start;                                      \
@@ -104,6 +108,7 @@ DoublyLinkedList(T) new(DoublyLinkedList(T))()                                  
 }                                                                                       \
 DoublyLinkedList(T) Enumerable_##T##_ToDoublyLinkedList(IEnumerable(T) source)          \
 {                                                                                       \
+    ThrowIfNull(source);                                                                \
     DoublyLinkedList(T) result = new(DoublyLinkedList(T))();                            \
     DoublyLinkedNode_##T current = result->_start;                                      \
     foreach (T item in source) {                                                        \
@@ -119,6 +124,7 @@ DoublyLinkedList(T) Enumerable_##T##_ToDoublyLinkedList(IEnumerable(T) source)  
 }                                                                                       \
 void DoublyLinkedList_##T##_Destroy(DoublyLinkedList(T)* source)                        \
 {                                                                                       \
+    ThrowIfNull(source, *source);                                                       \
     DoublyLinkedList_##T##_Clear(*source);                                              \
     memfree((*source)->_start);                                                         \
     memfree(*source);                                                                   \
@@ -126,6 +132,7 @@ void DoublyLinkedList_##T##_Destroy(DoublyLinkedList(T)* source)                
 }                                                                                       \
 void DoublyLinkedList_##T##_Sort(DoublyLinkedList(T) source, int (*comparer)(T, T))     \
 {                                                                                       \
+    ThrowIfNull(source, comparer);                                                      \
     for (DoublyLinkedNode_##T i = source->_start->Next; i->Next != source->_start; i = i->Next) { \
         for (DoublyLinkedNode_##T j = i; j != source->_start; j = j->Next) {            \
             if (comparer(i->Value, j->Value) < 0) {                                     \

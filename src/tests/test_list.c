@@ -44,45 +44,45 @@ int aggregate(int accumulate, int item)
     return accumulate + item;
 }
 
-void test_with_numbers(void)
+void test_with_numbers(FILE* output)
 {
     int items[] = { 17, 4, 1, 5 };
     List(int) int_list = new(List(int))(7);
-    printf("Item count: %d\nList capacity: %d\n", int_list->Count, int_list->Capacity);
-    printf("Array items: ");
+    fprintf(output, "Item count: %d\nList capacity: %d\n", int_list->Count, int_list->Capacity);
+    fprintf(output, "Array items: ");
     for (int i = 0; i < 4; ++i)
     {
-        printf("%d, ", items[i]);
+        fprintf(output, "%d, ", items[i]);
         List_int_Add(int_list, items[i]);
     }
-    printf("\nItem count: %d\nList capacity: %d\n", int_list->Count, int_list->Capacity);
+    fprintf(output, "\nItem count: %d\nList capacity: %d\n", int_list->Count, int_list->Capacity);
     List_int_TrimExcess(int_list);
-    printf("Item count: %d\nList capacity: %d\n", int_list->Count, int_list->Capacity);
+    fprintf(output, "Item count: %d\nList capacity: %d\n", int_list->Count, int_list->Capacity);
     IEnumerable(int) enumerable = (IEnumerable(int))int_list;
     ShowValues(enumerable);
-    printf("Selector function that adds 3:\n");
+    fprintf(output, "Selector function that adds 3:\n");
     enumerable = Enumerable_int_Select_int(enumerable, selector);
     ShowValues(enumerable);
-    printf("Selector function that divides by 2:\n");
+    fprintf(output, "Selector function that divides by 2:\n");
     enumerable = Enumerable_int_Select_int(enumerable, selector2);
     ShowValues(enumerable);
-    printf("Where numbers are even:\n");
+    fprintf(output, "Where numbers are even:\n");
     enumerable = Enumerable_int_Where(enumerable, filter);
     ShowValues(enumerable);
-    printf("Project each value into an array of three times the thing:\n");
+    fprintf(output, "Project each value into an array of three times the thing:\n");
     enumerable = Enumerable_int_SelectMany_int(enumerable, selectMany);
     ShowValues(enumerable);
-    printf("Take only the first five items:\n");
+    fprintf(output, "Take only the first five items:\n");
     enumerable = Enumerable_int_Take(enumerable, 5);
     ShowValues(enumerable);
-    printf("Skip the first two items:\n");
+    fprintf(output, "Skip the first two items:\n");
     enumerable = Enumerable_int_Skip(enumerable, 2);
     ShowValues(enumerable);
-    printf("Original list enumeration:\n");
+    fprintf(output, "Original list enumeration:\n");
     enumerable = (IEnumerable(int))int_list;
     ShowValues(enumerable);
-    printf("First even number in the list: %d\n", Enumerable_int_FirstOrDefault(enumerable, filter));
-    printf("Index of first even number in the list: %d\n", Enumerable_int_IndexOf(enumerable, Enumerable_int_FirstOrDefault(enumerable, filter)));
-    printf("Sum of all values: %d\n", Enumerable_int_Aggregate_int(enumerable, 0, aggregate));
+    fprintf(output, "First even number in the list: %d\n", Enumerable_int_FirstOrDefault(enumerable, filter));
+    fprintf(output, "Index of first even number in the list: %d\n", Enumerable_int_IndexOf(enumerable, Enumerable_int_FirstOrDefault(enumerable, filter)));
+    fprintf(output, "Sum of all values: %d\n", Enumerable_int_Aggregate_int(enumerable, 0, aggregate));
     List_int_Destroy(&int_list);
 }

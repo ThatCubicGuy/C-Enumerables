@@ -5,6 +5,7 @@ const string string_Empty = "";
 
 static int StringComparerOrdinalCompare(string left, string right)
 {
+    if (left == NULL || right == NULL) return left - right;
     int len = string_Length(left);
     for (int i = 0; i <= len; ++i) {
         if (left[i] != right[i]) return left[i] - right[i];
@@ -28,6 +29,7 @@ static inline char ToLower(char c)
 }
 static int StringComparerOrdinalIgnoreCaseCompare(string left, string right)
 {
+    if (left == NULL || right == NULL) return left - right;
     int len = string_Length(left);
     for (int i = 0; i <= len; ++i) {
         if (ToLower(left[i]) != ToLower(right[i])) {
@@ -94,6 +96,7 @@ string string_Concat(string first, string second)
 {
     int length = string_Length(first) + string_Length(second);
     string result = arralloc(char, length + 1);
+    if (!result) throw new(OutOfMemoryException)(length + 1);
     int i = 0;
     while (first[i]) {
         ((char*)result)[i] = first[i];
@@ -118,7 +121,8 @@ string string_Format(string format, ...)
     return new(string)(buf);
 }
 
-#include "CubeEnumerablesGenericImplementations.h"
+#include "EnumerableImplement.h"
+#include "ListImplement.h"
 ENUMERABLE_DEFINE(string)
 ENUMERABLE_DEFINE_AGGREGATE(string, int)
 LIST_DEFINE(string)
@@ -140,8 +144,9 @@ string string_Join(string separator, IEnumerable(string) values)
         (IEnumerable(string))(list),
         string_Length(separator) * (list->Count - 1),
         sumLengths);
-    string first = list->Values[0];
+    string first = index(list, 0);
     string result = arralloc(char, totalLength + 1);
+    if (!result) throw new(OutOfMemoryException)(totalLength + 1);
     memcopy((char*)(result + string_Length(result)), first, string_Length(first));
     List_string_Remove(list, first);
     foreach (string str in list) {

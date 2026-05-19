@@ -1,7 +1,7 @@
 #include "Collections/Generic/EnumerableT.h"
 #include "Collections/Generic/LinkedListT.h"
 #include "Tests.h"
-#include <stdio.h>
+
 #ifndef INT_ENUMERABLE_DEFINED
 #define INT_ENUMERABLE_DEFINED
 ENUMERABLE_DEFINE(int)
@@ -18,7 +18,7 @@ int multBy3(int item)
     return item * 3;
 }
 #undef var
-void test_generic_linked_lists(void)
+void test_generic_linked_lists(FILE* output)
 {
     LinkedList(int) int_list = new(LinkedList(int))();
     LinkedList_int_Add(int_list, 4);
@@ -26,18 +26,18 @@ void test_generic_linked_lists(void)
     LinkedList_int_Add(int_list, 7);
     LinkedList_int_Add(int_list, 1);
     LinkedList_int_Add(int_list, 3);
-    printf("List address: %p\n", int_list);
+    fprintf(output, "List address: %p\n", int_list);
     foreach (int var in int_list) {
-        printf("Item in list: %d\n", var);
+        fprintf(output, "Item in list: %d\n", var);
     }
-    printf("Select first 4 as multiplied by 3:\n");
+    fprintf(output, "Select first 4 as multiplied by 3:\n");
     foreach (int var in Enumerable_int_Take(Enumerable_int_Select_int((IEnumerable(int))int_list, multBy3), 4)) {
-        printf("Item in list: %d\n", var);
+        fprintf(output, "Item in list: %d\n", var);
     }
-    printf("Insert 19 at index 2 and prepend 0:\n");
+    fprintf(output, "Insert 19 at index 2 and prepend 0:\n");
     LinkedList_int_Insert(int_list, 19, 2);
     foreach (int var in Enumerable_int_Prepend((IEnumerable(int))int_list, 0)) {
-        printf("Item in list: %d\n", var);
+        fprintf(output, "Item in list: %d\n", var);
     }
     LinkedList_int_Destroy(&int_list);
 }

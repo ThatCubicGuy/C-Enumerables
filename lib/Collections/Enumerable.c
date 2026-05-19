@@ -618,6 +618,7 @@ typedef TAG(OrderedEnumerable) {
 static IOrderedEnumerable CreateOrderedEnumerable(TAG(IOrderedEnumerable)* This, Func(int, object, object) comparer, bool descending)
 {
     throw new(Exception)("Not implemented!");
+    (void)This, (void)comparer, (void)descending;
     return NULL;
 }
 
@@ -922,7 +923,7 @@ bool Enumerable_SequenceEqual(IEnumerable first, IEnumerable second)
     return true;
 }
 #include "Tuple.h"
-TUPLE_2_DEFINE(int, object)
+TUPLE_DEFINE(int, object)
 typedef const TAG(IndexEnumerable) {
     IMPL(CompoundEnumerable);
 } *IndexEnumerable;

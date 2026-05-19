@@ -1,34 +1,37 @@
 #ifndef TESTS
 #define TESTS
+#include <stdio.h>
 
-void test_with_structs(void);
+void test_with_structs(FILE*);
 
-void test_with_numbers(void);
+void test_with_numbers(FILE*);
 
-void test_linked_lists(void);
+void test_linked_lists(FILE*);
 
-void test_arrays(void);
+void test_arrays(FILE*);
 
-void test_generic_linked_lists(void);
+void test_generic_linked_lists(FILE*);
 
-void test_index(void);
+void test_index(FILE*);
 
-void test_ordering(void);
+void test_ordering(FILE*);
 
-void test_stacks(void);
+void test_stacks(FILE*);
 
-void test_queues(void);
+void test_queues(FILE*);
 
-void test_doubly_linked_list(void);
+void test_doubly_linked_list(FILE*);
 
-void test_heaps(void);
+void test_heaps(FILE*);
 
-void test_priority_queue(void);
+void test_priority_queue(FILE*);
 
-void test_dictionary(void);
+void test_dictionary(FILE*);
 
-void test_hash_set(void);
+void test_hash_set(FILE*);
 
-void test_hash_set_string(void);
+void test_hash_set_string(FILE*);
+
+void test_stack_trace(FILE*);
 
 #endif

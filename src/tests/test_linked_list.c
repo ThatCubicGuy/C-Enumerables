@@ -1,19 +1,18 @@
 #include "Collections/Enumerable.h"
 #include "Collections/LinkedList.h"
 #include "Tests.h"
-#include <stdio.h>
 
 typedef struct list_item_s {
     int Number;
     const char Name[16];
 } ListItem;
 
-void showItemNumber(object item)
+void showItemNumber(FILE* output, object item)
 {
-    printf("%s: %d\n", ((ListItem*)item)->Name, ((ListItem*)item)->Number);
+    fprintf(output, "%s: %d\n", ((ListItem*)item)->Name, ((ListItem*)item)->Number);
 }
 
-void test_linked_lists(void)
+void test_linked_lists(FILE* output)
 {
     ListItem a = (ListItem) {
         .Number = 4,
@@ -26,13 +25,13 @@ void test_linked_lists(void)
         .Name = "watahelly"
     };
     LinkedList list = new(LinkedList)();
-    printf("List address: %p\n", list);
+    fprintf(output, "List address: %p\n", list);
     LinkedList_Add(list, &c);
     LinkedList_Add(list, &b);
     LinkedList_Add(list, &b);
     LinkedList_Add(list, &b);
     LinkedList_Add(list, &a);
-    foreach_as(object, item, (IEnumerable)(list), showItemNumber(item));
+    foreach_as(object, item, (IEnumerable)(list), showItemNumber(output, item));
     LinkedList_Clear(list);
     LinkedList_Add(list, &c);
     LinkedList_Add(list, &c);
@@ -40,17 +39,17 @@ void test_linked_lists(void)
     LinkedList_Add(list, &c);
     LinkedList_Insert(list, &a, 2);
     LinkedList_Insert(list, &a, 2);
-    printf("It's-a %d!\n", ((ListItem*)list->_end->Value)->Number);
-    foreach_as(object, item, (IEnumerable)(list), showItemNumber(item));
-    printf("Count: %d\n", list->Count);
+    fprintf(output, "It's-a %d!\n", ((ListItem*)list->_end->Value)->Number);
+    foreach_as(object, item, (IEnumerable)(list), showItemNumber(output, item));
+    fprintf(output, "Count: %d\n", list->Count);
     LinkedList_Clear(list);
-    printf("Count: %d\n", list->Count);
+    fprintf(output, "Count: %d\n", list->Count);
     LinkedList_Add(list, &a);
     LinkedList_Add(list, &b);
     LinkedList_Add(list, &c);
-    foreach_as(object, item, (IEnumerable)(list), showItemNumber(item));
-    printf("Reverse list:\n");
+    foreach_as(object, item, (IEnumerable)(list), showItemNumber(output, item));
+    fprintf(output, "Reverse list:\n");
     LinkedList_Reverse(list);
-    foreach_as(object, item, (IEnumerable)(list), showItemNumber(item));
+    foreach_as(object, item, (IEnumerable)(list), showItemNumber(output, item));
     LinkedList_Destroy(&list);
 }

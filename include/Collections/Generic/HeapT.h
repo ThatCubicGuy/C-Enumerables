@@ -11,6 +11,7 @@ typedef TAG(Heap(T)) {                              \
     T* _items;                                      \
 } *Heap(T);                                         \
 Heap(T) new(Heap(T))(int capacity, int type, int (*comparer)(T, T));\
+void Heap_##T##_Destroy(Heap(T) *source);           \
 void Heap_##T##_Push(Heap(T) source, T item);       \
 T Heap_##T##_Pop(Heap(T) source);                   \
 T Heap_##T##_Peek(Heap(T) source);                  \

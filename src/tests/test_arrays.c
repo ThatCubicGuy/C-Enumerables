@@ -3,7 +3,6 @@
 #include "Tests.h"
 #include "String.h"
 #include "Keywords.h"
-#include <stdio.h>
 
 typedef TAG(CarClass) {
     string Manufacturer;
@@ -37,27 +36,27 @@ CartRecord CartRecord__ctor(string manufacturer, int maxSpeed, float acceleratio
     return result;
 }
 
-void showItem(CarClass car)
+void showItem(FILE* output, CarClass car)
 {
-    printf("%s (%d)\n ", car->Manufacturer, car->Year);
+    fprintf(output, "%s (%d)\n ", car->Manufacturer, car->Year);
 }
-#undef var
-void test_arrays(void)
+
+void test_arrays(FILE* output)
 {
     CarClass car = new(CarClass)();
     car->Manufacturer = new(string)("Toyota");
     car->Year = 2023;
-    showItem(car);
+    showItem(output, car);
     CartRecord cart = new(CartRecord)("Ferrari", 240, 0.8);
-    printf("Cart stuff: %s; %d, %.2f\n", cart->Manufacturer, cart->MaxSpeed, cart->Acceleration);
+    fprintf(output, "Cart stuff: %s; %d, %.2f\n", cart->Manufacturer, cart->MaxSpeed, cart->Acceleration);
     Array arr = new_array(CarClass)(16);
     Array_CarClass_Initialize(arr);
     Array_CarClass_Set(arr, 7, car);
-    printf("Array value at 7:\n");
-    showItem(Array_CarClass_Get(arr, 7));
-    printf("Array Length: %d; MaxLength: %d, _memberSize: %d\n", arr->Length, arr->MaxLength, arr->_memberSize);
-    printf("Array has values:\n");
-    foreach_deref(CarClass, var, arr, showItem(var));
+    fprintf(output, "Array value at 7:\n");
+    showItem(output, Array_CarClass_Get(arr, 7));
+    fprintf(output, "Array Length: %d; MaxLength: %d, _memberSize: %d\n", arr->Length, arr->MaxLength, arr->_memberSize);
+    fprintf(output, "Array has values:\n");
+    foreach_deref(CarClass, item, arr, showItem(output, item));
     Array_Destroy(&arr);
 }
 

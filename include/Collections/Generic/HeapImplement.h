@@ -13,9 +13,17 @@ Heap(T) new(Heap(T))(int capacity, int type, int (*comparer)(T, T))     \
     };                                                                  \
     return result;                                                      \
 }                                                                       \
+void Heap_##T##_Destroy(Heap(T) *source)                                \
+{                                                                       \
+    ThrowIfNull(source, *source);                                       \
+    memfree((*source)->_items);                                         \
+    memfree(*source);                                                   \
+    *source = NULL;                                                     \
+}                                                                       \
 void Heap_##T##_Push(Heap(T) source, T item)                            \
 {                                                                       \
-    if (source->Count == source->Capacity) {                            \
+    ThrowIfNull(source);                                                \
+    if (source->Count >= source->Capacity) {                            \
         Heap_##T##_EnsureCapacity(source, source->Capacity * 2);        \
     }                                                                   \
     source->_items[source->Count] = item;                               \
@@ -31,6 +39,7 @@ void Heap_##T##_Push(Heap(T) source, T item)                            \
 }                                                                       \
 T Heap_##T##_Pop(Heap(T) source)                                        \
 {                                                                       \
+    ThrowIfNull(source);                                                \
     T result = source->_items[0];                                       \
     source->Count -= 1;                                                 \
     source->_items[0] = source->_items[source->Count];                  \
@@ -54,33 +63,40 @@ T Heap_##T##_Pop(Heap(T) source)                                        \
 }                                                                       \
 T Heap_##T##_Peek(Heap(T) source)                                       \
 {                                                                       \
+    ThrowIfNull(source);                                                \
     return source->_items[0];                                           \
 }                                                                       \
 void Heap_##T##_Clear(Heap(T) source)                                   \
 {                                                                       \
+    ThrowIfNull(source);                                                \
     source->Count = 0;                                                  \
 }                                                                       \
 bool Heap_##T##_TryPop(Heap(T) source, T* out)                          \
 {                                                                       \
+    ThrowIfNull(source);                                                \
     if (source->Count == 0) return false;                               \
     if (out) *out = Heap_##T##_Pop(source);                             \
     return true;                                                        \
 }                                                                       \
 bool Heap_##T##_TryPeek(Heap(T) source, T* out)                         \
 {                                                                       \
+    ThrowIfNull(source);                                                \
     if (source->Count == 0) return false;                               \
     if (out) *out = Heap_##T##_Peek(source);                            \
     return true;                                                        \
 }                                                                       \
 void Heap_##T##_TrimExcess(Heap(T) source)                              \
 {                                                                       \
-    if (source->Count < source->Capacity - source->Capacity / 10) {     \
+    ThrowIfNull(source);                                                \
+    if (source->Count > 0 &&                                            \
+        source->Count < source->Capacity - source->Capacity / 10) {     \
         source->_items = memresize(source->_items, source->Count);      \
         source->Capacity = source->Count;                               \
     }                                                                   \
 }                                                                       \
 void Heap_##T##_EnsureCapacity(Heap(T) source, int capacity)            \
 {                                                                       \
+    ThrowIfNull(source);                                                \
     if (source->Capacity < capacity) {                                  \
         source->_items = memresize(source->_items, capacity);           \
         source->Capacity = capacity;                                    \

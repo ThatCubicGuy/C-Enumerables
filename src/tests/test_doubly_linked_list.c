@@ -1,7 +1,7 @@
 #include "Collections/Generic/EnumerableT.h"
 #include "Collections/Generic/DoublyLinkedListT.h"
 #include "Tests.h"
-#include <stdio.h>
+
 #ifndef INT_ENUMERABLE_DEFINED
 #define INT_ENUMERABLE_DEFINED
 ENUMERABLE_DEFINE(int)
@@ -13,15 +13,15 @@ ENUMERABLE_DEFINE_AGGREGATE(int, int)
 DOUBLY_LINKED_LIST_DEFINE(int)
 #endif
 
-void test_doubly_linked_list(void)
+void test_doubly_linked_list(FILE* output)
 {
     DoublyLinkedList(int) list = new(DoublyLinkedList(int))();
     DoublyLinkedList_int_Add(list, 15);
     DoublyLinkedList_int_Add(list, 5);
     DoublyLinkedList_int_Add(list, 1);
     DoublyLinkedList_int_Add(list, 9);
-    printf("Item count: %d\n", list->Count);
+    fprintf(output, "Item count: %d\n", list->Count);
     foreach (int item in list) {
-        printf("Item: %d\n", item);
+        fprintf(output, "Item: %d\n", item);
     }
 }

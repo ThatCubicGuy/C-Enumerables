@@ -6,6 +6,9 @@
 #define IEnumerator(T) CAT(IEnumerator_,T)
 #define IEnumerable(T) CAT(IEnumerable_,T)
 
+// Allows for safe accessing of a collection which can be accessed by index.
+#define index(LIST, INDEX) ((0 <= (INDEX) && (INDEX) < (LIST)->Count) ? LIST->Values[INDEX] : throwe(new(IndexOutOfRangeException)(INDEX, (LIST)->Count)))
+
 #define ENUMERABLE_DEFINE(T)                                                                            \
 typedef TAG(IEnumerator(T)) {                                                                           \
     bool (*MoveNext)(TAG(IEnumerator(T))* This);                                                        \

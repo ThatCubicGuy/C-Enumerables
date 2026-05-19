@@ -8,10 +8,10 @@
 ENUMERABLE_DEFINE(int)
 QUEUE_DEFINE(int)
 
-#define TRYPEEK(QUEUE, OUT) do { if (Queue_int_TryPeek(QUEUE, &OUT)) { printf("Peek "#QUEUE": %d\n", OUT); } else printf("Peek failed! Count: %d\n", QUEUE->Count); } while (0)
-#define TRYDEQUEUE(QUEUE, OUT) do { if (Queue_int_TryDequeue(QUEUE, &OUT)) { printf("Dequeue "#QUEUE": %d\n", OUT); } else printf("Dequeue failed! Count: %d\n", QUEUE->Count); } while (0)
+#define TRYPEEK(QUEUE, OUT) do { if (Queue_int_TryPeek(QUEUE, &OUT)) { fprintf(output, "Peek "#QUEUE": %d\n", OUT); } else fprintf(output, "Peek failed! Count: %d\n", QUEUE->Count); } while (0)
+#define TRYDEQUEUE(QUEUE, OUT) do { if (Queue_int_TryDequeue(QUEUE, &OUT)) { fprintf(output, "Dequeue "#QUEUE": %d\n", OUT); } else fprintf(output, "Dequeue failed! Count: %d\n", QUEUE->Count); } while (0)
 
-void test_queues(void)
+void test_queues(FILE* output)
 {
     int result;
     Queue(int) queue = new(Queue(int))(2);
@@ -22,24 +22,24 @@ void test_queues(void)
     Queue_int_Enqueue(queue, 6);
     Queue_int_Enqueue(queue, 7);
     foreach (int item in queue) {
-        printf("Item: %d\n", item);
+        fprintf(output, "Item: %d\n", item);
     }
     TRYDEQUEUE(queue, result);
     foreach (int item in queue) {
-        printf("Item: %d\n", item);
+        fprintf(output, "Item: %d\n", item);
     }
     TRYPEEK(queue, result);
     foreach (int item in queue) {
-        printf("Item: %d\n", item);
+        fprintf(output, "Item: %d\n", item);
     }
-    printf("Clear queue...\n");
+    fprintf(output, "Clear queue...\n");
     Queue_int_Clear(queue);
     foreach (int item in queue) {
-        printf("Item: %d\n", item);
+        fprintf(output, "Item: %d\n", item);
     }
     TRYDEQUEUE(queue, result);
     TRYPEEK(queue, result);
-    printf("Add 57...\n");
+    fprintf(output, "Add 57...\n");
     Queue_int_Enqueue(queue, 57);
     TRYPEEK(queue, result);
     TRYDEQUEUE(queue, result);

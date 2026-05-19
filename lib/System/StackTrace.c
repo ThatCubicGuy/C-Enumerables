@@ -3,36 +3,32 @@
 
 #pragma region Stack Trace
 
-#define STACKTRACE_SIZE 256
-
-#include <stdio.h>
-
-TAG(StackTraceStatic) {
+static TAG(StackTraceStatic) {
     Exception LastThrownException;
     int Tail;
     bool UpThrow;
     bool FinallyReturnsToCode;
     jmp_buf Stack[STACKTRACE_SIZE][1];
-} static StackTrace = {
+} StackTrace = {
     .LastThrownException = NULL,
     .Tail = 0,
     .UpThrow = false,
     .FinallyReturnsToCode = false,
-    .Stack = {0},
+    .Stack = {{{{{0},0,{{0}}}}}},
 };
 
 jmp_buf* StackTrace_Push(void)
 {
     DEBUG_WRITELINE("Called StackTrace_Push. Count before: %d", StackTrace.Tail);
     StackTrace.Tail += 1;
-    ASSERT(StackTrace.Tail > 0);
+    TRACE_ASSERT(StackTrace.Tail > 0);
     return StackTrace.Stack[StackTrace.Tail - 1];
 }
 
 jmp_buf* StackTrace_Peek(void)
 {
     DEBUG_WRITELINE("Called StackTrace_Peek. Count: %d", StackTrace.Tail);
-    ASSERT(StackTrace.Tail > 0);
+    TRACE_ASSERT(StackTrace.Tail > 0);
     return StackTrace.Stack[StackTrace.Tail - 1];
 }
 
@@ -43,13 +39,9 @@ jmp_buf* StackTrace_Pop(Exception ex)
         fprintf(stderr, "Unhandled exception: \"%s\"\n", ex ? ex->Message : "(nil)");
         exit(EXIT_UNHANDLED_EXCEPTION);
     }
-    if (StackTrace.Tail >= STACKTRACE_SIZE) {
-        fprintf(stderr, "CATASTROPHICAL ERROR - StackTrace count above max!\n");
-        fprintf(stderr, "StackTrace fields:\n%p\n%d\n%d\n%d\n%p\n", StackTrace.LastThrownException, StackTrace.Tail, StackTrace.UpThrow, StackTrace.FinallyReturnsToCode, StackTrace.Stack[0]);
-    }
+    TRACE_ASSERT(StackTrace.Tail > 0 && StackTrace.Tail < STACKTRACE_SIZE, "StackTrace fields:\nLast thrown exception: %p\nTail (Count): %d\nUpThrow set: %d\nFinallyReturnsToCode set: %d\nStack[0]: %p\n", StackTrace.LastThrownException, StackTrace.Tail, StackTrace.UpThrow, StackTrace.FinallyReturnsToCode, StackTrace.Stack[0]);
     StackTrace.LastThrownException = ex;
     StackTrace.Tail -= 1;
-    ASSERT(StackTrace.Tail >= 0);
     return StackTrace.Stack[StackTrace.Tail];
 }
 

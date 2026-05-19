@@ -2,11 +2,12 @@
 #define COLLECTIONS_GENERIC_ENUMERABLE_IMPLEMENTATIONS
 #include "EnumerableT.h"
 #define ENUMERABLE_IMPLEMENT(T)                                                                         \
-static bool EmptyMoveNext_##T([[maybe_unused]] IEnumerator(T) This) { return false; }                   \
-static void EmptyReset_##T([[maybe_unused]] IEnumerator(T) This) {}                                     \
+static bool EmptyMoveNext_##T(IEnumerator(T) This) { (void)This;  return false; }                       \
+static void EmptyReset_##T(IEnumerator(T) This) { (void)This; }                                         \
 static void EmptyDispose_##T(IEnumerator(T) This) { memfree(This); }                                    \
-static IEnumerator(T) EmptyEnumerator_##T([[maybe_unused]] IEnumerable(T) This)                         \
+static IEnumerator(T) EmptyEnumerator_##T(IEnumerable(T) This)                                          \
 {                                                                                                       \
+    (void)This;                                                                                         \
     IEnumerator(T) result = meminit(IEnumerator(T)) {                                                   \
         .MoveNext = EmptyMoveNext_##T,                                                                  \
         .Reset = EmptyReset_##T,                                                                        \
@@ -65,6 +66,7 @@ static IEnumerator(T) GetWhereEnumerator_##T(IEnumerable(T) This)               
 }                                                                                                       \
 IEnumerable(T) Enumerable_##T##_Where(IEnumerable(T) source, bool (*filter)(T))                         \
 {                                                                                                       \
+    ThrowIfNull(source, filter);                                                                        \
     WhereEnumerable_##T result = meminit(WhereEnumerable_##T) {                                         \
         .GetEnumerator = GetWhereEnumerator_##T,                                                        \
         ._baseEnumerable = source,                                                                      \
@@ -141,6 +143,8 @@ static IEnumerator(T) GetSkipEnumerator_##T(IEnumerable(T) This)                
 }                                                                                                       \
 IEnumerable(T) Enumerable_##T##_Take(IEnumerable(T) source, int count)                                  \
 {                                                                                                       \
+    ThrowIfNull(source);                                                                                \
+    if (count < 0) throw new(ArgumentOutOfRangeException)(nameof(count), 0, 2147483647);                \
     LimitedEnumerable_##T result = meminit(LimitedEnumerable_##T) {                                     \
         .GetEnumerator = GetTakeEnumerator_##T,                                                         \
         ._baseEnumerable = source,                                                                      \
@@ -150,6 +154,8 @@ IEnumerable(T) Enumerable_##T##_Take(IEnumerable(T) source, int count)          
 }                                                                                                       \
 IEnumerable(T) Enumerable_##T##_Skip(IEnumerable(T) source, int count)                                  \
 {                                                                                                       \
+    ThrowIfNull(source);                                                                                \
+    if (count < 0) throw new(ArgumentOutOfRangeException)(nameof(count), 0, 2147483647);                \
     LimitedEnumerable_##T result = meminit(LimitedEnumerable_##T) {                                     \
         .GetEnumerator = GetSkipEnumerator_##T,                                                         \
         ._baseEnumerable = source,                                                                      \
@@ -227,6 +233,7 @@ static IEnumerator(T) GetPrependEnumerator_##T(IEnumerable(T) This)             
 }                                                                                                       \
 IEnumerable(T) Enumerable_##T##_Append(IEnumerable(T) source, T item)                                   \
 {                                                                                                       \
+    ThrowIfNull(source);                                                                                \
     ExtendEnumerable_##T result = meminit(ExtendEnumerable_##T) {                                       \
         .GetEnumerator = GetAppendEnumerator_##T,                                                       \
         ._baseEnumerable = source,                                                                      \
@@ -236,6 +243,7 @@ IEnumerable(T) Enumerable_##T##_Append(IEnumerable(T) source, T item)           
 }                                                                                                       \
 IEnumerable(T) Enumerable_##T##_Prepend(IEnumerable(T) source, T item)                                  \
 {                                                                                                       \
+    ThrowIfNull(source);                                                                                \
     ExtendEnumerable_##T result = meminit(ExtendEnumerable_##T) {                                       \
         .GetEnumerator = GetPrependEnumerator_##T,                                                      \
         ._baseEnumerable = source,                                                                      \
@@ -288,6 +296,7 @@ static IEnumerator(T) GetConcatEnumerator_##T(IEnumerable(T) This)              
 }                                                                                                       \
 IEnumerable(T) Enumerable_##T##_Concat(IEnumerable(T) first, IEnumerable(T) second)                     \
 {                                                                                                       \
+    ThrowIfNull(first, second);                                                                         \
     ConcatEnumerable_##T result = meminit(ConcatEnumerable_##T) {                                       \
         .GetEnumerator = GetConcatEnumerator_##T,                                                       \
         ._firstEnumerable = first,                                                                      \
@@ -297,6 +306,7 @@ IEnumerable(T) Enumerable_##T##_Concat(IEnumerable(T) first, IEnumerable(T) seco
 }                                                                                                       \
 T Enumerable_##T##_ElementAt(IEnumerable(T) source, int index)                                          \
 {                                                                                                       \
+    ThrowIfNull(source);                                                                                \
     if (index < 0) return default(T);                                                                   \
     IEnumerator(T) e = source->GetEnumerator(source);                                                   \
     while(e->MoveNext(e) && index > 0) { index -= 1; }                                                  \
@@ -306,6 +316,7 @@ T Enumerable_##T##_ElementAt(IEnumerable(T) source, int index)                  
 }                                                                                                       \
 bool Enumerable_##T##_Any(IEnumerable(T) source, bool (*predicate)(T))                                  \
 {                                                                                                       \
+    ThrowIfNull(source, predicate);                                                                     \
     IEnumerator(T) e = source->GetEnumerator(source);                                                   \
     while(e->MoveNext(e)) {                                                                             \
         if (predicate(e->Current)) {                                                                    \
@@ -318,6 +329,7 @@ bool Enumerable_##T##_Any(IEnumerable(T) source, bool (*predicate)(T))          
 }                                                                                                       \
 bool Enumerable_##T##_All(IEnumerable(T) source, bool (*predicate)(T))                                  \
 {                                                                                                       \
+    ThrowIfNull(source, predicate);                                                                     \
     IEnumerator(T) e = source->GetEnumerator(source);                                                   \
     while(e->MoveNext(e)) {                                                                             \
         if (!predicate(e->Current)) {                                                                   \
@@ -330,6 +342,7 @@ bool Enumerable_##T##_All(IEnumerable(T) source, bool (*predicate)(T))          
 }                                                                                                       \
 int Enumerable_##T##_IndexOf(IEnumerable(T) source, T item)                                             \
 {                                                                                                       \
+    ThrowIfNull(source);                                                                                \
     IEnumerator(T) e = source->GetEnumerator(source);                                                   \
     for (int i = 0; e->MoveNext(e); ++i) {                                                              \
         if (equals(e->Current, item)) {                                                                 \
@@ -342,6 +355,7 @@ int Enumerable_##T##_IndexOf(IEnumerable(T) source, T item)                     
 }                                                                                                       \
 T Enumerable_##T##_FirstOrDefault(IEnumerable(T) source, bool (*predicate)(T))                          \
 {                                                                                                       \
+    ThrowIfNull(source, predicate);                                                                     \
     IEnumerator(T) e = source->GetEnumerator(source);                                                   \
     while (e->MoveNext(e)) {                                                                            \
         if (predicate(e->Current)) {                                                                    \
@@ -355,6 +369,7 @@ T Enumerable_##T##_FirstOrDefault(IEnumerable(T) source, bool (*predicate)(T))  
 }                                                                                                       \
 bool Enumerable_##T##_Contains(IEnumerable(T) source, T item)                                           \
 {                                                                                                       \
+    ThrowIfNull(source);                                                                                \
     IEnumerator(T) e = source->GetEnumerator(source);                                                   \
     while (e->MoveNext(e)) {                                                                            \
         if (equals(e->Current, item)) {                                                                 \
@@ -367,6 +382,7 @@ bool Enumerable_##T##_Contains(IEnumerable(T) source, T item)                   
 }                                                                                                       \
 int Enumerable_##T##_Count(IEnumerable(T) source)                                                       \
 {                                                                                                       \
+    ThrowIfNull(source);                                                                                \
     IEnumerator(T) e = source->GetEnumerator(source);                                                   \
     int i = 0;                                                                                          \
     while (e->MoveNext(e)) {                                                                            \
@@ -377,6 +393,7 @@ int Enumerable_##T##_Count(IEnumerable(T) source)                               
 }                                                                                                       \
 bool Enumerable_##T##_SequenceEqual(IEnumerable(T) first, IEnumerable(T) second)                        \
 {                                                                                                       \
+    ThrowIfNull(first, second);                                                                         \
     IEnumerator(T) e1 = first->GetEnumerator(first);                                                    \
     IEnumerator(T) e2 = second->GetEnumerator(second);                                                  \
     while (e1->MoveNext(e1) & e2->MoveNext(e2)) {                                                       \
@@ -436,6 +453,7 @@ static IEnumerator(t(int,T)) GetIndexEnumerator_##T(IEnumerable(t(int,T)) This) 
 }                                                                                                       \
 IEnumerable(t(int,T)) Enumerable_##T##_Index(IEnumerable(T) source)                                     \
 {                                                                                                       \
+    ThrowIfNull(source);                                                                                \
     IndexEnumerable_##T result = meminit(IndexEnumerable_##T) {                                         \
         .GetEnumerator = GetIndexEnumerator_##T,                                                        \
         ._baseEnumerable = source                                                                       \
@@ -491,6 +509,7 @@ static IEnumerator(TResult) GetSelectEnumerator_##TSource##_##TResult(IEnumerabl
 }                                                                                                       \
 IEnumerable(TResult) Enumerable_##TSource##_Select_##TResult(IEnumerable(TSource) source, TResult (*selector)(TSource)) \
 {                                                                                                       \
+    ThrowIfNull(source, selector);                                                                      \
     SelectEnumerable_##TSource##_##TResult                                                              \
         result = meminit(SelectEnumerable_##TSource##_##TResult) {                                      \
         .GetEnumerator = GetSelectEnumerator_##TSource##_##TResult,                                     \
@@ -552,6 +571,7 @@ static IEnumerator(TResult) GetSelectIndexEnumerator_##TSource##_##TResult(IEnum
 }                                                                                                       \
 IEnumerable(TResult) Enumerable_##TSource##_SelectIndex_##TResult(IEnumerable(TSource) source, TResult (*selector)(TSource, int)) \
 {                                                                                                       \
+    ThrowIfNull(source, selector);                                                                      \
     SelectIndexEnumerable_##TSource##_##TResult                                                         \
         result = meminit(SelectIndexEnumerable_##TSource##_##TResult) {                                 \
         .GetEnumerator = GetSelectIndexEnumerator_##TSource##_##TResult,                                \
@@ -624,6 +644,7 @@ static IEnumerator(TResult) GetSelectManyEnumerator_##TSource##_##TResult(IEnume
 }                                                                                                       \
 IEnumerable(TResult) Enumerable_##TSource##_SelectMany_##TResult(IEnumerable(TSource) source, IEnumerable(TResult) (*selector)(TSource)) \
 {                                                                                                       \
+    ThrowIfNull(source, selector);                                                                      \
     SelectManyEnumerable_##TSource##_##TResult                                                          \
         result = meminit(SelectManyEnumerable_##TSource##_##TResult) {                                  \
         .GetEnumerator = GetSelectManyEnumerator_##TSource##_##TResult,                                 \
@@ -636,6 +657,7 @@ IEnumerable(TResult) Enumerable_##TSource##_SelectMany_##TResult(IEnumerable(TSo
 #define ENUMERABLE_IMPLEMENT_AGGREGATE(TSource, TAggregate)         \
 TAggregate Enumerable_##TSource##_Aggregate_##TAggregate(IEnumerable(TSource) source, TAggregate seed, TAggregate (*aggregate)(TAggregate, TSource)) \
 {                                                                   \
+    ThrowIfNull(source, aggregate);                                 \
     foreach (TSource item in source) {                              \
         seed = aggregate(seed, item);                               \
     }                                                               \

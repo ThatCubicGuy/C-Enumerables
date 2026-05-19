@@ -4,14 +4,14 @@
 #include "Keywords.h"
 
 /**
- * @brief Enumerates an IEnumerable and sets var to
+ * @brief Enumerates an IEnumerable and sets auto to
  * the current enumeration value before executing code.
  */
-#define foreach_as(T, var, source, code) do {           \
+#define foreach_as(T, auto, source, code) do {           \
     IEnumerable __src = (IEnumerable)source;            \
     IEnumerator __e = (__src)->GetEnumerator(__src);    \
     while (__e->MoveNext(__e)) {                        \
-        T var = (T)__e->Current;                        \
+        T auto = (T)__e->Current;                        \
         code;                                           \
     }                                                   \
     __e->Dispose(__e);                                  \
@@ -20,13 +20,13 @@
 /**
  * @brief Enumerates an IEnumerable and casts the
  * current enumeration value to a T pointer before
- * dereferencing it into var and executing code.
+ * dereferencing it into auto and executing code.
  */
-#define foreach_deref(T, var, source, code) do {        \
+#define foreach_deref(T, auto, source, code) do {        \
     IEnumerable __src = (IEnumerable)source;            \
     IEnumerator __e = (__src)->GetEnumerator(__src);    \
     while (__e->MoveNext(__e)) {                        \
-        T var = *(T*)__e->Current;                      \
+        T auto = *(T*)__e->Current;                      \
         code;                                           \
     }                                                   \
     __e->Dispose(__e);                                  \

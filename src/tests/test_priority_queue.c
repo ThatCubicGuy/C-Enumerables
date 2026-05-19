@@ -16,14 +16,14 @@ typedef struct car_priority_s {
     int price;
 } CarValue;
 
-static void print_car(Car car)
+static void print_car(FILE* output, Car car)
 {
-    printf("%s (%d)\n", car.model, car.year);
+    fprintf(output, "%s (%d)\n", car.model, car.year);
 }
 
-static void print_car_value(CarValue value)
+static void print_car_value(FILE* output, CarValue value)
 {
-    printf("Rarity: %d; Demand: %d%%; Price: $%d\n", value.rarity, value.demand, value.price);
+    fprintf(output, "Rarity: %d; Demand: %d%%; Price: $%d\n", value.rarity, value.demand, value.price);
 }
 
 ENUMERABLE_DEFINE(Car)
@@ -57,11 +57,11 @@ static int comp(CarValue a, CarValue b)
 #define CAR_VALUES {(CarValue){2, 10, 4000}, (CarValue){3, 20, 3000}, (CarValue){3, 40, 2000}, (CarValue){2, 20, 5000}, (CarValue){1, 15, 1500}, (CarValue){2, 30, 5000}, (CarValue){2, 30, 3000}}
 #define CNT 7
 
-void test_priority_queue(void)
+void test_priority_queue(FILE* output)
 {
-    auto pq = new(PriorityQueue(CarValue,Car))(16, comp);
-    auto q = new(Queue(Car))(16);
-    auto h = new(Heap(CarValue))(16, 4, comp);
+    var pq = new(PriorityQueue(CarValue,Car))(16, comp);
+    var q = new(Queue(Car))(16);
+    var h = new(Heap(CarValue))(16, 4, comp);
     Car cars[] = CARS;
     CarValue values[] = CAR_VALUES;
     for (int i = 0; i < CNT; ++i) {
@@ -70,19 +70,19 @@ void test_priority_queue(void)
         Heap_CarValue_Push(h, values[i]);
     }
     Car result;
-    printf("Output cars in add order:\n");
+    fprintf(output, "Output cars in add order:\n");
     while (Queue_Car_TryDequeue(q, &result)) {
-        print_car(result);
+        print_car(output, result);
     }
     CarValue priority;
-    printf("Output values in order:\n");
+    fprintf(output, "Output values in order:\n");
     while (Heap_CarValue_TryPop(h, &priority)) {
-        print_car_value(priority);
+        print_car_value(output, priority);
     }
-    printf("Output cars with priority in value order:\n");
+    fprintf(output, "Output cars with priority in value order:\n");
     while (PriorityQueue_CarValue_Car_TryDequeue(pq, &result, &priority)) {
-        print_car(result);
-        print_car_value(priority);
+        print_car(output, result);
+        print_car_value(output, priority);
     }
 }
 

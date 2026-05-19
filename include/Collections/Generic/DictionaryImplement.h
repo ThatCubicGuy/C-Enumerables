@@ -10,7 +10,7 @@ TAG(DictEntry_##TKey##_##TValue) {                                              
 };                                                                                                                          \
 Dictionary(TKey,TValue) new(Dictionary(TKey,TValue))(IEqualityComparer(TKey) comparer)                                      \
 {                                                                                                                           \
-    auto result = meminit(Dictionary(TKey,TValue)) {                                                                        \
+    Dictionary(TKey,TValue) result = meminit(Dictionary(TKey,TValue)) {                                                     \
         .Comparer = comparer,                                                                                               \
         .Count = 0,                                                                                                         \
         ._items = arralloc(DictEntry_##TKey##_##TValue, MAX_DICTIONARY_ARRAY_LENGTH)                                        \

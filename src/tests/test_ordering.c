@@ -29,7 +29,7 @@ int sort_by_motivation(object left, object right)
     return 0;
 }
 
-void test_ordering(void)
+void test_ordering(FILE* output)
 {
     Person p[8] = {
         {29, 1600, 99999},
@@ -47,21 +47,21 @@ void test_ordering(void)
         Array_Set(arr, i, p + i);
     }
     foreach_deref(Person, item, arr, {
-        printf("Array item: { Age: %d, Salary: %d, Motivation: %d }\n", item.age, item.salary, item.motivation);
+        fprintf(output, "Array item: { Age: %d, Salary: %d, Motivation: %d }\n", item.age, item.salary, item.motivation);
     });
-    printf("ORDER!!!\n");
+    fprintf(output, "ORDER!!!\n");
     IOrderedEnumerable sorted = Enumerable_OrderBy((IEnumerable)arr, sort_by_age);
     foreach_deref(Person, item, sorted, {
-        printf("Array item: { Age: %d, Salary: %d }\n", item.age, item.salary);
+        fprintf(output, "Array item: { Age: %d, Salary: %d }\n", item.age, item.salary);
     });
-    printf("Order... BETTER !!!!!\n");
+    fprintf(output, "Order... BETTER !!!!!\n");
     sorted = Enumerable_ThenBy(sorted, sort_by_salary);
     foreach_deref(Person, item, sorted, {
-        printf("Array item: { Age: %d, Salary: %d }\n", item.age, item.salary);
+        fprintf(output, "Array item: { Age: %d, Salary: %d }\n", item.age, item.salary);
     });
-    printf("Order... BETTEREST !!!!!!!!!!!!!\n");
+    fprintf(output, "Order... BETTEREST !!!!!!!!!!!!!\n");
     sorted = Enumerable_ThenBy(sorted, sort_by_motivation);
     foreach_deref(Person, item, sorted, {
-        printf("Array item: { Age: %d, Salary: %d }\n", item.age, item.salary);
+        fprintf(output, "Array item: { Age: %d, Salary: %d }\n", item.age, item.salary);
     });
 }

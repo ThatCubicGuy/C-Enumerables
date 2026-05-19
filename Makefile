@@ -32,23 +32,26 @@ USING+=Collections/Generic
 
 # Compiler setup
 CC:=gcc
-CWARNS:=all extra no-microsoft-anon-tag no-dangling-else #required because of one of my macros :moai:
-CFLAGS:=${CWARNS:%=-W%} -I${HDR} -I${LIB} ${USING:%=-I${HDR}/%} -std=gnu23 -fms-extensions
+CWARNS:=all extra error no-microsoft-anon-tag no-dangling-else #required because of one of my macros :moai:
+CEXTRAS:=ms-extensions #sanitize=address
+CFLAGS:=-std=gnu23 -g ${CWARNS:%=-W%} ${CEXTRAS:%=-f%} -I${HDR} -I${LIB} ${USING:%=-I${HDR}/%} -include"${HDR}/Keywords.h"
 
 # Functions
-## Get objects relevant to $1 considering root $2 from list $3.
+## Get objects relevant to executable $1 considering root $2 from list $3.
 get_relevant_objs=$(filter $(basename $(patsubst ${BIN}/%,$(2)/%,$(1)))/% $(basename $(patsubst ${BIN}/%,$(2)/%,$(1))).%,$(3))
 
 all: ${EXES}
 
 run: all
-	${EXES:%=echo; TARGET=%; $${TARGET} || echo -e "\n$${TARGET}: exit $$?";}
+	${foreach target,${EXES},echo; ${target} || echo -e "\n${target}: exit $$?";}
+
+void:
 
 # Basically enable Make to take filenames as arguments
-$(basename $(notdir ${EXES})): %: ${BIN}/%.exe
+$(basename $(notdir ${EXES})): %: ${BIN}/%.exe void
 	@$<
 
-pack: ${LIBS}
+libs: ${LIBS}
 
 .SECONDEXPANSION:
 ${EXES}: $$(call get_relevant_objs,$$@,${OBJ},${OBJECTS}) ${LIBS} | ${BIN}
@@ -90,9 +93,7 @@ debug:
 	@echo -e "\033[36mObject files:\033[33m${OBJECTS:%=\n    %}\033[0m"
 	@echo -e "$(foreach ex,${EXES},\n\033[32m${ex}\033[0m$(patsubst %,\033[33m\n  └──> \033[31m%\033[0m,$(filter ${ex:${BIN}/%.exe=${OBJ}/%}%,${OBJECTS})))"
 
-debuger:
-	@echo -e "TEST:\n$(call get_relevant_objs,$(firstword ${EXES}),${OBJECTS})"
 cc:
 	${CC} --version
 
-.PHONY: all run test clean reset debug cc
+.PHONY: all run libs test clean reset debug cc
