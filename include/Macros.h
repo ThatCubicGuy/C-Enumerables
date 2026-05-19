@@ -19,15 +19,17 @@
 #define EXPAND(...) __VA_ARGS__
 #define UNWRAP(...) __VA_ARGS__
 
+#define COMMA ,
+
 // Source - https://stackoverflow.com/a/62984543
 // Posted by Nero
 // Retrieved 2026-03-10, License - CC BY-SA 4.0
 
-#define __VANISH__
+#define __VANISH_
 #define __ESC_I(...) __VAN##__VA_ARGS__
 #define __ESC(...) __ESC_I(__VA_ARGS__)
-#define ISH__(...) ISH__ __VA_ARGS__
-#define DEPAREN(x) __ESC(ISH__ x)
+#define ISH_(...) ISH_ __VA_ARGS__
+#define DEPAREN(x) __ESC(ISH_ x)
 
 // #define IFNEMPTY(x, ELSE...)
 
@@ -252,40 +254,75 @@
 // Execute a macro for each of the parameters in a collection, up to 32 times.
 #define FOREACH(id, ...) __VA_OPT__(CAT(__FOREACH_, NARGS(__VA_ARGS__))(id, __VA_ARGS__))
 
-#define __FOREACH_ARGS_1(id, BASEARGS, _0, ...) DEFER(id)(DEPAREN(BASEARGS), DEPAREN(_0))
-#define __FOREACH_ARGS_2(id, BASEARGS, _0, ...) DEFER(id)(DEPAREN(BASEARGS), DEPAREN(_0)) __FOREACH_ARGS_1(id, BASEARGS, __VA_ARGS__)
-#define __FOREACH_ARGS_3(id, BASEARGS, _0, ...) DEFER(id)(DEPAREN(BASEARGS), DEPAREN(_0)) __FOREACH_ARGS_2(id, BASEARGS, __VA_ARGS__)
-#define __FOREACH_ARGS_4(id, BASEARGS, _0, ...) DEFER(id)(DEPAREN(BASEARGS), DEPAREN(_0)) __FOREACH_ARGS_3(id, BASEARGS, __VA_ARGS__)
-#define __FOREACH_ARGS_5(id, BASEARGS, _0, ...) DEFER(id)(DEPAREN(BASEARGS), DEPAREN(_0)) __FOREACH_ARGS_4(id, BASEARGS, __VA_ARGS__)
-#define __FOREACH_ARGS_6(id, BASEARGS, _0, ...) DEFER(id)(DEPAREN(BASEARGS), DEPAREN(_0)) __FOREACH_ARGS_5(id, BASEARGS, __VA_ARGS__)
-#define __FOREACH_ARGS_7(id, BASEARGS, _0, ...) DEFER(id)(DEPAREN(BASEARGS), DEPAREN(_0)) __FOREACH_ARGS_6(id, BASEARGS, __VA_ARGS__)
-#define __FOREACH_ARGS_8(id, BASEARGS, _0, ...) DEFER(id)(DEPAREN(BASEARGS), DEPAREN(_0)) __FOREACH_ARGS_7(id, BASEARGS, __VA_ARGS__)
-#define __FOREACH_ARGS_9(id, BASEARGS, _0, ...) DEFER(id)(DEPAREN(BASEARGS), DEPAREN(_0)) __FOREACH_ARGS_8(id, BASEARGS, __VA_ARGS__)
-#define __FOREACH_ARGS_10(id, BASEARGS, _0, ...) DEFER(id)(DEPAREN(BASEARGS), DEPAREN(_0)) __FOREACH_ARGS_9(id, BASEARGS, __VA_ARGS__)
-#define __FOREACH_ARGS_11(id, BASEARGS, _0, ...) DEFER(id)(DEPAREN(BASEARGS), DEPAREN(_0)) __FOREACH_ARGS_10(id, BASEARGS, __VA_ARGS__)
-#define __FOREACH_ARGS_12(id, BASEARGS, _0, ...) DEFER(id)(DEPAREN(BASEARGS), DEPAREN(_0)) __FOREACH_ARGS_11(id, BASEARGS, __VA_ARGS__)
-#define __FOREACH_ARGS_13(id, BASEARGS, _0, ...) DEFER(id)(DEPAREN(BASEARGS), DEPAREN(_0)) __FOREACH_ARGS_12(id, BASEARGS, __VA_ARGS__)
-#define __FOREACH_ARGS_14(id, BASEARGS, _0, ...) DEFER(id)(DEPAREN(BASEARGS), DEPAREN(_0)) __FOREACH_ARGS_13(id, BASEARGS, __VA_ARGS__)
-#define __FOREACH_ARGS_15(id, BASEARGS, _0, ...) DEFER(id)(DEPAREN(BASEARGS), DEPAREN(_0)) __FOREACH_ARGS_14(id, BASEARGS, __VA_ARGS__)
-#define __FOREACH_ARGS_16(id, BASEARGS, _0, ...) DEFER(id)(DEPAREN(BASEARGS), DEPAREN(_0)) __FOREACH_ARGS_15(id, BASEARGS, __VA_ARGS__)
-#define __FOREACH_ARGS_17(id, BASEARGS, _0, ...) DEFER(id)(DEPAREN(BASEARGS), DEPAREN(_0)) __FOREACH_ARGS_16(id, BASEARGS, __VA_ARGS__)
-#define __FOREACH_ARGS_18(id, BASEARGS, _0, ...) DEFER(id)(DEPAREN(BASEARGS), DEPAREN(_0)) __FOREACH_ARGS_17(id, BASEARGS, __VA_ARGS__)
-#define __FOREACH_ARGS_19(id, BASEARGS, _0, ...) DEFER(id)(DEPAREN(BASEARGS), DEPAREN(_0)) __FOREACH_ARGS_18(id, BASEARGS, __VA_ARGS__)
-#define __FOREACH_ARGS_20(id, BASEARGS, _0, ...) DEFER(id)(DEPAREN(BASEARGS), DEPAREN(_0)) __FOREACH_ARGS_19(id, BASEARGS, __VA_ARGS__)
-#define __FOREACH_ARGS_21(id, BASEARGS, _0, ...) DEFER(id)(DEPAREN(BASEARGS), DEPAREN(_0)) __FOREACH_ARGS_20(id, BASEARGS, __VA_ARGS__)
-#define __FOREACH_ARGS_22(id, BASEARGS, _0, ...) DEFER(id)(DEPAREN(BASEARGS), DEPAREN(_0)) __FOREACH_ARGS_21(id, BASEARGS, __VA_ARGS__)
-#define __FOREACH_ARGS_23(id, BASEARGS, _0, ...) DEFER(id)(DEPAREN(BASEARGS), DEPAREN(_0)) __FOREACH_ARGS_22(id, BASEARGS, __VA_ARGS__)
-#define __FOREACH_ARGS_24(id, BASEARGS, _0, ...) DEFER(id)(DEPAREN(BASEARGS), DEPAREN(_0)) __FOREACH_ARGS_23(id, BASEARGS, __VA_ARGS__)
-#define __FOREACH_ARGS_25(id, BASEARGS, _0, ...) DEFER(id)(DEPAREN(BASEARGS), DEPAREN(_0)) __FOREACH_ARGS_24(id, BASEARGS, __VA_ARGS__)
-#define __FOREACH_ARGS_26(id, BASEARGS, _0, ...) DEFER(id)(DEPAREN(BASEARGS), DEPAREN(_0)) __FOREACH_ARGS_25(id, BASEARGS, __VA_ARGS__)
-#define __FOREACH_ARGS_27(id, BASEARGS, _0, ...) DEFER(id)(DEPAREN(BASEARGS), DEPAREN(_0)) __FOREACH_ARGS_26(id, BASEARGS, __VA_ARGS__)
-#define __FOREACH_ARGS_28(id, BASEARGS, _0, ...) DEFER(id)(DEPAREN(BASEARGS), DEPAREN(_0)) __FOREACH_ARGS_27(id, BASEARGS, __VA_ARGS__)
-#define __FOREACH_ARGS_29(id, BASEARGS, _0, ...) DEFER(id)(DEPAREN(BASEARGS), DEPAREN(_0)) __FOREACH_ARGS_28(id, BASEARGS, __VA_ARGS__)
-#define __FOREACH_ARGS_30(id, BASEARGS, _0, ...) DEFER(id)(DEPAREN(BASEARGS), DEPAREN(_0)) __FOREACH_ARGS_29(id, BASEARGS, __VA_ARGS__)
-#define __FOREACH_ARGS_31(id, BASEARGS, _0, ...) DEFER(id)(DEPAREN(BASEARGS), DEPAREN(_0)) __FOREACH_ARGS_30(id, BASEARGS, __VA_ARGS__)
-#define __FOREACH_ARGS_32(id, BASEARGS, _0, ...) DEFER(id)(DEPAREN(BASEARGS), DEPAREN(_0)) __FOREACH_ARGS_31(id, BASEARGS, __VA_ARGS__)
+#define __FOREACH_ARGS_1(id, BASEARGS, _0, ...) id(DEPAREN(BASEARGS), DEPAREN(_0))
+#define __FOREACH_ARGS_2(id, BASEARGS, _0, ...) id(DEPAREN(BASEARGS), DEPAREN(_0)) __FOREACH_ARGS_1(id, BASEARGS, __VA_ARGS__)
+#define __FOREACH_ARGS_3(id, BASEARGS, _0, ...) id(DEPAREN(BASEARGS), DEPAREN(_0)) __FOREACH_ARGS_2(id, BASEARGS, __VA_ARGS__)
+#define __FOREACH_ARGS_4(id, BASEARGS, _0, ...) id(DEPAREN(BASEARGS), DEPAREN(_0)) __FOREACH_ARGS_3(id, BASEARGS, __VA_ARGS__)
+#define __FOREACH_ARGS_5(id, BASEARGS, _0, ...) id(DEPAREN(BASEARGS), DEPAREN(_0)) __FOREACH_ARGS_4(id, BASEARGS, __VA_ARGS__)
+#define __FOREACH_ARGS_6(id, BASEARGS, _0, ...) id(DEPAREN(BASEARGS), DEPAREN(_0)) __FOREACH_ARGS_5(id, BASEARGS, __VA_ARGS__)
+#define __FOREACH_ARGS_7(id, BASEARGS, _0, ...) id(DEPAREN(BASEARGS), DEPAREN(_0)) __FOREACH_ARGS_6(id, BASEARGS, __VA_ARGS__)
+#define __FOREACH_ARGS_8(id, BASEARGS, _0, ...) id(DEPAREN(BASEARGS), DEPAREN(_0)) __FOREACH_ARGS_7(id, BASEARGS, __VA_ARGS__)
+#define __FOREACH_ARGS_9(id, BASEARGS, _0, ...) id(DEPAREN(BASEARGS), DEPAREN(_0)) __FOREACH_ARGS_8(id, BASEARGS, __VA_ARGS__)
+#define __FOREACH_ARGS_10(id, BASEARGS, _0, ...) id(DEPAREN(BASEARGS), DEPAREN(_0)) __FOREACH_ARGS_9(id, BASEARGS, __VA_ARGS__)
+#define __FOREACH_ARGS_11(id, BASEARGS, _0, ...) id(DEPAREN(BASEARGS), DEPAREN(_0)) __FOREACH_ARGS_10(id, BASEARGS, __VA_ARGS__)
+#define __FOREACH_ARGS_12(id, BASEARGS, _0, ...) id(DEPAREN(BASEARGS), DEPAREN(_0)) __FOREACH_ARGS_11(id, BASEARGS, __VA_ARGS__)
+#define __FOREACH_ARGS_13(id, BASEARGS, _0, ...) id(DEPAREN(BASEARGS), DEPAREN(_0)) __FOREACH_ARGS_12(id, BASEARGS, __VA_ARGS__)
+#define __FOREACH_ARGS_14(id, BASEARGS, _0, ...) id(DEPAREN(BASEARGS), DEPAREN(_0)) __FOREACH_ARGS_13(id, BASEARGS, __VA_ARGS__)
+#define __FOREACH_ARGS_15(id, BASEARGS, _0, ...) id(DEPAREN(BASEARGS), DEPAREN(_0)) __FOREACH_ARGS_14(id, BASEARGS, __VA_ARGS__)
+#define __FOREACH_ARGS_16(id, BASEARGS, _0, ...) id(DEPAREN(BASEARGS), DEPAREN(_0)) __FOREACH_ARGS_15(id, BASEARGS, __VA_ARGS__)
+#define __FOREACH_ARGS_17(id, BASEARGS, _0, ...) id(DEPAREN(BASEARGS), DEPAREN(_0)) __FOREACH_ARGS_16(id, BASEARGS, __VA_ARGS__)
+#define __FOREACH_ARGS_18(id, BASEARGS, _0, ...) id(DEPAREN(BASEARGS), DEPAREN(_0)) __FOREACH_ARGS_17(id, BASEARGS, __VA_ARGS__)
+#define __FOREACH_ARGS_19(id, BASEARGS, _0, ...) id(DEPAREN(BASEARGS), DEPAREN(_0)) __FOREACH_ARGS_18(id, BASEARGS, __VA_ARGS__)
+#define __FOREACH_ARGS_20(id, BASEARGS, _0, ...) id(DEPAREN(BASEARGS), DEPAREN(_0)) __FOREACH_ARGS_19(id, BASEARGS, __VA_ARGS__)
+#define __FOREACH_ARGS_21(id, BASEARGS, _0, ...) id(DEPAREN(BASEARGS), DEPAREN(_0)) __FOREACH_ARGS_20(id, BASEARGS, __VA_ARGS__)
+#define __FOREACH_ARGS_22(id, BASEARGS, _0, ...) id(DEPAREN(BASEARGS), DEPAREN(_0)) __FOREACH_ARGS_21(id, BASEARGS, __VA_ARGS__)
+#define __FOREACH_ARGS_23(id, BASEARGS, _0, ...) id(DEPAREN(BASEARGS), DEPAREN(_0)) __FOREACH_ARGS_22(id, BASEARGS, __VA_ARGS__)
+#define __FOREACH_ARGS_24(id, BASEARGS, _0, ...) id(DEPAREN(BASEARGS), DEPAREN(_0)) __FOREACH_ARGS_23(id, BASEARGS, __VA_ARGS__)
+#define __FOREACH_ARGS_25(id, BASEARGS, _0, ...) id(DEPAREN(BASEARGS), DEPAREN(_0)) __FOREACH_ARGS_24(id, BASEARGS, __VA_ARGS__)
+#define __FOREACH_ARGS_26(id, BASEARGS, _0, ...) id(DEPAREN(BASEARGS), DEPAREN(_0)) __FOREACH_ARGS_25(id, BASEARGS, __VA_ARGS__)
+#define __FOREACH_ARGS_27(id, BASEARGS, _0, ...) id(DEPAREN(BASEARGS), DEPAREN(_0)) __FOREACH_ARGS_26(id, BASEARGS, __VA_ARGS__)
+#define __FOREACH_ARGS_28(id, BASEARGS, _0, ...) id(DEPAREN(BASEARGS), DEPAREN(_0)) __FOREACH_ARGS_27(id, BASEARGS, __VA_ARGS__)
+#define __FOREACH_ARGS_29(id, BASEARGS, _0, ...) id(DEPAREN(BASEARGS), DEPAREN(_0)) __FOREACH_ARGS_28(id, BASEARGS, __VA_ARGS__)
+#define __FOREACH_ARGS_30(id, BASEARGS, _0, ...) id(DEPAREN(BASEARGS), DEPAREN(_0)) __FOREACH_ARGS_29(id, BASEARGS, __VA_ARGS__)
+#define __FOREACH_ARGS_31(id, BASEARGS, _0, ...) id(DEPAREN(BASEARGS), DEPAREN(_0)) __FOREACH_ARGS_30(id, BASEARGS, __VA_ARGS__)
+#define __FOREACH_ARGS_32(id, BASEARGS, _0, ...) id(DEPAREN(BASEARGS), DEPAREN(_0)) __FOREACH_ARGS_31(id, BASEARGS, __VA_ARGS__)
 // Execute a macro for each of the parameters in a collection, up to 32 times. Allows extra parameters in front of the list parameter.
-#define FOREACH_WITH_ARGS(id, BASEARGS, ...) __VA_OPT__(EVAL(DEFER(CAT(__FOREACH_ARGS_, NARGS(__VA_ARGS__)))(id, BASEARGS, __VA_ARGS__)))
+#define FOREACH_WITH_ARGS(id, BASEARGS, ...) __VA_OPT__(CAT(__FOREACH_ARGS_, NARGS(__VA_ARGS__)(id, BASEARGS, __VA_ARGS__)))
+
+#define __FOREACH_INDEX_1(idx, id, _0, ...) id(idx, _0)
+#define __FOREACH_INDEX_2(idx, id, _0, ...) id(idx, _0) __FOREACH_INDEX_1(CAT(INC_,idx), id, __VA_ARGS__)
+#define __FOREACH_INDEX_3(idx, id, _0, ...) id(idx, _0) __FOREACH_INDEX_2(CAT(INC_,idx), id, __VA_ARGS__)
+#define __FOREACH_INDEX_4(idx, id, _0, ...) id(idx, _0) __FOREACH_INDEX_3(CAT(INC_,idx), id, __VA_ARGS__)
+#define __FOREACH_INDEX_5(idx, id, _0, ...) id(idx, _0) __FOREACH_INDEX_4(CAT(INC_,idx), id, __VA_ARGS__)
+#define __FOREACH_INDEX_6(idx, id, _0, ...) id(idx, _0) __FOREACH_INDEX_5(CAT(INC_,idx), id, __VA_ARGS__)
+#define __FOREACH_INDEX_7(idx, id, _0, ...) id(idx, _0) __FOREACH_INDEX_6(CAT(INC_,idx), id, __VA_ARGS__)
+#define __FOREACH_INDEX_8(idx, id, _0, ...) id(idx, _0) __FOREACH_INDEX_7(CAT(INC_,idx), id, __VA_ARGS__)
+#define __FOREACH_INDEX_9(idx, id, _0, ...) id(idx, _0) __FOREACH_INDEX_8(CAT(INC_,idx), id, __VA_ARGS__)
+#define __FOREACH_INDEX_10(idx, id, _0, ...) id(idx, _0) __FOREACH_INDEX_9(CAT(INC_,idx), id, __VA_ARGS__)
+#define __FOREACH_INDEX_11(idx, id, _0, ...) id(idx, _0) __FOREACH_INDEX_10(CAT(INC_,idx), id, __VA_ARGS__)
+#define __FOREACH_INDEX_12(idx, id, _0, ...) id(idx, _0) __FOREACH_INDEX_11(CAT(INC_,idx), id, __VA_ARGS__)
+#define __FOREACH_INDEX_13(idx, id, _0, ...) id(idx, _0) __FOREACH_INDEX_12(CAT(INC_,idx), id, __VA_ARGS__)
+#define __FOREACH_INDEX_14(idx, id, _0, ...) id(idx, _0) __FOREACH_INDEX_13(CAT(INC_,idx), id, __VA_ARGS__)
+#define __FOREACH_INDEX_15(idx, id, _0, ...) id(idx, _0) __FOREACH_INDEX_14(CAT(INC_,idx), id, __VA_ARGS__)
+#define __FOREACH_INDEX_16(idx, id, _0, ...) id(idx, _0) __FOREACH_INDEX_15(CAT(INC_,idx), id, __VA_ARGS__)
+#define __FOREACH_INDEX_17(idx, id, _0, ...) id(idx, _0) __FOREACH_INDEX_16(CAT(INC_,idx), id, __VA_ARGS__)
+#define __FOREACH_INDEX_18(idx, id, _0, ...) id(idx, _0) __FOREACH_INDEX_17(CAT(INC_,idx), id, __VA_ARGS__)
+#define __FOREACH_INDEX_19(idx, id, _0, ...) id(idx, _0) __FOREACH_INDEX_18(CAT(INC_,idx), id, __VA_ARGS__)
+#define __FOREACH_INDEX_20(idx, id, _0, ...) id(idx, _0) __FOREACH_INDEX_19(CAT(INC_,idx), id, __VA_ARGS__)
+#define __FOREACH_INDEX_21(idx, id, _0, ...) id(idx, _0) __FOREACH_INDEX_20(CAT(INC_,idx), id, __VA_ARGS__)
+#define __FOREACH_INDEX_22(idx, id, _0, ...) id(idx, _0) __FOREACH_INDEX_21(CAT(INC_,idx), id, __VA_ARGS__)
+#define __FOREACH_INDEX_23(idx, id, _0, ...) id(idx, _0) __FOREACH_INDEX_22(CAT(INC_,idx), id, __VA_ARGS__)
+#define __FOREACH_INDEX_24(idx, id, _0, ...) id(idx, _0) __FOREACH_INDEX_23(CAT(INC_,idx), id, __VA_ARGS__)
+#define __FOREACH_INDEX_25(idx, id, _0, ...) id(idx, _0) __FOREACH_INDEX_24(CAT(INC_,idx), id, __VA_ARGS__)
+#define __FOREACH_INDEX_26(idx, id, _0, ...) id(idx, _0) __FOREACH_INDEX_25(CAT(INC_,idx), id, __VA_ARGS__)
+#define __FOREACH_INDEX_27(idx, id, _0, ...) id(idx, _0) __FOREACH_INDEX_26(CAT(INC_,idx), id, __VA_ARGS__)
+#define __FOREACH_INDEX_28(idx, id, _0, ...) id(idx, _0) __FOREACH_INDEX_27(CAT(INC_,idx), id, __VA_ARGS__)
+#define __FOREACH_INDEX_29(idx, id, _0, ...) id(idx, _0) __FOREACH_INDEX_28(CAT(INC_,idx), id, __VA_ARGS__)
+#define __FOREACH_INDEX_30(idx, id, _0, ...) id(idx, _0) __FOREACH_INDEX_29(CAT(INC_,idx), id, __VA_ARGS__)
+#define __FOREACH_INDEX_31(idx, id, _0, ...) id(idx, _0) __FOREACH_INDEX_30(CAT(INC_,idx), id, __VA_ARGS__)
+#define __FOREACH_INDEX_32(idx, id, _0, ...) id(idx, _0) __FOREACH_INDEX_31(CAT(INC_,idx), id, __VA_ARGS__)
+// Executes a macro for each item in a collection, passing the index of the item as the first param.
+#define FOREACH_INDEX(start_index, id, ...) __VA_OPT__(CAT(__FOREACH_INDEX_,NARGS(__VA_ARGS__))(start_index, id, __VA_ARGS__))
 
 #pragma endregion
 
@@ -324,6 +361,7 @@
 #define DEC_30 29
 #define DEC_31 30
 #define DEC_32 31
+#define DEC(x) CAT(DEC_,x)
 
 #define INC_0 1
 #define INC_1 2
@@ -358,6 +396,7 @@
 #define INC_30 31
 #define INC_31 32
 #define INC_32 32
+#define INC(x) CAT(INC_,x)
 
 #pragma endregion
 
