@@ -12,7 +12,7 @@ typedef struct car {
 ENUMERABLE_DEFINE(Car)
 DICTIONARY_DEFINE(string, Car)
 
-void Get(FILE* output, Dictionary(string, Car) source, string key)
+static void Get(FILE* output, Dictionary(string, Car) source, string key)
 {
     Car result;
     if (Dictionary_string_Car_TryGetValue(source, key, &result)) {
@@ -22,7 +22,7 @@ void Get(FILE* output, Dictionary(string, Car) source, string key)
     }
 }
 
-void print(FILE* output, Dictionary(string, Car) source)
+static void print(FILE* output, Dictionary(string, Car) source)
 {
     for (int i = 0, j; i < MAX_DICTIONARY_ARRAY_LENGTH; ++i) {
         j = 0;

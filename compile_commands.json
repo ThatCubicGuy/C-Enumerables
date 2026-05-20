@@ -1,24 +1,50 @@
 [
   {
-    "file": "src/search_index/google.c",
+    "file": "src/tests/test_dictionary.c",
     "arguments": [
       "/usr/bin/gcc",
+      "-std=gnu23",
+      "-g",
       "-Wall",
       "-Wextra",
       "-Wno-microsoft-anon-tag",
       "-Wno-dangling-else",
+      "-fms-extensions",
       "-Iinclude",
       "-Ilib",
       "-Iinclude/Collections",
       "-Iinclude/Collections/Generic",
-      "-std=gnu23",
-      "-fms-extensions",
+      "-includeinclude/Keywords.h",
       "-c",
-      "src/search_index/google.c",
+      "src/tests/test_dictionary.c",
       "-o",
-      ".obj/search_index/google.o"
+      ".obj/tests/test_dictionary.o"
     ],
     "directory": "/home/Nova/repos/c-enumerables",
-    "output": ".obj/search_index/google.o"
+    "output": ".obj/tests/test_dictionary.o"
+  },
+  {
+    "file": "src/tests/test_hash_set.c",
+    "arguments": [
+      "/usr/bin/gcc",
+      "-std=gnu23",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-Wno-microsoft-anon-tag",
+      "-Wno-dangling-else",
+      "-fms-extensions",
+      "-Iinclude",
+      "-Ilib",
+      "-Iinclude/Collections",
+      "-Iinclude/Collections/Generic",
+      "-includeinclude/Keywords.h",
+      "-c",
+      "src/tests/test_hash_set.c",
+      "-o",
+      ".obj/tests/test_hash_set.o"
+    ],
+    "directory": "/home/Nova/repos/c-enumerables",
+    "output": ".obj/tests/test_hash_set.o"
   }
 ]

@@ -19,8 +19,8 @@ static bool HashSetMoveNext_##T(IEnumerator(T) This)                            
 {                                                                                               \
     HashSetEnumerator_##T e = (HashSetEnumerator_##T)This;                                      \
     while (!e->_currentNode && e->_currentIndex < MAX_HASH_SET_ARRAY_LENGTH) {                  \
-        e->_currentIndex += 1;                                                                  \
         e->_currentNode = e->_set->_items[e->_currentIndex];                                    \
+        e->_currentIndex += 1;                                                                  \
     }                                                                                           \
     if (e->_currentIndex == MAX_HASH_SET_ARRAY_LENGTH) return false;                            \
     This->Current = e->_currentNode->Value;                                                     \
@@ -30,7 +30,7 @@ static bool HashSetMoveNext_##T(IEnumerator(T) This)                            
 static void HashSetReset_##T(IEnumerator(T) This)                                               \
 {                                                                                               \
     HashSetEnumerator_##T e = (HashSetEnumerator_##T)This;                                      \
-    e->_currentIndex = -1;                                                                       \
+    e->_currentIndex = 0;                                                                       \
     e->_currentNode = NULL;                                                                     \
     This->Current = default(T);                                                                 \
 }                                                                                               \
@@ -44,7 +44,7 @@ static IEnumerator(T) HashSetGetEnumerator_##T(IEnumerable(T) This)             
         .MoveNext = HashSetMoveNext_##T,                                                        \
         .Reset = HashSetReset_##T,                                                              \
         .Dispose = HashSetDispose_##T,                                                          \
-        ._currentIndex = -1,                                                                     \
+        ._currentIndex = 0,                                                                     \
         ._currentNode = NULL,                                                                   \
         ._set = (HashSet(T))This                                                                \
     };                                                                                          \

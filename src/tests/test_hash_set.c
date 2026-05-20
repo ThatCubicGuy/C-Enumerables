@@ -17,6 +17,26 @@ static bool StartsWithSomething(string item)
     return true;
 }
 
+static void print(FILE* output, HashSet(string) source)
+{
+    for (int i = 0, j; i < MAX_HASH_SET_ARRAY_LENGTH; ++i) {
+        j = 0;
+        for (typeof(void*) old = (void*)1, p = source->_items[i]; old; (void)((old = p) && (p = *(void**)p)), ++j) {
+            fprintf(output, "Item \033[3%dm#%d.%d\033[0m: %p\n", j + 1, i, j, p);
+        }
+    }
+}
+
+static void shuffle(char* str)
+{
+    static union { struct {char a, b, c, d;}; char v[4];} s = {{'!', '\"', '#', '$'}};
+    static size_t i = 0;
+    s.v[object_GetHashCode((void*)(i++)) % 4];
+    for (int i = 0; i < 4; ++i) {
+        str[i] = (str[i] + s.v[i]) / 2 - (str[i] - s.v[i]) * 2;
+    }
+}
+
 void test_hash_set(FILE* output)
 {
     HashSet(string) set = new(HashSet(string))(StringComparer.Ordinal.EqualityComparer);
@@ -33,6 +53,7 @@ void test_hash_set(FILE* output)
     foreach (string item in set) {
         fprintf(output, "Item: \"%s\"\n", item);
     }
+    print(output, set);
     HashSet_string_Remove(set, "IDK!");
     HashSet_string_Remove(set, "Something like that");
     fprintf(output, "Remove some items...\n");
@@ -46,6 +67,18 @@ void test_hash_set(FILE* output)
         fprintf(output, "Item: \"%s\"\n", item);
     }
     fprintf(output, "Count btw: %d\n", set->Count);
+    fprintf(output, "Stress test time!\n");
+    HashSet_string_Clear(set);
+    fprintf(output, "Count after clear: %d\n", set->Count);
+    for (char str[5] = "smhg", i = 0; i < 127; shuffle(str), ++i) {
+        fprintf(output, "Adding: %s\n", str);
+        HashSet_string_Add(set, new(string)(str));
+    }
+    fprintf(output, "Count after adds: %d\n", set->Count);
+    foreach (string item in set) {
+        fprintf(output, "Item: {%s}\n", item);
+    }
+    print(output, set);
 }
 
 #include "Collections/Generic/HashSetImplement.h"

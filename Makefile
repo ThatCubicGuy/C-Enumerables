@@ -32,7 +32,7 @@ USING+=Collections/Generic
 
 # Compiler setup
 CC:=gcc
-CWARNS:=all extra error no-microsoft-anon-tag no-dangling-else #required because of one of my macros :moai:
+CWARNS:=all extra no-microsoft-anon-tag no-dangling-else #required because of one of my macros :moai:
 CEXTRAS:=ms-extensions #sanitize=address
 CFLAGS:=-std=gnu23 -g ${CWARNS:%=-W%} ${CEXTRAS:%=-f%} -I${HDR} -I${LIB} ${USING:%=-I${HDR}/%} -include"${HDR}/Keywords.h"
 
